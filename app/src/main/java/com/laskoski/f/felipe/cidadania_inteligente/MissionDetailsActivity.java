@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -18,6 +19,18 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 import java.util.ArrayList;
 
 public class MissionDetailsActivity extends AppCompatActivity {
+    MissionItem currentMission;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.i("task number", ((Integer)requestCode).toString());
+        if (resultCode == RESULT_OK) {
+            final ArrayList<Task> tasks = getTasksFromDB(currentMission);
+            tasks.get(requestCode).completed = (Boolean) data.getSerializableExtra("completed?");
+            Log.i("task completed", tasks.get(requestCode).completed.toString() );
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,12 +42,11 @@ public class MissionDetailsActivity extends AppCompatActivity {
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
 
         Intent missionDetails = getIntent();
-        MissionItem mission = (MissionItem) missionDetails.getSerializableExtra("mission");
+        currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
         TextView description = (TextView) findViewById(R.id.missionDescription);
-        description.setText(mission.getDescription());
+        description.setText(currentMission.getDescription());
 
-        final ArrayList<Task> tasks = getTasksFromDB(mission);
-
+        final ArrayList<Task> tasks = getTasksFromDB(currentMission);
         TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
 
         ListView taskList = (ListView) findViewById(R.id.tasksList);
@@ -42,10 +54,10 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
                 Intent goToTaskDetails = new Intent(getApplicationContext(), TaskDetailsActivity.class);
-                goToTaskDetails.putExtra("task", tasks.get(i));
-                startActivity(goToTaskDetails);
+                goToTaskDetails.putExtra("task", tasks.get(taskNumber));
+                startActivityForResult(goToTaskDetails, taskNumber);
             }
         });
 

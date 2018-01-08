@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -91,16 +92,43 @@ public class TaskDetailsActivity extends AppCompatActivity {
     public void checkAnswer(View v){
         TextView correct_answer = findViewById(answerViewIds[task.getCorrectAnswer()-1]);
         TextView user_answer = (TextView) v;
+        Boolean taskCompleted = false;
 
+        //check if the answer is correct
+        if(correct_answer == user_answer)
+            taskCompleted = true;
+
+        //draw green rectangle on correct option
         correct_answer.setBackground(getResources().getDrawable(R.drawable.transition_right));
         TransitionDrawable transitionRectangleRightAnswer = (TransitionDrawable) correct_answer.getBackground();
         correct_answer.setTextColor(Color.WHITE);
         transitionRectangleRightAnswer.startTransition(400);
 
-
+        //draw rectangle on user option
         TransitionDrawable transitionRectangleUserAnswer = (TransitionDrawable) user_answer.getBackground();
         user_answer.setTextColor(Color.WHITE);
         transitionRectangleUserAnswer.startTransition(400);
+
+
+        //tenho que checar quantas respostas tem
+        for(int answerOption : answerViewIds)
+        {
+            TextView answerView = findViewById(answerOption);
+            if(answerView != null)
+                answerView.setOnClickListener(null);
+        }
+        Intent taskResult = getIntent();
+        taskResult.putExtra("completed?", taskCompleted);
+        setResult(RESULT_OK, taskResult);
+
+        //2 seconds to go back
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 2000);
 
     }
 }

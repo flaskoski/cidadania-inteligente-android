@@ -7,11 +7,11 @@ import java.io.Serializable;
  */
 
 public abstract class Task implements Serializable{
-    public String title = "";
-    public boolean completed = false;
-    public String type = "task";
+    protected String title = "";
+    public Boolean completed = false;
+    String type = "task";
 
-    public static final int TIMER_OFF = -1;
+    static final int TIMER_OFF = -1;
     public static final int TYPE_QUESTION = 1;
 
     public String getTitle(){

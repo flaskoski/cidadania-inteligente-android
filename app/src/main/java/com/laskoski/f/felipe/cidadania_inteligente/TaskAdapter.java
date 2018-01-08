@@ -1,11 +1,13 @@
 package com.laskoski.f.felipe.cidadania_inteligente;
 
 import android.content.Context;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
@@ -38,6 +40,10 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         TextView title = (TextView) listItemView.findViewById(R.id.title);
         title.setText(currentItem.getType() + " - " +  currentItem.getTitle());
 
+
+        ImageView checked = (ImageView) listItemView.findViewById(R.id.completed);
+        if(currentItem.completed)
+            checked.setImageResource(R.drawable.ic_check_box_black_24dp);
 
         //ImageView icon = (ImageView) listItemView.findViewById(R.id.missionIcon);
         //if item has associated image

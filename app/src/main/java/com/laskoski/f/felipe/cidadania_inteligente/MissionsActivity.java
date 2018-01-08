@@ -8,19 +8,32 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MissionsActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
+
+    //For Firebase Authentication
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    public final int RC_SIGN_IN=1;
+    private String username;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -43,6 +56,9 @@ public class MissionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_missions);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
@@ -70,6 +86,75 @@ public class MissionsActivity extends AppCompatActivity {
                 startActivity(goToMissionDetails);
             }
         });
+
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if(user != null){
+                    //user signed in
+                    onSignedInInitialize(user.getDisplayName());
+                }else {
+                    //user signed out
+                    onSignedOutCleanUp();
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(
+                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .build(),
+                            RC_SIGN_IN);
+                }
+            }
+        };
     }
 
+    private void onSignedOutCleanUp() {
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(RC_SIGN_IN == requestCode) {
+            if (resultCode == RESULT_OK)
+                Toast.makeText(this, "Entrou!", Toast.LENGTH_SHORT).show();
+            else if (resultCode == RESULT_CANCELED) {
+                finish();
+            }
+        }
+    }
+
+    private void onSignedInInitialize(String username) {
+        this.username = username;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.sign_out_menu:
+                AuthUI.getInstance().signOut(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
