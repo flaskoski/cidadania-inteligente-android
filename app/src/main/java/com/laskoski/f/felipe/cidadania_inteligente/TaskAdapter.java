@@ -31,16 +31,16 @@ public class TaskAdapter extends ArrayAdapter<Task> {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        //setup
         View listItemView = convertView;
         if(listItemView == null)
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.task_item, parent, false);
-
         Task currentItem = getItem(position);
-
+        //set title
         TextView title = (TextView) listItemView.findViewById(R.id.title);
         title.setText(currentItem.getType() + " - " +  currentItem.getTitle());
 
-
+        //set checked image
         ImageView checked = (ImageView) listItemView.findViewById(R.id.completed);
         if(currentItem.completed)
             checked.setImageResource(R.drawable.ic_check_box_black_24dp);

@@ -39,6 +39,12 @@ dependencies {
     compile('com.facebook.android:facebook-android-sdk:4.27.0')
     // Required only if Twitter login support is required
     compile("com.twitter.sdk.android:twitter-core:3.0.0@aar") { transitive = true }
+
+
+    // Required -- JUnit 4 framework
+    testCompile 'junit:junit:4.12'
+    // Optional -- Mockito framework
+    testCompile 'org.mockito:mockito-core:1.10.19'
 }
 
 

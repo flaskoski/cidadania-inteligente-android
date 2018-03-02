@@ -18,13 +18,10 @@ public class QuestionTask extends Task {
      * @param timeToAnswer
      * @param correctAnswer - Answer choice that is correct, starting by 1.
      */
-    public QuestionTask(String title, String question, ArrayList<String> answers, Integer timeToAnswer, Integer correctAnswer) {
+    public QuestionTask(String title, String question, ArrayList<String> answers, Integer correctAnswer, Integer timeToAnswer) {
         this.question = question;
 
-        if(answers.size() < 2 || answers.size() > 6 || (correctAnswer < 2 || correctAnswer > 6))
-            throw new InvalidParameterException("Number of answers must be between 2 and 6!");
-        if(correctAnswer > answers.size() )
-            throw new InvalidParameterException("Correct Answer doesn't exist!");
+        checkIfParametersAreValid(title, question, answers, correctAnswer);
 
         this.answers = answers;
         this.timeToAnswer = timeToAnswer;
@@ -45,6 +42,8 @@ public class QuestionTask extends Task {
      * @param correctAnswer - Answer choice that is correct, starting by 1.
      */
     public QuestionTask(String title, String question, ArrayList<String> answers, Integer correctAnswer) {
+        checkIfParametersAreValid(title, question, answers, correctAnswer);
+
         this.question = question;
         this.answers = answers;
         this.correctAnswer = correctAnswer;
@@ -53,6 +52,14 @@ public class QuestionTask extends Task {
     }
 
     public QuestionTask(){
+
+    }
+
+    private void checkIfParametersAreValid(String title, String question, ArrayList<String> answers, Integer correctAnswer){
+        if(answers.size() < 2 || answers.size() > 6 || (correctAnswer < 1 || correctAnswer > 6))
+            throw new InvalidParameterException("Number of answers must be between 2 and 6!");
+        if(correctAnswer > answers.size() )
+            throw new InvalidParameterException("Correct Answer doesn't exist!");
 
     }
 
