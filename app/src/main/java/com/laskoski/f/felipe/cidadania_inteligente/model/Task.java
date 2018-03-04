@@ -11,8 +11,8 @@ public abstract class Task implements Serializable{
     public Boolean completed = false;
     String type = "task";
 
-    static final int TIMER_OFF = -1;
-    public static final int TYPE_QUESTION = 1;
+    public Task(){}
+    public static final int TIMER_OFF = -1;
 
     public String getTitle(){
         return title;

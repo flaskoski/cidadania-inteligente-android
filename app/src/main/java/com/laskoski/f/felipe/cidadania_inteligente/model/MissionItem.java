@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 
 public class MissionItem implements Serializable{
+    public MissionItem(){}
     public MissionItem(String missionName, String description, Integer missionIconId) {
         this.missionName = missionName;
         this.missionIconId = missionIconId;

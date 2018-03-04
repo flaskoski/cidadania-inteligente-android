@@ -77,4 +77,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="Fazer_Logout">Fazer Logout</string>
+    <string name="title_activity_testact">testact</string>
 </resources>

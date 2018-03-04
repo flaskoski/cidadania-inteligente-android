@@ -78,10 +78,6 @@ public class QuestionTask extends Task {
         return "Pergunta";
     }
 
-    @Override
-    public void setType(String type) {
-        this.type = type;
-    }
     public String getQuestion() {
         return question;
     }
