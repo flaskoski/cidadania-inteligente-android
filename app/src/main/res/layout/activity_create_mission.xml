@@ -94,7 +94,7 @@
         app:layout_constraintTop_toBottomOf="@+id/missionDescription" />
 
     <Button
-        android:id="@+id/addTask"
+        android:id="@+id/btn_addTask"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
         android:layout_marginLeft="16dp"

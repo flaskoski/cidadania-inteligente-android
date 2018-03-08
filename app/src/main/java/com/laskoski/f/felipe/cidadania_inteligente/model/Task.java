@@ -9,8 +9,7 @@ import java.io.Serializable;
 public abstract class Task implements Serializable{
     protected String title = "";
     public Boolean completed = false;
-    String type = "task";
-
+    protected String type="Tarefa Genérica";
     public Task(){}
     public static final int TIMER_OFF = -1;
 
@@ -20,12 +19,12 @@ public abstract class Task implements Serializable{
     public void setTitle(String title){
         this.title = title;
     }
-
-    public String getType(){
-        return this.type;
-    }
     public void setType(String type){
         this.type = type;
+    }
+
+    public String getType(){
+        return type;
     }
 
 }

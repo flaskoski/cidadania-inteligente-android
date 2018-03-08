@@ -16,16 +16,27 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
+import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class CreateMissionActivity extends AppCompatActivity {
 
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference missionsDatabaseReference;
     private DatabaseReference tasksDatabaseReference;
+    private List<String> taskIDs;
     private ChildEventListener tasksEventListener;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK && data != null){
+            Log.i("getKey()",data.getStringExtra("taskID"));
+            taskIDs.add(data.getStringExtra("taskID"));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +67,12 @@ public class CreateMissionActivity extends AppCompatActivity {
 
 
     }
-    public void addTask(View v){}
+    public void addTask(View v){
+        tasksDatabaseReference = mDatabase.getReference().child("tasks");
+        Intent createTaskIntent = new Intent(getApplicationContext(), CreateTaskActivity.class);
+        startActivity(createTaskIntent);
+        //TODO save taskID on mission var
+    }
 //    final ArrayList<Task> tasks = getTasksFromDB(currentMission);
 //    TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
 //
@@ -66,7 +82,7 @@ public class CreateMissionActivity extends AppCompatActivity {
 //        taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //        @Override
 //        public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
-//            Intent goToTaskDetails = new Intent(getApplicationContext(), TaskDetailsActivity.class);
+//            Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
 //            goToTaskDetails.putExtra("task", tasks.get(taskNumber));
 //            startActivityForResult(goToTaskDetails, taskNumber);
 //        }
@@ -75,7 +91,8 @@ public class CreateMissionActivity extends AppCompatActivity {
     public void saveMission(View v){
         TextView title = findViewById(R.id.missionTitle);
         TextView description = findViewById(R.id.missionDescription);
-        MissionItem newMission = new MissionItem(title.getText().toString(), description.getText().toString());
+        MissionItem newMission = new MissionItem(title.getText().toString(), description.getText().toString(),-1,taskIDs);
+        //TODO: check if it really save on the DB.
         missionsDatabaseReference.push().setValue(newMission);
         Toast.makeText(this, "Missão criada!", Toast.LENGTH_SHORT).show();
         finish();

@@ -31,12 +31,13 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private ArrayList<Task> tasks;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.i("task number", ((Integer)requestCode).toString());
-        if (resultCode == RESULT_OK) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        Log.i("task number", "dssds");
+       // Log.i("task number", ((Integer)requestCode).toString());
+        if (resultCode == RESULT_OK && data != null) {
          //   final ArrayList<Task> tasks = getTasksFromDB(currentMission);
-            tasks.get(requestCode).completed = (Boolean) data.getSerializableExtra("completed?");
-            Log.i("task completed", tasks.get(requestCode).completed.toString() );
+                tasks.get(requestCode).completed = data.getBooleanExtra("completed?",false);
+           // Log.i("task completed", tasks.get(requestCode).completed.toString() );
         }
     }
 
@@ -54,15 +55,32 @@ public class MissionDetailsActivity extends AppCompatActivity {
         TextView description = (TextView) findViewById(R.id.missionDescription);
         description.setText(currentMission.getDescription());
 
-        //final ArrayList<Task> tasks = getTasksFromDB(currentMission);
+        getTasksFromDB(currentMission);
+
+    }
+    private void setListView(){
+
+    }
+    private int getTasksFromDB(final MissionItem mission) {
+
+        //Database initialization
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
-        tasks = new ArrayList<>();
 
+        //Adapter Initialization
+        final ArrayList<Task> tasks = new ArrayList<>();
+        final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
+
+        //get missions from DB
         tasksEventListener = new ChildEventListener() {
+            QuestionTask task;
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                tasks.add(dataSnapshot.getValue(Task.class));
+                task = dataSnapshot.getValue(QuestionTask.class);
+                if (mission.getTaskIDs().contains(dataSnapshot.getKey())){
+                    tasks.add(task);
+                    taskAdapter.notifyDataSetChanged();
+                }
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -77,24 +95,21 @@ public class MissionDetailsActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-        TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
+        tasksDatabaseReference.addChildEventListener(tasksEventListener);
 
+        //set List view and adapter
         ListView taskList = (ListView) findViewById(R.id.tasksList);
         taskList.setAdapter(taskAdapter);
+        //Add action to list item
 
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
-                Intent goToTaskDetails = new Intent(getApplicationContext(), TaskDetailsActivity.class);
+                Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
                 goToTaskDetails.putExtra("task", tasks.get(taskNumber));
                 startActivityForResult(goToTaskDetails, taskNumber);
             }
         });
-
-
-    }
-
-    private int getTasksFromDB(MissionItem mission) {
 
         //TODO: move that to the creation activity
 //        ArrayList<String> answers = new ArrayList<>();

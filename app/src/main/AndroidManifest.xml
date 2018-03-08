@@ -21,8 +21,17 @@
         <activity
             android:name=".MissionDetailsActivity"
             android:parentActivityName=".MissionsActivity" />
-        <activity android:name=".TaskDetailsActivity" />
+        <activity android:name=".QuestionTaskDetailsActivity" />
         <activity android:name=".CreateMissionActivity" />
+        <activity
+            android:name=".CreateTaskActivity"
+            android:label="@string/title_activity_create_task"
+            android:parentActivityName=".CreateMissionActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.laskoski.f.felipe.cidadania_inteligente.CreateMissionActivity" />
+        </activity>
     </application>
 
 </manifest>

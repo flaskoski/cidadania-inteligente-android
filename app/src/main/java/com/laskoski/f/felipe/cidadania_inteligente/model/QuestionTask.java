@@ -2,6 +2,7 @@ package com.laskoski.f.felipe.cidadania_inteligente.model;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Felipe on 11/25/2017.
@@ -18,7 +19,7 @@ public class QuestionTask extends Task {
      * @param timeToAnswer
      * @param correctAnswer - Answer choice that is correct, starting by 1.
      */
-    public QuestionTask(String title, String question, ArrayList<String> answers, Integer correctAnswer, Integer timeToAnswer) {
+    public QuestionTask(String title, String question, List<String> answers, Integer correctAnswer, Integer timeToAnswer) {
         this.question = question;
 
         checkIfParametersAreValid(title, question, answers, correctAnswer);
@@ -29,10 +30,19 @@ public class QuestionTask extends Task {
         this.title = title;
     }
 
-    private ArrayList<String> answers;
+    private List<String> answers;
     private Integer timeToAnswer;
-    private String title;
     private Integer correctAnswer;
+
+    @Override
+    public String getTitle() {
+        return super.getTitle();
+    }
+
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+    }
 
     /**
      *
@@ -41,7 +51,7 @@ public class QuestionTask extends Task {
      * @param answers
      * @param correctAnswer - Answer choice that is correct, starting by 1.
      */
-    public QuestionTask(String title, String question, ArrayList<String> answers, Integer correctAnswer) {
+    public QuestionTask(String title, String question, List<String> answers, Integer correctAnswer) {
         checkIfParametersAreValid(title, question, answers, correctAnswer);
 
         this.question = question;
@@ -55,28 +65,18 @@ public class QuestionTask extends Task {
 
     }
 
-    private void checkIfParametersAreValid(String title, String question, ArrayList<String> answers, Integer correctAnswer){
+    private void checkIfParametersAreValid(String title, String question, List<String> answers, Integer correctAnswer){
         if(answers.size() < 2 || answers.size() > 6 || (correctAnswer < 1 || correctAnswer > 6))
             throw new InvalidParameterException("Number of answers must be between 2 and 6!");
         if(correctAnswer > answers.size() )
             throw new InvalidParameterException("Correct Answer doesn't exist!");
 
     }
-
-    @Override
-    public String getTitle() {
-        return title;
-    }
-
-    @Override
-    public void setTitle(String question) {
-        this.title = title;
-    }
-
     @Override
     public String getType() {
         return "Pergunta";
     }
+
 
     public String getQuestion() {
         return question;
@@ -86,11 +86,11 @@ public class QuestionTask extends Task {
         this.question = question;
     }
 
-    public ArrayList<String> getAnswers() {
+    public List<String> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(ArrayList<String> answers) {
+    public void setAnswers(List<String> answers) {
         this.answers = answers;
     }
 

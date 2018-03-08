@@ -26,6 +26,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
+import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
+import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -67,11 +69,6 @@ public class MissionsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_missions);
 
-
-        //Database initialization
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
-
         //draw action bar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
@@ -81,8 +78,7 @@ public class MissionsActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        //Get missions from DB and set adapter
-        getMissionsFromDBandSetAdapter();
+        getMissionsFromDBAndSetAdapter();
 
         setAuthenticationListener();
 
@@ -113,14 +109,24 @@ public class MissionsActivity extends AppCompatActivity {
         };
     }
 
-    private void getMissionsFromDBandSetAdapter(){
+    private void getMissionsFromDBAndSetAdapter(){
+        //Database initialization
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
+
+        //Adapter Initialization
         final ArrayList<MissionItem> missions = new ArrayList<>();
         final MissionAdapter missionsAdapter = new MissionAdapter(this, missions);
+
+        List<Task> tasks = getTasksFromDB();
+
+        //add 2 additional missions for prototyping
         missions.add(new MissionItem("Aventura no MASP",
                 "Agora você vai mostrar que sabe tudo de arte respondendo perguntas sobre obras de arte presentes num dos pontos mais famosos de São Paulo, o MASP!",
-                R.drawable.ic_info_black_24dp));
-        missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp));
+                R.drawable.ic_info_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j", "-L6nRIpyJ2UO8Q42KM0G"})));
+        missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j"})));
 
+        //get missions from DB
         missionsEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -142,10 +148,12 @@ public class MissionsActivity extends AppCompatActivity {
         };
         missionsDatabaseReference.addChildEventListener(missionsEventListener);
 
+        //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, missions);
         missionsListView.setAdapter(missionsAdapter);
 
+        //Add action to list item
         missionsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -155,6 +163,38 @@ public class MissionsActivity extends AppCompatActivity {
             }
         });
     }
+
+    private List<Task> getTasksFromDB() {
+        final List<Task> tasks = new ArrayList<>();
+
+        DatabaseReference tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
+        //Adapter Initialization
+        final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
+
+        //get missions from DB
+        ChildEventListener tasksEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                tasks.add(dataSnapshot.getValue(QuestionTask.class));
+                taskAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        tasksDatabaseReference.addChildEventListener(tasksEventListener);
+        return tasks;
+    }
+
     private void onSignedOutCleanUp() {
     }
 
