@@ -40,6 +40,10 @@ dependencies {
     // Required only if Twitter login support is required
     compile("com.twitter.sdk.android:twitter-core:3.0.0@aar") { transitive = true }
 
+    //idling resource
+    compile 'com.android.support.test.espresso:espresso-idling-resource:3.0.1';
+
+
     // Required -- JUnit 4 framework
     testCompile 'junit:junit:4.12'
     // Optional -- Mockito framework

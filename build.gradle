@@ -22,7 +22,9 @@ allprojects {
         jcenter()
     }
 }
-
+ext{
+    expressoVersion= "3.0.1"
+}
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

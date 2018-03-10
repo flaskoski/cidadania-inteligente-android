@@ -35,6 +35,7 @@ public class CreateMissionActivity extends AppCompatActivity {
         if(resultCode==RESULT_OK && data != null){
             Log.i("getKey()",data.getStringExtra("taskID"));
             taskIDs.add(data.getStringExtra("taskID"));
+            //TODO add on list view and notify adapter for change
         }
     }
 
@@ -70,7 +71,7 @@ public class CreateMissionActivity extends AppCompatActivity {
     public void addTask(View v){
         tasksDatabaseReference = mDatabase.getReference().child("tasks");
         Intent createTaskIntent = new Intent(getApplicationContext(), CreateTaskActivity.class);
-        startActivity(createTaskIntent);
+        startActivityForResult(createTaskIntent,0);
         //TODO save taskID on mission var
     }
 //    final ArrayList<Task> tasks = getTasksFromDB(currentMission);

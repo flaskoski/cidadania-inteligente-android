@@ -84,7 +84,7 @@ public class CreateTaskActivity extends AppCompatActivity {
         taskDatabaseReference.setValue(task);
         Intent taskCreatedIntent = new Intent();
         taskCreatedIntent.putExtra("taskID",taskDatabaseReference.getKey());
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, taskCreatedIntent);
         Toast.makeText(this, "Tarefa criada!", Toast.LENGTH_SHORT).show();
         finish();
     }

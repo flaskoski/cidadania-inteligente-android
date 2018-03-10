@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import android.support.test.espresso.idling.*;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
@@ -46,6 +47,7 @@ public class MissionsActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference missionsDatabaseReference;
     private ChildEventListener missionsEventListener;
+    private CountingIdlingResource idlingSignIn = new CountingIdlingResource("SIGN_IN");
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -85,6 +87,7 @@ public class MissionsActivity extends AppCompatActivity {
     }
 
     private void setAuthenticationListener() {
+        idlingSignIn.increment();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -93,6 +96,7 @@ public class MissionsActivity extends AppCompatActivity {
                 if(user != null){
                     //user signed in
                     onSignedInInitialize(user.getDisplayName());
+                    idlingSignIn.decrement();
                 }else {
                     //user signed out
                     onSignedOutCleanUp();
