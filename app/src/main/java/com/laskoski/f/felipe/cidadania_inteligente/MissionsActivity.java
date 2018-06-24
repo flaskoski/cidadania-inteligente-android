@@ -35,11 +35,21 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
+import org.springframework.http.HttpAuthentication;
+import org.springframework.http.HttpBasicAuthentication;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class MissionsActivity extends AppCompatActivity {
@@ -48,6 +58,7 @@ public class MissionsActivity extends AppCompatActivity {
 
     //For Firebase Authentication
     private FirebaseAuth mFirebaseAuth;
+    private String uid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     public final int RC_SIGN_IN=1;
     private String username;
@@ -130,7 +141,7 @@ public class MissionsActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
-                            String idToken = task.getResult().getToken();
+                            uid = task.getResult().getToken();
                             new DownloadMissions().execute();
                         } else {
                             // Handle error -> task.getException();
@@ -144,26 +155,51 @@ public class MissionsActivity extends AppCompatActivity {
         protected void onPreExecute() {
             // before the network request begins, show a progress indicator
         }
-
         @Override
         protected String doInBackground(Void... params) {
+            // Create a new RestTemplate instance
+            RestTemplate restTemplate = new RestTemplate();
+
+            //GET
+//            try{
+//                String url="http://10.0.2.2:8080/myMissions";
+//                Log.w("user", "4343434343434");
+//
+//                // Make the HTTP GET request, marshaling the response to a String
+//                Object result = restTemplate.getForObject(url, String.class);
+//                Log.w("http response:", result.toString());
+//                return result.toString();
+//            }catch (Exception e) {       return "";    }
+
             try {
+                // Set the Accept header
+
+                //headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                //headers.setContentType(MediaType.APPLICATION_JSON);
+                //headers.set("X-TP-DeviceID", "your value");
+                //httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+                //headers.set("Authorization", "Bearer " + uid);
+                //HttpEntity<String> requestEntity = new HttpEntity<String>("parameters", headers);
                 // The connection URL
-                String url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0";
-
-                // Create a new RestTemplate instance
-                RestTemplate restTemplate = new RestTemplate();
-
+                //String url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0";
+                HttpHeaders headers = new HttpHeaders();
+                headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                headers.set("Authorization", "Bearer " + uid);
+                String url="http://10.0.2.2:8080/myMissions";
                 // Add the String message converter
-                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                //restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                //restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                Log.w("user", "4343434343434");
+                HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
+                String result = restTemplate.postForObject(url, request, String.class);
 
                 // Make the HTTP GET request, marshaling the response to a String
-                Object result = restTemplate.getForObject(url, String.class);
+                //Object result = restTemplate.postForObject(,,String.class);
                 Log.w("http response:", result.toString());
                 return result.toString();
             }catch (Exception e) {
                 Log.e("http request:", e.getMessage(), e);
-                return null;
+                return "";
             }
         }
         @Override
@@ -173,6 +209,7 @@ public class MissionsActivity extends AppCompatActivity {
             // return the list of states
             //refreshRssFeed(feed);
         }
+
     }
 
     private void getMissionsFromDBAndSetAdapter(){
