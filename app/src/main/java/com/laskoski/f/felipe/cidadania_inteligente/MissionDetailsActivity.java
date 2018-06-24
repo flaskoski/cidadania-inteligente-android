@@ -17,9 +17,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
-import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 
 import java.util.ArrayList;
 
@@ -28,14 +28,14 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference tasksDatabaseReference;
     private ChildEventListener tasksEventListener;
-    private ArrayList<Task> tasks;
+    private ArrayList<GenericTask> tasks;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
         Log.i("task number", "dssds");
        // Log.i("task number", ((Integer)requestCode).toString());
         if (resultCode == RESULT_OK && data != null) {
-         //   final ArrayList<Task> tasks = getTasksFromDB(currentMission);
+         //   final ArrayList<GenericTask> tasks = getTasksFromDB(currentMission);
                 tasks.get(requestCode).completed = data.getBooleanExtra("completed?",false);
            // Log.i("task completed", tasks.get(requestCode).completed.toString() );
         }
@@ -68,7 +68,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
         //Adapter Initialization
-        final ArrayList<Task> tasks = new ArrayList<>();
+        final ArrayList<GenericTask> tasks = new ArrayList<>();
         final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
 
         //get missions from DB
@@ -118,7 +118,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
 //        answers.add("Michelangelo Buonarroti");
 //        answers.add("Claude Monet");
 //
-//        ArrayList<Task> tasks = new ArrayList<>();
+//        ArrayList<GenericTask> tasks = new ArrayList<>();
 //        tasks.add(new QuestionTask("Pinturas","Quem pintou o quadro Mona Lisa?",answers,2));
 //        tasks.add(new QuestionTask("Esculturas","test question 2?",answers,4));
 //

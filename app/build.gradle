@@ -52,6 +52,14 @@ dependencies {
     //espresso testing framework
     androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
     androidTestCompile 'com.android.support.test:runner:1.0.1'
+
+    //Spring for Android -> Https requests
+    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M3'
+}
+repositories {
+    maven {
+        url 'https://repo.spring.io/libs-milestone'
+    }
 }
 
 

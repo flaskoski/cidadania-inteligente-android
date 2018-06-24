@@ -23,8 +23,8 @@ import android.widget.Toast;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
-import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 
 import java.util.Arrays;
 
@@ -78,7 +78,7 @@ public class CreateTaskActivity extends AppCompatActivity {
     }
 
     private void saveTaskInDB() {
-        Task task = new QuestionTask("tituloExample","pergunta alguma coisa?", Arrays.asList(new String[]{"a", "b", "c"}),2);
+        GenericTask task = new QuestionTask("tituloExample","pergunta alguma coisa?", Arrays.asList(new String[]{"a", "b", "c"}),2);
         //TODO: check if it really saved on the DB.
         taskDatabaseReference = mDatabase.getReference().child("tasks").push();
         taskDatabaseReference.setValue(task);

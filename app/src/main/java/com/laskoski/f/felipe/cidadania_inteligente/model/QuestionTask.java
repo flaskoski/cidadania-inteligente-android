@@ -1,14 +1,13 @@
 package com.laskoski.f.felipe.cidadania_inteligente.model;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Felipe on 11/25/2017.
  */
 
-public class QuestionTask extends Task {
+public class QuestionTask extends GenericTask {
     private String question;
 
     /**
@@ -57,7 +56,7 @@ public class QuestionTask extends Task {
         this.question = question;
         this.answers = answers;
         this.correctAnswer = correctAnswer;
-        this.timeToAnswer = Task.TIMER_OFF;
+        this.timeToAnswer = GenericTask.TIMER_OFF;
         this.title = title;
     }
 

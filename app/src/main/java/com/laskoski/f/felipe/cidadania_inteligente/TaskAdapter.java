@@ -1,7 +1,6 @@
 package com.laskoski.f.felipe.cidadania_inteligente;
 
 import android.content.Context;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
-import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
+import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
 
 import java.util.List;
 
@@ -19,9 +17,9 @@ import java.util.List;
  * Created by Felipe on 11/25/2017.
  */
 
-public class TaskAdapter extends ArrayAdapter<Task> {
+public class TaskAdapter extends ArrayAdapter<GenericTask> {
 
-    public TaskAdapter(@NonNull Context context, @NonNull List<Task> tasks) {
+    public TaskAdapter(@NonNull Context context, @NonNull List<GenericTask> tasks) {
         super(context, 0, tasks);
     }
 
@@ -35,7 +33,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         View listItemView = convertView;
         if(listItemView == null)
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.task_item, parent, false);
-        Task currentItem = getItem(position);
+        GenericTask currentItem = getItem(position);
         //set title
         TextView title = (TextView) listItemView.findViewById(R.id.title);
         title.setText(currentItem.getType() + " - " +  currentItem.getTitle());

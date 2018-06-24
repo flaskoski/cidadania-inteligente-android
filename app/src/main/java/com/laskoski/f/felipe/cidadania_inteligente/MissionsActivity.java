@@ -3,34 +3,41 @@ package com.laskoski.f.felipe.cidadania_inteligente;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import android.support.test.espresso.idling.*;
+
+import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
-import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 
-import java.lang.reflect.Array;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,8 +88,10 @@ public class MissionsActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         getMissionsFromDBAndSetAdapter();
+        //TODO send uid and get missions
 
         setAuthenticationListener();
+
 
     }
 
@@ -96,7 +105,9 @@ public class MissionsActivity extends AppCompatActivity {
                 if(user != null){
                     //user signed in
                     onSignedInInitialize(user.getDisplayName());
+                    //for testing purposes
                     idlingSignIn.decrement();
+                    getMissions();
                 }else {
                     //user signed out
                     onSignedOutCleanUp();
@@ -113,6 +124,57 @@ public class MissionsActivity extends AppCompatActivity {
         };
     }
 
+    private void getMissions() {
+
+        mFirebaseAuth.getCurrentUser().getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            String idToken = task.getResult().getToken();
+                            new DownloadMissions().execute();
+                        } else {
+                            // Handle error -> task.getException();
+                        }
+                    }
+                });
+    }
+
+    private class DownloadMissions extends AsyncTask<Void, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            // before the network request begins, show a progress indicator
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                // The connection URL
+                String url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0";
+
+                // Create a new RestTemplate instance
+                RestTemplate restTemplate = new RestTemplate();
+
+                // Add the String message converter
+                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+                // Make the HTTP GET request, marshaling the response to a String
+                Object result = restTemplate.getForObject(url, String.class);
+                Log.w("http response:", result.toString());
+                return result.toString();
+            }catch (Exception e) {
+                Log.e("http request:", e.getMessage(), e);
+                return null;
+            }
+        }
+        @Override
+        protected void onPostExecute(String mission) {
+            // hide the progress indicator when the network request is complete
+
+            // return the list of states
+            //refreshRssFeed(feed);
+        }
+    }
+
     private void getMissionsFromDBAndSetAdapter(){
         //Database initialization
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -122,7 +184,7 @@ public class MissionsActivity extends AppCompatActivity {
         final ArrayList<MissionItem> missions = new ArrayList<>();
         final MissionAdapter missionsAdapter = new MissionAdapter(this, missions);
 
-        List<Task> tasks = getTasksFromDB();
+        List<GenericTask> tasks = getTasksFromDB();
 
         //add 2 additional missions for prototyping
         missions.add(new MissionItem("Aventura no MASP",
@@ -168,8 +230,8 @@ public class MissionsActivity extends AppCompatActivity {
         });
     }
 
-    private List<Task> getTasksFromDB() {
-        final List<Task> tasks = new ArrayList<>();
+    private List<GenericTask> getTasksFromDB() {
+        final List<GenericTask> tasks = new ArrayList<>();
 
         DatabaseReference tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
         //Adapter Initialization

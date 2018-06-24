@@ -5,8 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,8 +14,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
-import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
-import com.laskoski.f.felipe.cidadania_inteligente.model.Task;
 
 import java.util.List;
 
@@ -49,7 +45,7 @@ public class CreateMissionActivity extends AppCompatActivity {
         tasksEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                tasks.add(dataSnapshot.getValue(Task.class));
+//                tasks.add(dataSnapshot.getValue(GenericTask.class));
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -74,7 +70,7 @@ public class CreateMissionActivity extends AppCompatActivity {
         startActivityForResult(createTaskIntent,0);
         //TODO save taskID on mission var
     }
-//    final ArrayList<Task> tasks = getTasksFromDB(currentMission);
+//    final ArrayList<GenericTask> tasks = getTasksFromDB(currentMission);
 //    TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
 //
 //    ListView taskList = (ListView) findViewById(R.id.tasksList);
