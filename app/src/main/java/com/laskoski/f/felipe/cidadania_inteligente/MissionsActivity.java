@@ -117,7 +117,7 @@ public class MissionsActivity extends AppCompatActivity {
                     //user signed in
                     onSignedInInitialize(user.getDisplayName());
                     //for testing purposes
-                    idlingSignIn.decrement();
+                    //idlingSignIn.decrement();
                     getMissions();
                 }else {
                     //user signed out
@@ -184,7 +184,7 @@ public class MissionsActivity extends AppCompatActivity {
                 //String url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0";
                 HttpHeaders headers = new HttpHeaders();
                 headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                headers.set("Authorization", "Bearer " + uid);
+                headers.set("Authorization", uid);
                 String url="http://10.0.2.2:8080/myMissions";
                 // Add the String message converter
                 //restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -192,7 +192,6 @@ public class MissionsActivity extends AppCompatActivity {
                 Log.w("user", "4343434343434");
                 HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
                 String result = restTemplate.postForObject(url, request, String.class);
-
                 // Make the HTTP GET request, marshaling the response to a String
                 //Object result = restTemplate.postForObject(,,String.class);
                 Log.w("http response:", result.toString());
