@@ -7,7 +7,7 @@ import java.util.List;
  * Created by Felipe on 11/25/2017.
  */
 
-public class QuestionTask extends GenericTask {
+public class QuestionTask extends AbstractTask {
     private String question;
 
     /**
@@ -43,6 +43,10 @@ public class QuestionTask extends GenericTask {
         super.setTitle(title);
     }
 
+    private List<String> getAnswers(List<String> answers){
+        return answers;
+    }
+
     /**
      *
      * @param title - Title of the task
@@ -56,7 +60,7 @@ public class QuestionTask extends GenericTask {
         this.question = question;
         this.answers = answers;
         this.correctAnswer = correctAnswer;
-        this.timeToAnswer = GenericTask.TIMER_OFF;
+        this.timeToAnswer = AbstractTask.TIMER_OFF;
         this.title = title;
     }
 

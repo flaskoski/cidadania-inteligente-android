@@ -45,7 +45,7 @@ public class CreateMissionActivity extends AppCompatActivity {
         tasksEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                tasks.add(dataSnapshot.getValue(GenericTask.class));
+//                tasks.add(dataSnapshot.getValue(AbstractTask.class));
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -70,7 +70,7 @@ public class CreateMissionActivity extends AppCompatActivity {
         startActivityForResult(createTaskIntent,0);
         //TODO save taskID on mission var
     }
-//    final ArrayList<GenericTask> tasks = getTasksFromDB(currentMission);
+//    final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
 //    TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
 //
 //    ListView taskList = (ListView) findViewById(R.id.tasksList);

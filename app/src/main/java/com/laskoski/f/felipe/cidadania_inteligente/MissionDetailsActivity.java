@@ -17,7 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
+import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
@@ -28,16 +28,18 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference tasksDatabaseReference;
     private ChildEventListener tasksEventListener;
-    private ArrayList<GenericTask> tasks;
+    private ArrayList<AbstractTask> tasks;
+    private Integer lastTaskNumber;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
         Log.i("task number", "dssds");
        // Log.i("task number", ((Integer)requestCode).toString());
         if (resultCode == RESULT_OK && data != null) {
-         //   final ArrayList<GenericTask> tasks = getTasksFromDB(currentMission);
-                tasks.get(requestCode).completed = data.getBooleanExtra("completed?",false);
+         //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
+                tasks.get(lastTaskNumber).completed = data.getBooleanExtra("completed?",false);
            // Log.i("task completed", tasks.get(requestCode).completed.toString() );
+
         }
     }
 
@@ -52,6 +54,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
+        tasks = new ArrayList<>();
         TextView description = (TextView) findViewById(R.id.missionDescription);
         description.setText(currentMission.getDescription());
 
@@ -68,7 +71,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
         //Adapter Initialization
-        final ArrayList<GenericTask> tasks = new ArrayList<>();
+
         final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
 
         //get missions from DB
@@ -107,6 +110,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
                 Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
                 goToTaskDetails.putExtra("task", tasks.get(taskNumber));
+                lastTaskNumber = taskNumber;
                 startActivityForResult(goToTaskDetails, taskNumber);
             }
         });
@@ -118,7 +122,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
 //        answers.add("Michelangelo Buonarroti");
 //        answers.add("Claude Monet");
 //
-//        ArrayList<GenericTask> tasks = new ArrayList<>();
+//        ArrayList<AbstractTask> tasks = new ArrayList<>();
 //        tasks.add(new QuestionTask("Pinturas","Quem pintou o quadro Mona Lisa?",answers,2));
 //        tasks.add(new QuestionTask("Esculturas","test question 2?",answers,4));
 //

@@ -31,25 +31,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import android.support.test.espresso.idling.*;
 
-import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
+import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
-import org.springframework.http.HttpAuthentication;
-import org.springframework.http.HttpBasicAuthentication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 public class MissionsActivity extends AppCompatActivity {
@@ -99,7 +91,6 @@ public class MissionsActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         getMissionsFromDBAndSetAdapter();
-        //TODO send uid and get missions
 
         setAuthenticationListener();
 
@@ -142,7 +133,9 @@ public class MissionsActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
-                            new DownloadMissions().execute();
+
+                            //TODO get missions from API
+                            //new DownloadMissions().execute();
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -159,42 +152,20 @@ public class MissionsActivity extends AppCompatActivity {
         protected String doInBackground(Void... params) {
             // Create a new RestTemplate instance
             RestTemplate restTemplate = new RestTemplate();
-
-            //GET
-//            try{
-//                String url="http://10.0.2.2:8080/myMissions";
-//                Log.w("user", "4343434343434");
-//
-//                // Make the HTTP GET request, marshaling the response to a String
-//                Object result = restTemplate.getForObject(url, String.class);
-//                Log.w("http response:", result.toString());
-//                return result.toString();
-//            }catch (Exception e) {       return "";    }
-
             try {
                 // Set the Accept header
-
-                //headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                //headers.setContentType(MediaType.APPLICATION_JSON);
-                //headers.set("X-TP-DeviceID", "your value");
-                //httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-                //headers.set("Authorization", "Bearer " + uid);
-                //HttpEntity<String> requestEntity = new HttpEntity<String>("parameters", headers);
-                // The connection URL
-                //String url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0";
                 HttpHeaders headers = new HttpHeaders();
                 headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
                 headers.set("Authorization", uid);
+
+                //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
                 String url="http://10.0.2.2:8080/myMissions";
-                // Add the String message converter
-                //restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                //restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-                Log.w("user", "4343434343434");
+                //Create the entity request (body plus headers)
                 HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
+                //Send HTTP POST request with the token id and receive the list of missions
                 String result = restTemplate.postForObject(url, request, String.class);
-                // Make the HTTP GET request, marshaling the response to a String
-                //Object result = restTemplate.postForObject(,,String.class);
-                Log.w("http response:", result.toString());
+
+                Log.w("http response", result.toString());
                 return result.toString();
             }catch (Exception e) {
                 Log.e("http request:", e.getMessage(), e);
@@ -220,7 +191,7 @@ public class MissionsActivity extends AppCompatActivity {
         final ArrayList<MissionItem> missions = new ArrayList<>();
         final MissionAdapter missionsAdapter = new MissionAdapter(this, missions);
 
-        List<GenericTask> tasks = getTasksFromDB();
+        List<AbstractTask> tasks = getTasksFromDB();
 
         //add 2 additional missions for prototyping
         missions.add(new MissionItem("Aventura no MASP",
@@ -229,7 +200,7 @@ public class MissionsActivity extends AppCompatActivity {
         missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j"})));
 
         //get missions from DB
-        missionsEventListener = new ChildEventListener() {
+        /*missionsEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 missions.add(dataSnapshot.getValue(MissionItem.class));
@@ -249,7 +220,7 @@ public class MissionsActivity extends AppCompatActivity {
             }
         };
         missionsDatabaseReference.addChildEventListener(missionsEventListener);
-
+        */
         //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, missions);
@@ -266,8 +237,8 @@ public class MissionsActivity extends AppCompatActivity {
         });
     }
 
-    private List<GenericTask> getTasksFromDB() {
-        final List<GenericTask> tasks = new ArrayList<>();
+    private List<AbstractTask> getTasksFromDB() {
+        final List<AbstractTask> tasks = new ArrayList<>();
 
         DatabaseReference tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
         //Adapter Initialization

@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.laskoski.f.felipe.cidadania_inteligente.model.GenericTask;
+import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import java.util.List;
  * Created by Felipe on 11/25/2017.
  */
 
-public class TaskAdapter extends ArrayAdapter<GenericTask> {
+public class TaskAdapter extends ArrayAdapter<AbstractTask> {
 
-    public TaskAdapter(@NonNull Context context, @NonNull List<GenericTask> tasks) {
+    public TaskAdapter(@NonNull Context context, @NonNull List<AbstractTask> tasks) {
         super(context, 0, tasks);
     }
 
@@ -33,7 +33,7 @@ public class TaskAdapter extends ArrayAdapter<GenericTask> {
         View listItemView = convertView;
         if(listItemView == null)
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.task_item, parent, false);
-        GenericTask currentItem = getItem(position);
+        AbstractTask currentItem = getItem(position);
         //set title
         TextView title = (TextView) listItemView.findViewById(R.id.title);
         title.setText(currentItem.getType() + " - " +  currentItem.getTitle());
