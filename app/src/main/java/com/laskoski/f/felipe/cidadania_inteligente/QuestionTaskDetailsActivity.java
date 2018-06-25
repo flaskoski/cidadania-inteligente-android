@@ -31,6 +31,8 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
         setQuestion();
         setNumberOfAnswers();
         setAnswers();
+        if( this.task.isCompleted())
+            setFinishedState();
 //        TextView question = (TextView) listItemView.findViewById((R.id.question));
 //        question.setText(((QuestionTask)currentItem).getQuestion());
 //
@@ -39,6 +41,19 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
 //            ((TextView) listItemView.findViewById(QuestionTaskDetailsActivity.answerViews[counter])).setText(answer);
 //            counter++;
 //        }
+
+    }
+
+    private void setFinishedState() {
+        for(int i=1; i <= task.getAnswers().size(); i++)
+            ((TextView) findViewById(answerViewIds[i-1])).setLinksClickable(false);
+
+        TextView correct_answer = findViewById(answerViewIds[this.task.getCorrectAnswer()-1]);
+        correct_answer.setBackground(getResources().getDrawable(R.drawable.transition_right));
+        TransitionDrawable transitionRectangleRightAnswer = (TransitionDrawable) correct_answer.getBackground();
+        correct_answer.setTextColor(Color.WHITE);
+        transitionRectangleRightAnswer.startTransition(0);
+
 
     }
 

@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public abstract class AbstractTask implements Serializable{
     protected String title = "";
-    public Boolean completed = false;
+    private Boolean completed = false;
     protected String type="Tarefa Genérica";
     public AbstractTask(){}
     public static final int TIMER_OFF = -1;
@@ -27,4 +27,10 @@ public abstract class AbstractTask implements Serializable{
         return type;
     }
 
+    public void setCompleted(Boolean completed) {
+        this.completed = completed;
+    }
+    public Boolean isCompleted(){
+        return completed;
+    }
 }

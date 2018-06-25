@@ -91,7 +91,7 @@ public class MissionsActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         getMissionsFromDBAndSetAdapter();
-
+        //TODO learn infinite scroll
         setAuthenticationListener();
 
 

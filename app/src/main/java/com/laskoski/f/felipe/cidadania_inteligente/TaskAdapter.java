@@ -40,9 +40,12 @@ public class TaskAdapter extends ArrayAdapter<AbstractTask> {
 
         //set checked image
         ImageView checked = (ImageView) listItemView.findViewById(R.id.completed);
-        if(currentItem.completed)
+        if(currentItem.isCompleted()) {
             checked.setImageResource(R.drawable.ic_check_box_black_24dp);
-
+            listItemView.setClickable(false);
+            checked.setClickable(false);
+            title.setClickable(false);
+        }
         //ImageView icon = (ImageView) listItemView.findViewById(R.id.missionIcon);
         //if item has associated image
 //        if(currentItem.hasImage()) {

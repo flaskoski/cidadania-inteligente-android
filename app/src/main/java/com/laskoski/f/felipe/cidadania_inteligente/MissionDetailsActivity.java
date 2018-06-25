@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -30,6 +31,8 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private ChildEventListener tasksEventListener;
     private ArrayList<AbstractTask> tasks;
     private Integer lastTaskNumber;
+    private TaskAdapter taskAdapter;
+    private ProgressBar progressBar;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -37,7 +40,13 @@ public class MissionDetailsActivity extends AppCompatActivity {
        // Log.i("task number", ((Integer)requestCode).toString());
         if (resultCode == RESULT_OK && data != null) {
          //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
-                tasks.get(lastTaskNumber).completed = data.getBooleanExtra("completed?",false);
+                Boolean completed = data.getBooleanExtra("completed?",false);
+                tasks.get(lastTaskNumber).setCompleted(completed);
+                //TODO right/wrong field
+                taskAdapter.notifyDataSetChanged();
+                if(completed){
+                    progressBar.incrementProgressBy(1);
+                }
            // Log.i("task completed", tasks.get(requestCode).completed.toString() );
 
         }
@@ -57,7 +66,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         tasks = new ArrayList<>();
         TextView description = (TextView) findViewById(R.id.missionDescription);
         description.setText(currentMission.getDescription());
-
+         progressBar = findViewById(R.id.missionProgress);
         getTasksFromDB(currentMission);
 
     }
@@ -72,8 +81,10 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
         //Adapter Initialization
 
-        final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
+        taskAdapter = new TaskAdapter(this,tasks);
 
+        //get mock tasks
+       // tasks.add(new QuestionTask("Question 1"))
         //get missions from DB
         tasksEventListener = new ChildEventListener() {
             QuestionTask task;
@@ -82,7 +93,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
                 task = dataSnapshot.getValue(QuestionTask.class);
                 if (mission.getTaskIDs().contains(dataSnapshot.getKey())){
                     tasks.add(task);
-                    taskAdapter.notifyDataSetChanged();
+                    progressBar.setMax(tasks.size());
                 }
             }
             @Override
