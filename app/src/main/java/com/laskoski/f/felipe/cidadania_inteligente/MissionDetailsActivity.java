@@ -3,6 +3,7 @@ package com.laskoski.f.felipe.cidadania_inteligente;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private Integer lastTaskNumber;
     private TaskAdapter taskAdapter;
     private ProgressBar progressBar;
+    private TextView taskscompleted;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -40,16 +42,23 @@ public class MissionDetailsActivity extends AppCompatActivity {
        // Log.i("task number", ((Integer)requestCode).toString());
         if (resultCode == RESULT_OK && data != null) {
          //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
-                Boolean completed = data.getBooleanExtra("completed?",false);
-                tasks.get(lastTaskNumber).setCompleted(completed);
+                Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
+                tasks.get(lastTaskNumber).setCompleted(true);
+                ((QuestionTask)tasks.get(lastTaskNumber)).setAnsweredCorrectly(answeredCorrectly);
                 //TODO right/wrong field
                 taskAdapter.notifyDataSetChanged();
-                if(completed){
-                    progressBar.incrementProgressBy(1);
+                if(answeredCorrectly){
+                    incrementProgress();
+
                 }
            // Log.i("task completed", tasks.get(requestCode).completed.toString() );
 
         }
+    }
+
+    private void incrementProgress(){
+        progressBar.incrementProgressBy(1);
+        taskscompleted.setText(String.valueOf(progressBar.getProgress())+"/"+taskscompleted.getText().toString().split("/")[1]);
     }
 
     @Override
@@ -66,7 +75,14 @@ public class MissionDetailsActivity extends AppCompatActivity {
         tasks = new ArrayList<>();
         TextView description = (TextView) findViewById(R.id.missionDescription);
         description.setText(currentMission.getDescription());
-         progressBar = findViewById(R.id.missionProgress);
+
+        //set progress bar
+        progressBar = findViewById(R.id.missionProgress);
+        Drawable progressDrawable = progressBar.getProgressDrawable().mutate();
+        progressDrawable.setColorFilter(Color.GREEN, android.graphics.PorterDuff.Mode.SRC_IN);
+        progressBar.setProgressDrawable(progressDrawable);
+
+        taskscompleted = findViewById(R.id.tasksCompleted);
         getTasksFromDB(currentMission);
 
     }
@@ -94,6 +110,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
                 if (mission.getTaskIDs().contains(dataSnapshot.getKey())){
                     tasks.add(task);
                     progressBar.setMax(tasks.size());
+                    taskscompleted.setText("0/"+String.valueOf(tasks.size()));
                 }
             }
             @Override
@@ -114,8 +131,19 @@ public class MissionDetailsActivity extends AppCompatActivity {
         //set List view and adapter
         ListView taskList = (ListView) findViewById(R.id.tasksList);
         taskList.setAdapter(taskAdapter);
-        //Add action to list item
 
+
+        //TODO: move that to the creation activity
+        ArrayList<String> answers = new ArrayList<>();
+        answers.add("Pablo Picasso");
+        answers.add("Leonardo da Vinci");
+        answers.add("Michelangelo Buonarroti");
+        answers.add("Claude Monet");
+
+        tasks.add(new QuestionTask("Pinturas","Quem pintou o quadro Mona Lisa?",answers,2));
+        tasks.add(new QuestionTask("Esculturas","test question 2?",answers,4));
+
+        //Add action to list item
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
@@ -126,17 +154,6 @@ public class MissionDetailsActivity extends AppCompatActivity {
             }
         });
 
-        //TODO: move that to the creation activity
-//        ArrayList<String> answers = new ArrayList<>();
-//        answers.add("Pablo Picasso");
-//        answers.add("Leonardo da Vinci");
-//        answers.add("Michelangelo Buonarroti");
-//        answers.add("Claude Monet");
-//
-//        ArrayList<AbstractTask> tasks = new ArrayList<>();
-//        tasks.add(new QuestionTask("Pinturas","Quem pintou o quadro Mona Lisa?",answers,2));
-//        tasks.add(new QuestionTask("Esculturas","test question 2?",answers,4));
-//
         return 0;
         //return tasks;
     }

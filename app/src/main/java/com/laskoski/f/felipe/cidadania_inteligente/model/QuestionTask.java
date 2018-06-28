@@ -33,6 +33,15 @@ public class QuestionTask extends AbstractTask {
     private Integer timeToAnswer;
     private Integer correctAnswer;
 
+    public Boolean getAnsweredCorrectly() {
+        return answeredCorrectly;
+    }
+
+    public void setAnsweredCorrectly(Boolean answeredCorrectly) {
+        this.answeredCorrectly = answeredCorrectly;
+    }
+
+    private Boolean answeredCorrectly;
     @Override
     public String getTitle() {
         return super.getTitle();

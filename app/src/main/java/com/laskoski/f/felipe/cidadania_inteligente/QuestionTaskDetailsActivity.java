@@ -1,20 +1,25 @@
 package com.laskoski.f.felipe.cidadania_inteligente;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 public class QuestionTaskDetailsActivity extends AppCompatActivity {
     public QuestionTask task;
+    private Boolean goBackConfirmed;
     public static final int[] answerViewIds = {R.id.answer1, R.id.answer2, R.id.answer3, R.id.answer4, R.id.answer5, R.id.answer6};
 
     @Override
@@ -45,16 +50,47 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
     }
 
     private void setFinishedState() {
+        AlertDialog.Builder dialogs = new AlertDialog.Builder(QuestionTaskDetailsActivity.this, R.style.Theme_AppCompat_Dialog_Alert);
+        dialogs.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        })      .setTitle("Atenção")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage("Essa tarefa já foi respondida!")
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        finish();
+                    }
+                });
+
         for(int i=1; i <= task.getAnswers().size(); i++)
             ((TextView) findViewById(answerViewIds[i-1])).setLinksClickable(false);
-
         TextView correct_answer = findViewById(answerViewIds[this.task.getCorrectAnswer()-1]);
         correct_answer.setBackground(getResources().getDrawable(R.drawable.transition_right));
         TransitionDrawable transitionRectangleRightAnswer = (TransitionDrawable) correct_answer.getBackground();
         correct_answer.setTextColor(Color.WHITE);
         transitionRectangleRightAnswer.startTransition(0);
+        dialogs.show();
 
+    }
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder confirmationDialog = new AlertDialog.Builder(QuestionTaskDetailsActivity.this, R.style.Theme_AppCompat_Dialog_Alert);
+        confirmationDialog.setTitle("Atenção")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage("Quer mesmo sair da questão? Você não vai poder voltar para responder depois.")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent taskResult = new Intent();
+                        taskResult.putExtra("correct?", false);
+                        setResult(RESULT_OK, taskResult);
+                        finish();
+                    }
+                }).setNegativeButton(android.R.string.no, null);
+        confirmationDialog.show();
     }
 
     /**
@@ -101,11 +137,11 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
     public void checkAnswer(View v){
         TextView correct_answer = findViewById(answerViewIds[task.getCorrectAnswer()-1]);
         TextView user_answer = (TextView) v;
-        Boolean taskCompleted = false;
+        Boolean answeredCorrectly = false;
 
         //check if the answer is correct
         if(correct_answer == user_answer)
-            taskCompleted = true;
+            answeredCorrectly = true;
 
         //draw green rectangle on correct option
         correct_answer.setBackground(getResources().getDrawable(R.drawable.transition_right));
@@ -127,7 +163,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
                 answerView.setOnClickListener(null);
         }
         Intent taskResult = new Intent();
-        taskResult.putExtra("completed?", taskCompleted);
+        taskResult.putExtra("correct?", answeredCorrectly);
         setResult(RESULT_OK, taskResult);
 
         //2 seconds to go back

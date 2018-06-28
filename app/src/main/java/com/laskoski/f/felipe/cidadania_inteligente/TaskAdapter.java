@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
+import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import java.util.List;
 
@@ -36,12 +37,14 @@ public class TaskAdapter extends ArrayAdapter<AbstractTask> {
         AbstractTask currentItem = getItem(position);
         //set title
         TextView title = (TextView) listItemView.findViewById(R.id.title);
-        title.setText(currentItem.getType() + " - " +  currentItem.getTitle());
+        title.setText(currentItem.getType() + " - " +  currentItem.getTitle(    ));
 
         //set checked image
         ImageView checked = (ImageView) listItemView.findViewById(R.id.completed);
         if(currentItem.isCompleted()) {
-            checked.setImageResource(R.drawable.ic_check_box_black_24dp);
+            if(((QuestionTask)currentItem).getAnsweredCorrectly())
+                checked.setImageResource(R.drawable.ic_check_box_black_24dp);
+            else checked.setImageResource(R.drawable.baseline_clear_24);
             listItemView.setClickable(false);
             checked.setClickable(false);
             title.setClickable(false);
