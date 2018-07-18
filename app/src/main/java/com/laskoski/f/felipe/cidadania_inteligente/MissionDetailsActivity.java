@@ -19,10 +19,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MissionDetailsActivity extends AppCompatActivity {
@@ -35,6 +42,10 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private TaskAdapter taskAdapter;
     private ProgressBar progressBar;
     private TextView taskscompleted;
+    private FileWriter writer;
+    private FileInputStream reader;
+    Gson gson = new Gson();
+    private final String TASKSFILENAME = "/tasks.dat";
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -45,20 +56,35 @@ public class MissionDetailsActivity extends AppCompatActivity {
                 Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
                 tasks.get(lastTaskNumber).setCompleted(true);
                 ((QuestionTask)tasks.get(lastTaskNumber)).setAnsweredCorrectly(answeredCorrectly);
-                //TODO right/wrong field
+
                 taskAdapter.notifyDataSetChanged();
                 if(answeredCorrectly){
                     incrementProgress();
 
                 }
-           // Log.i("task completed", tasks.get(requestCode).completed.toString() );
-
+//            try {
+//                Log.w("JSON", gson.toJson(tasks));
+//            //     writer.write(gson.toJson(tasks));
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
     private void incrementProgress(){
         progressBar.incrementProgressBy(1);
         taskscompleted.setText(String.valueOf(progressBar.getProgress())+"/"+taskscompleted.getText().toString().split("/")[1]);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        try {
+//            writer.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -69,6 +95,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
+
 
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
@@ -102,38 +129,30 @@ public class MissionDetailsActivity extends AppCompatActivity {
         //get mock tasks
        // tasks.add(new QuestionTask("Question 1"))
         //get missions from DB
-        tasksEventListener = new ChildEventListener() {
-            QuestionTask task;
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                task = dataSnapshot.getValue(QuestionTask.class);
-                if (mission.getTaskIDs().contains(dataSnapshot.getKey())){
-                    tasks.add(task);
-                    progressBar.setMax(tasks.size());
-                    taskscompleted.setText("0/"+String.valueOf(tasks.size()));
-                }
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        tasksDatabaseReference.addChildEventListener(tasksEventListener);
 
         //set List view and adapter
         ListView taskList = (ListView) findViewById(R.id.tasksList);
         taskList.setAdapter(taskAdapter);
 
+        //set internal storage
+//        try {
+//            Log.w("caminho",getFilesDir().getAbsolutePath());
+//            reader = openFileInput( TASKSFILENAME);
+//            //TODO read file
+//
+//            reader.close();
+//            deleteFile(TASKSFILENAME);
+//            writer = new FileWriter(new File(TASKSFILENAME));
+//        } catch (FileNotFoundException e) {
+//            try {
+//                writer = new FileWriter(new File(TASKSFILENAME));
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-        //TODO: move that to the creation activity
         ArrayList<String> answers = new ArrayList<>();
         answers.add("Pablo Picasso");
         answers.add("Leonardo da Vinci");
@@ -158,3 +177,31 @@ public class MissionDetailsActivity extends AppCompatActivity {
         //return tasks;
     }
 }
+     /*
+     FIREBASE REALTIME DATABASE
+     tasksEventListener = new ChildEventListener() {
+            QuestionTask task;
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                task = dataSnapshot.getValue(QuestionTask.class);
+                if (mission.getTaskIDs().contains(dataSnapshot.getKey())){
+                    tasks.add(task);
+                    progressBar.setMax(tasks.size());
+                    taskscompleted.setText("0/"+String.valueOf(tasks.size()));
+                }
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        tasksDatabaseReference.addChildEventListener(tasksEventListener);
+*/

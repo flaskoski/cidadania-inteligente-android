@@ -40,11 +40,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-public class MissionsActivity extends AppCompatActivity {
+public class MissionsActivity extends AppCompatActivity implements AsyncResponse {
 
     //private TextView mTextMessage;
 
@@ -58,6 +60,9 @@ public class MissionsActivity extends AppCompatActivity {
     private DatabaseReference missionsDatabaseReference;
     private ChildEventListener missionsEventListener;
     private CountingIdlingResource idlingSignIn = new CountingIdlingResource("SIGN_IN");
+    private MissionAdapter missionsAdapter;
+    private ArrayList<MissionItem> missions;
+    private DownloadMissions downloadMissions;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -89,6 +94,8 @@ public class MissionsActivity extends AppCompatActivity {
        //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        downloadMissions =  new DownloadMissions(this);
 
         getMissionsFromDBAndSetAdapter();
         //TODO learn infinite scroll
@@ -135,7 +142,9 @@ public class MissionsActivity extends AppCompatActivity {
                             uid = task.getResult().getToken();
 
                             //TODO get missions from API
-                            //new DownloadMissions().execute();
+                            downloadMissions.execute();
+
+
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -143,13 +152,24 @@ public class MissionsActivity extends AppCompatActivity {
                 });
     }
 
-    private class DownloadMissions extends AsyncTask<Void, Void, String> {
+    @Override
+    public void processFinish(List<MissionItem> output) {
+            missions.addAll(output);
+            missionsAdapter.notifyDataSetChanged();
+    }
+
+    private class DownloadMissions extends AsyncTask<Void, String, List<MissionItem>> {
+        public AsyncResponse delegate = null;
+
+        public DownloadMissions(AsyncResponse delegate){
+            this.delegate = delegate;
+        }
         @Override
         protected void onPreExecute() {
             // before the network request begins, show a progress indicator
         }
         @Override
-        protected String doInBackground(Void... params) {
+        protected List<MissionItem> doInBackground(Void... params) {
             // Create a new RestTemplate instance
             RestTemplate restTemplate = new RestTemplate();
             try {
@@ -163,21 +183,26 @@ public class MissionsActivity extends AppCompatActivity {
                 //Create the entity request (body plus headers)
                 HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
                 //Send HTTP POST request with the token id and receive the list of missions
-                String result = restTemplate.postForObject(url, request, String.class);
+                MissionItem[] missionsFromDB = restTemplate.postForObject(url, request, MissionItem[].class);
+                Log.w("http response", missionsFromDB.toString());
 
-                Log.w("http response", result.toString());
-                return result.toString();
+                return Arrays.asList(missionsFromDB);
+
             }catch (Exception e) {
                 Log.e("http request:", e.getMessage(), e);
-                return "";
+                return null;
             }
         }
+//        @Override
+//        protected void onPostExecute(List<MissionItem> missionsFromDB) {
+//            // hide the progress indicator when the network request is complete
+//            missions.addAll(missionsFromDB);
+//            // return the list of states
+//            //refreshRssFeed(feed);
+//        }
         @Override
-        protected void onPostExecute(String mission) {
-            // hide the progress indicator when the network request is complete
-
-            // return the list of states
-            //refreshRssFeed(feed);
+        protected void onPostExecute(List<MissionItem> result) {
+            delegate.processFinish(result);
         }
 
     }
@@ -188,8 +213,8 @@ public class MissionsActivity extends AppCompatActivity {
         missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
 
         //Adapter Initialization
-        final ArrayList<MissionItem> missions = new ArrayList<>();
-        final MissionAdapter missionsAdapter = new MissionAdapter(this, missions);
+        missions = new ArrayList<>();
+        missionsAdapter = new MissionAdapter(this, missions);
 
         List<AbstractTask> tasks = getTasksFromDB();
 
