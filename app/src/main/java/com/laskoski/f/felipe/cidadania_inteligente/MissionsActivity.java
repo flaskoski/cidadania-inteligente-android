@@ -141,7 +141,6 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
 
-                            //TODO get missions from API
                             downloadMissions.execute();
 
 
