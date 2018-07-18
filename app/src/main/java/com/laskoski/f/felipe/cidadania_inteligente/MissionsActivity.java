@@ -40,15 +40,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class MissionsActivity extends AppCompatActivity implements AsyncResponse {
-
-    //private TextView mTextMessage;
 
     //For Firebase Authentication
     private FirebaseAuth mFirebaseAuth;
@@ -56,13 +52,18 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     public final int RC_SIGN_IN=1;
     private String username;
+
+    //Firebase Realtime Database
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference missionsDatabaseReference;
     private ChildEventListener missionsEventListener;
+    //For Mockito functional tests using FB authentication
     private CountingIdlingResource idlingSignIn = new CountingIdlingResource("SIGN_IN");
+    //Activity Variables
     private MissionAdapter missionsAdapter;
     private ArrayList<MissionItem> missions;
-    private DownloadMissions downloadMissions;
+    //class to deal with request to get Missions list
+    private AsyncDownloadMissions asyncDownloadMissions;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -95,30 +96,29 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        downloadMissions =  new DownloadMissions(this);
+        //Setup async thread: set delegate/listener back to this class
+        asyncDownloadMissions =  new AsyncDownloadMissions(this);
 
-        getMissionsFromDBAndSetAdapter();
-        //TODO learn infinite scroll
-        setAuthenticationListener();
+        getExampleMissionsFromDBAndSetAdapter();
+        //TODO infinite scroll
+        authenticateAndLoadUserMissions();
 
 
     }
 
-    private void setAuthenticationListener() {
+    private void authenticateAndLoadUserMissions() {
         idlingSignIn.increment();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
-                    //user signed in
+                if(user != null){//user signed in
                     onSignedInInitialize(user.getDisplayName());
                     //for testing purposes
                     //idlingSignIn.decrement();
                     getMissions();
-                }else {
-                    //user signed out
+                }else {//user signed out
                     onSignedOutCleanUp();
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -140,10 +140,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
-
-                            downloadMissions.execute();
-
-
+                            asyncDownloadMissions.execute();
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -151,16 +148,10 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 });
     }
 
-    @Override
-    public void processFinish(List<MissionItem> output) {
-            missions.addAll(output);
-            missionsAdapter.notifyDataSetChanged();
-    }
-
-    private class DownloadMissions extends AsyncTask<Void, String, List<MissionItem>> {
+    private class AsyncDownloadMissions extends AsyncTask<Void, String, List<MissionItem>> {
         public AsyncResponse delegate = null;
 
-        public DownloadMissions(AsyncResponse delegate){
+        public AsyncDownloadMissions(AsyncResponse delegate){
             this.delegate = delegate;
         }
         @Override
@@ -192,21 +183,20 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 return null;
             }
         }
-//        @Override
-//        protected void onPostExecute(List<MissionItem> missionsFromDB) {
-//            // hide the progress indicator when the network request is complete
-//            missions.addAll(missionsFromDB);
-//            // return the list of states
-//            //refreshRssFeed(feed);
-//        }
         @Override
         protected void onPostExecute(List<MissionItem> result) {
             delegate.processFinish(result);
         }
 
     }
+    @Override
+    public void processFinish(List<MissionItem> output) {
+        missions.addAll(output);
+        missionsAdapter.notifyDataSetChanged();
+    }
 
-    private void getMissionsFromDBAndSetAdapter(){
+    private void getExampleMissionsFromDBAndSetAdapter(){
+        //TODO delete this function after DB fully operational
         //Database initialization
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
@@ -300,7 +290,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         super.onActivityResult(requestCode, resultCode, data);
         if(RC_SIGN_IN == requestCode) {
             if (resultCode == RESULT_OK)
-                Toast.makeText(this, "Entrou!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Bem Vindo!", Toast.LENGTH_SHORT).show();
             else if (resultCode == RESULT_CANCELED) {
                 finish();
             }
