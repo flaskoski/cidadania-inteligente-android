@@ -9,5 +9,5 @@ import java.util.List;
  */
 
 public interface AsyncResponse {
-    void processFinish(List<MissionItem> output);
+    void processFinish(Object output);
 }

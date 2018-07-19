@@ -99,9 +99,10 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         //Setup async thread: set delegate/listener back to this class
         asyncDownloadMissions =  new AsyncDownloadMissions(this);
 
-        getExampleMissionsFromDBAndSetAdapter();
         //TODO infinite scroll
         authenticateAndLoadUserMissions();
+
+        getExampleMissionsFromDBAndSetAdapter();
 
 
     }
@@ -190,8 +191,8 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
     }
     @Override
-    public void processFinish(List<MissionItem> output) {
-        missions.addAll(output);
+    public void processFinish(Object output) {
+        missions.addAll((List<MissionItem>) output);
         missionsAdapter.notifyDataSetChanged();
     }
 
