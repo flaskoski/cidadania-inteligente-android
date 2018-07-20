@@ -205,8 +205,12 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     }
     @Override
     public void processFinish(Object output) {
-        tasks.addAll((List<AbstractTask>) output);
-        taskAdapter.notifyDataSetChanged();
+        if(output != null){
+            tasks.addAll((List<AbstractTask>) output);
+            taskAdapter.notifyDataSetChanged();
+        }
+        progressBar.setMax(tasks.size());
+        taskscompleted.setText("0/"+String.valueOf(tasks.size()));
     }
 
 
