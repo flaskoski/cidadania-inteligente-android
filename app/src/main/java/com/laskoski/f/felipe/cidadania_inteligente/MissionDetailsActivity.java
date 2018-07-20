@@ -123,6 +123,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
         tasks = new ArrayList<>();
+
+        //Set mission description on screen
         TextView description = (TextView) findViewById(R.id.missionDescription);
         description.setText(currentMission.getDescription());
 
@@ -133,14 +135,14 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         progressBar.setProgressDrawable(progressDrawable);
 
         taskscompleted = findViewById(R.id.tasksCompleted);
-        getTasksFromDB(currentMission);
-        loadUserTasks(currentMission);
+        getTasksFromDB();
+        loadUserTasks();
     }
     private void setListView(){
 
     }
 
-    private void loadUserTasks(final MissionItem currentMission) {
+    private void loadUserTasks() {
         //idlingSignIn.increment();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseUser.getIdToken(true)
@@ -171,7 +173,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         protected List<QuestionTask> doInBackground(Object... params) {
             // Create a new RestTemplate instance
             List<String> taskIds = (List<String>) params[0];
-
 
             RestTemplate restTemplate = new RestTemplate();
             try {
@@ -210,7 +211,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
 
 
-    private int getTasksFromDB(final MissionItem mission) {
+    private int getTasksFromDB() {
 
         //Database initialization
         mFirebaseDatabase = FirebaseDatabase.getInstance();
