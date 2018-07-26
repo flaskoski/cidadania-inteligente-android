@@ -265,8 +265,13 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             tasks.addAll((List<AbstractTask>) output);
             taskAdapter.notifyDataSetChanged();
         }
+        Integer countCompletedTasks = 0;
+        for(AbstractTask task : tasks)
+            if(task.isCompleted())
+                countCompletedTasks++;
         progressBar.setMax(tasks.size());
-        taskscompleted.setText("0/"+String.valueOf(tasks.size()));
+        progressBar.setProgress(countCompletedTasks);
+        taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
     }
 
 
