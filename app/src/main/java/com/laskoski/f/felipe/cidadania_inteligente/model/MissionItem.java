@@ -11,11 +11,17 @@ public class MissionItem implements Serializable{
     private String missionName;
     private Integer missionIconId;
     private String description;
+    private String _id;
     private List<String> taskIDs;
     private static final Integer NO_IMAGE_PROVIDED = -1;
     public List<String> getTaskIDs() {
         return taskIDs;
     }
+
+    public String get_id() {
+        return _id;
+    }
+
     public void setTaskIDs(List<String> taskIDs) {
         this.taskIDs = taskIDs;
     }

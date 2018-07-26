@@ -1,4 +1,4 @@
-package com.laskoski.f.felipe.cidadania_inteligente;
+package com.laskoski.f.felipe.cidadania_inteligente.connection;
 
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 

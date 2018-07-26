@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
@@ -26,6 +25,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
@@ -33,18 +33,18 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-public class MissionDetailsActivity extends AppCompatActivity implements AsyncResponse{
+public class MissionDetailsActivity extends AppCompatActivity implements AsyncResponse {
     MissionItem currentMission;
     //For Firebase Authentication
     private FirebaseUser firebaseUser;
@@ -56,11 +56,14 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference tasksDatabaseReference;
     private ChildEventListener tasksEventListener;
-    private ArrayList<AbstractTask> tasks;
+    private ArrayList<AbstractTask> tasks = new ArrayList<>();;
     private Integer lastTaskNumber;
     private TaskAdapter taskAdapter;
     private ProgressBar progressBar;
     private TextView taskscompleted;
+
+    //HTTP requests
+    private RestTemplate restTemplate = new RestTemplate();
 
     private AsyncDownloadTasks asyncDownloadTasks;
 
@@ -71,19 +74,45 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
-        Log.i("task number", "dssds");
-       // Log.i("task number", ((Integer)requestCode).toString());
         if (resultCode == RESULT_OK && data != null) {
-         //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
-                Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
-                tasks.get(lastTaskNumber).setCompleted(true);
-                ((QuestionTask)tasks.get(lastTaskNumber)).setAnsweredCorrectly(answeredCorrectly);
+     //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
 
-                taskAdapter.notifyDataSetChanged();
-                if(answeredCorrectly){
-                    incrementProgress();
 
+            Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
+            tasks.get(lastTaskNumber).setFinished(true);
+            ((QuestionTask)tasks.get(lastTaskNumber)).setCompleted(answeredCorrectly);
+            Integer taskStatus = (answeredCorrectly? AbstractTask.TASK_COMPLETED: AbstractTask.TASK_FAILED);
+            String[] httpParams = {currentMission.get_id(), tasks.get(lastTaskNumber).get_id(), taskStatus.toString()};
+            //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
+            new AsyncTask<String, Void, String>() {
+                @Override
+                protected String doInBackground(String... params) {
+                    try {
+                        // Set the Accept header
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                        headers.set("Authorization", uid);
+
+                        //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
+                        String url="http://10.0.2.2:8080/player/";
+                        //Create the entity request (body plus headers)
+
+                        HttpEntity<String[]> request = new HttpEntity<String[]>(params, headers);
+                        //Send HTTP POST request with the token id and receive the list of missions
+                        Boolean okResponse = restTemplate.postForObject(url, request, Boolean.class);
+                        Log.w("UpdatePlayerProgress: ", okResponse.toString());
+                        return "sucess";
+
+                    }catch (Exception e) {
+                        Log.e("http request:", e.getMessage(), e);
+                        return "error";
+                    }
                 }
+            }.execute(httpParams);
+            taskAdapter.notifyDataSetChanged();
+            if(answeredCorrectly){
+                incrementProgress();
+            }
 //            try {
 //                Log.w("JSON", gson.toJson(tasks));
 //            //     writer.write(gson.toJson(tasks));
@@ -108,7 +137,15 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 //            e.printStackTrace();
 //        }
     }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putSerializable("currentMission", currentMission);
+        //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
 
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,9 +157,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
         asyncDownloadTasks = new AsyncDownloadTasks(this);
 
-        Intent missionDetails = getIntent();
-        currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
-        tasks = new ArrayList<>();
+            Intent missionDetails = getIntent();
+            currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
 
         //Set mission description on screen
         TextView description = (TextView) findViewById(R.id.missionDescription);
@@ -174,7 +210,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             // Create a new RestTemplate instance
             List<String> taskIds = (List<String>) params[0];
 
-            RestTemplate restTemplate = new RestTemplate();
             try {
                 // Set the Accept header
                 HttpHeaders headers = new HttpHeaders();
@@ -187,8 +222,29 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 HttpEntity<List<String>> request = new HttpEntity<>(taskIds, headers);
                 //Send HTTP POST request with the token id and receive the list of missions
                 QuestionTask[] tasksFromDB = restTemplate.postForObject(url, request, QuestionTask[].class);
+
                 Log.w("http response", tasksFromDB.toString());
                 Log.w("http response", taskIds.toString());
+                HashMap<String, AbstractTask> tasksMap = new HashMap<>();
+                for(AbstractTask task : tasksFromDB){
+                    tasksMap.put(task.get_id(), task);
+                }
+
+                //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
+                url="http://10.0.2.2:8080/player/taskProgress";
+                String[] requestParams = {currentMission.get_id()};
+                //Create the entity request (body plus headers)
+                HttpEntity<String[]> requestMissionProgress = new HttpEntity<String[]>(requestParams, headers);
+                //Send HTTP POST request with the token id and receive the list of missions
+                HashMap<String, Integer> tasksProgress = restTemplate.postForObject(url, requestMissionProgress, HashMap.class);
+                if(tasksProgress != null) {
+                    Iterator it = tasksProgress.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry task = ((Map.Entry) it.next());
+                        tasksMap.get(task.getKey()).setProgress(((Double) task.getValue()).intValue());
+                        Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
+                    }
+                }
 
                 return Arrays.asList(tasksFromDB);
 
@@ -222,17 +278,11 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
         //Adapter Initialization
-
         taskAdapter = new TaskAdapter(this,tasks);
-
-        //get mock tasks
-       // tasks.add(new QuestionTask("Question 1"))
-        //get missions from DB
 
         //set List view and adapter
         ListView taskList = (ListView) findViewById(R.id.tasksList);
         taskList.setAdapter(taskAdapter);
-
         //set internal storage
 //        try {
 //            Log.w("caminho",getFilesDir().getAbsolutePath());
