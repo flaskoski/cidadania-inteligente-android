@@ -152,6 +152,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
     private class AsyncDownloadMissions extends AsyncTask<Void, String, List<MissionItem>> {
         public AsyncResponse delegate = null;
+        public static final String SERVER_ROOT_MISSION_LIST = "http://10.0.2.2:8080/myMissions";
 
         public AsyncDownloadMissions(AsyncResponse delegate){
             this.delegate = delegate;
@@ -171,7 +172,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 headers.set("Authorization", uid);
 
                 //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                String url="http://10.0.2.2:8080/myMissions";
+                String url= SERVER_ROOT_MISSION_LIST;
                 //Create the entity request (body plus headers)
                 HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
                 //Send HTTP POST request with the token id and receive the list of missions
@@ -215,28 +216,6 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 R.drawable.ic_info_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j", "-L6nRIpyJ2UO8Q42KM0G"})));
         missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j"})));
 
-        //get missions from DB
-        /*missionsEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                missions.add(dataSnapshot.getValue(MissionItem.class));
-                missionsAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        missionsDatabaseReference.addChildEventListener(missionsEventListener);
-        */
         //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, missions);
@@ -336,3 +315,26 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         }
     }
 }
+
+//get missions from DB
+        /*missionsEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                missions.add(dataSnapshot.getValue(MissionItem.class));
+                missionsAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        missionsDatabaseReference.addChildEventListener(missionsEventListener);
+        */
