@@ -155,10 +155,12 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
 
+
         asyncDownloadTasks = new AsyncDownloadTasks(this);
 
-            Intent missionDetails = getIntent();
-            currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
+        Intent missionDetails = getIntent();
+        currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
+        actionBar.setTitle(currentMission.getMissionName().subSequence(0, currentMission.getMissionName().length()));
 
         //Set mission description on screen
         TextView description = (TextView) findViewById(R.id.missionDescription);
@@ -288,7 +290,34 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         //set List view and adapter
         ListView taskList = (ListView) findViewById(R.id.tasksList);
         taskList.setAdapter(taskAdapter);
-        //set internal storage
+
+        ArrayList<String> answers = new ArrayList<>();
+        if(currentMission.get_id() == null) {
+            answers.add("Pablo Picasso");
+            answers.add("Leonardo da Vinci");
+            answers.add("Michelangelo Buonarroti");
+            answers.add("Claude Monet");
+
+            tasks.add(new QuestionTask("Pinturas", "Quem pintou o quadro Mona Lisa?", answers, 2));
+            tasks.add(new QuestionTask("Esculturas", "test question 2?", answers, 4));
+        }
+
+        //Add action to list item
+        taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
+                Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
+                goToTaskDetails.putExtra("task", tasks.get(taskNumber));
+                lastTaskNumber = taskNumber;
+                startActivityForResult(goToTaskDetails, taskNumber);
+            }
+        });
+
+        return 0;
+        //return tasks;
+    }
+}
+//***** set internal storage
 //        try {
 //            Log.w("caminho",getFilesDir().getAbsolutePath());
 //            reader = openFileInput( TASKSFILENAME);
@@ -306,31 +335,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-
-        ArrayList<String> answers = new ArrayList<>();
-        answers.add("Pablo Picasso");
-        answers.add("Leonardo da Vinci");
-        answers.add("Michelangelo Buonarroti");
-        answers.add("Claude Monet");
-
-        tasks.add(new QuestionTask("Pinturas","Quem pintou o quadro Mona Lisa?",answers,2));
-        tasks.add(new QuestionTask("Esculturas","test question 2?",answers,4));
-
-        //Add action to list item
-        taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
-                Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
-                goToTaskDetails.putExtra("task", tasks.get(taskNumber));
-                lastTaskNumber = taskNumber;
-                startActivityForResult(goToTaskDetails, taskNumber);
-            }
-        });
-
-        return 0;
-        //return tasks;
-    }
-}
      /*
      FIREBASE REALTIME DATABASE
      tasksEventListener = new ChildEventListener() {
