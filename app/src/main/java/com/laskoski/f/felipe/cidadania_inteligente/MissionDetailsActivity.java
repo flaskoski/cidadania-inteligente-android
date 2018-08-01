@@ -1,6 +1,5 @@
 package com.laskoski.f.felipe.cidadania_inteligente;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -8,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,7 +27,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
-import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
@@ -62,7 +59,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private DatabaseReference tasksDatabaseReference;
     private ChildEventListener tasksEventListener;
     private ArrayList<AbstractTask> tasks = new ArrayList<>();;
-    private Integer lastTaskNumber;
+    private Integer taskNumberStarted;
     private TaskAdapter taskAdapter;
     private ProgressBar progressBar;
     private TextView taskscompleted;
@@ -85,10 +82,10 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
 
             Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
-            tasks.get(lastTaskNumber).setFinished(true);
-            ((QuestionTask)tasks.get(lastTaskNumber)).setCompleted(answeredCorrectly);
+            tasks.get(taskNumberStarted).setFinished(true);
+            ((QuestionTask)tasks.get(taskNumberStarted)).setCompleted(answeredCorrectly);
             Integer taskStatus = (answeredCorrectly? AbstractTask.TASK_COMPLETED: AbstractTask.TASK_FAILED);
-            String[] httpParams = {currentMission.get_id(), tasks.get(lastTaskNumber).get_id(), taskStatus.toString()};
+            String[] httpParams = {currentMission.get_id(), tasks.get(taskNumberStarted).get_id(), taskStatus.toString()};
             //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
             new AsyncTask<String, Void, String>() {
                 @Override
@@ -316,7 +313,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
                 Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
                 goToTaskDetails.putExtra("task", tasks.get(taskNumber));
-                lastTaskNumber = taskNumber;
+                taskNumberStarted = taskNumber;
                 startActivityForResult(goToTaskDetails, taskNumber);
             }
         });

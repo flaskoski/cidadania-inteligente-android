@@ -17,8 +17,9 @@ public class MissionItem implements Serializable{
     public List<String> getTaskIDs() {
         return taskIDs;
     }
-    private Boolean finished = false;
+    private Integer status = MISSION_NOT_STARTED;
 
+    public static final Integer MISSION_FINISHED = 1;
     public static final Integer MISSION_NOT_STARTED = 0;
     public static final Integer MISSION_IN_PROGRESS = 2;
     public static final Integer MISSION_FAILED = -1;
@@ -27,12 +28,12 @@ public class MissionItem implements Serializable{
         this._id = _id;
     }
 
-    public Boolean getFinished() {
-        return finished;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Integer getProgress() {
@@ -42,14 +43,15 @@ public class MissionItem implements Serializable{
     public void setProgress(Integer progress) {
         this.progress = progress;
         if(progress == taskIDs.size()) {
-            finished = true;
+            status = MISSION_FINISHED;
         }
     }
     public void increaseProgress(){
         this.progress++;
         if(progress == taskIDs.size()) {
-            finished = true;
+            status = MISSION_FINISHED;
         }
+        else status = MISSION_IN_PROGRESS;
     }
     private Integer progress;
 

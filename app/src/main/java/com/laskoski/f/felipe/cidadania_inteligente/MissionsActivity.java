@@ -35,6 +35,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
+import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import org.springframework.http.HttpEntity;
@@ -68,18 +69,23 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     //class to deal with request to get Missions list
     private AsyncDownloadMissions asyncDownloadMissions;
     private Boolean firstTimeRequestingMissions = true;
+    private Integer missionNumberStarted;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            missionsAdapter.getFilter().filter(null);
             switch (item.getItemId()) {
-                case R.id.navigation_home:
+                case R.id.navigation_notStarted:
+                    missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
                     return true;
-                case R.id.navigation_dashboard:
+                case R.id.navigation_inProgress:
+                    missionsAdapter.getFilter().filter(MissionProgress.MISSION_IN_PROGRESS.toString());
                     return true;
-                case R.id.navigation_notifications:
+                case R.id.navigation_completed:
+                    missionsAdapter.getFilter().filter(MissionProgress.MISSION_FINISHED.toString());
                     return true;
             }
             return false;
@@ -233,6 +239,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent goToMissionDetails = new Intent(getApplicationContext(), MissionDetailsActivity.class);
                 goToMissionDetails.putExtra("mission", missions.get(i));
+                missionNumberStarted = i;
                 startActivityForResult(goToMissionDetails, ACTIVITY_MISSION_DETAILS);
             }
         });
@@ -283,7 +290,12 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
             }
         }
         else if(ACTIVITY_MISSION_DETAILS == requestCode){
-            Log.w("retornou","da missão");
+            if(resultCode == RESULT_OK)
+            {
+                int missionStartedStatus=0;
+                data.getIntExtra("missionStatus", missionStartedStatus);
+                missions.get(missionNumberStarted).setStatus(Integer.valueOf(missionStartedStatus));
+            }
         }
     }
 

@@ -4,17 +4,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_notStarted"
         android:icon="@drawable/baseline_library_add_black_48"
         android:title="Novas" />
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_inProgress"
         android:icon="@drawable/baseline_play_arrow_black_48"
         android:title="Em Andamento" />
 
     <item
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_completed"
         android:icon="@drawable/baseline_done_outline_black_48"
         android:title="Concluídas" />
 

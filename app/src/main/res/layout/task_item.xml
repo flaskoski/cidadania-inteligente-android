@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/finished"
+        android:id="@+id/taskStatus"
         android:layout_width="5dp"
         android:layout_height="20dp"
         android:layout_gravity="center"

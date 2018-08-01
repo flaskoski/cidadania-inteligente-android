@@ -39,7 +39,7 @@ public class TaskAdapter extends ArrayAdapter<AbstractTask> {
         title.setText(currentItem.getType() + " - " +  currentItem.getTitle(    ));
 
         //set checked image
-        ImageView checked = (ImageView) listItemView.findViewById(R.id.finished);
+        ImageView checked = (ImageView) listItemView.findViewById(R.id.taskStatus);
         if(currentItem.isFinished()) {
             if(currentItem.isCompleted())
                 checked.setImageResource(R.drawable.ic_check_box_black_24dp);
