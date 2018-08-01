@@ -32,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import android.support.test.espresso.idling.*;
 
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
@@ -66,6 +67,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     private ArrayList<MissionItem> missions;
     //class to deal with request to get Missions list
     private AsyncDownloadMissions asyncDownloadMissions;
+    private Boolean firstTimeRequestingMissions = true;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -99,13 +101,14 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         //Setup async thread: set delegate/listener back to this class
-        asyncDownloadMissions =  new AsyncDownloadMissions(this);
+        if (savedInstanceState == null) {
+            asyncDownloadMissions = new AsyncDownloadMissions(this);
 
-        //TODO infinite scroll
-        authenticateAndLoadUserMissions();
+            //TODO infinite scroll
+            authenticateAndLoadUserMissions();
 
-        getExampleMissionsFromDBAndSetAdapter();
-
+            getExampleMissionsFromDBAndSetAdapter();
+        }
 
     }
 
@@ -143,7 +146,9 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
-                            asyncDownloadMissions.execute();
+                            if(firstTimeRequestingMissions)
+                                asyncDownloadMissions.execute();
+                            firstTimeRequestingMissions = false;
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -151,9 +156,9 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 });
     }
 
-    private class AsyncDownloadMissions extends AsyncTask<Void, String, List<MissionItem>> {
+    private class AsyncDownloadMissions extends AsyncTask<Void, String, List<MissionItem>> implements ServerProperties{
         public AsyncResponse delegate = null;
-        public static final String SERVER_ROOT_MISSION_LIST = "http://10.0.2.2:8080/myMissions";
+        public static final String SERVER_MISSIONS_URL = SERVER_ROOT_URL+"myMissions";
 
         public AsyncDownloadMissions(AsyncResponse delegate){
             this.delegate = delegate;
@@ -173,7 +178,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 headers.set("Authorization", uid);
 
                 //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                String url= SERVER_ROOT_MISSION_LIST;
+                String url= SERVER_MISSIONS_URL;
                 //Create the entity request (body plus headers)
                 HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
                 //Send HTTP POST request with the token id and receive the list of missions

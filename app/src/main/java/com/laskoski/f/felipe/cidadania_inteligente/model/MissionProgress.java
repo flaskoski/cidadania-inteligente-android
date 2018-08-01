@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class MissionProgress {
     public static final Integer MISSION_NOT_STARTED = 0;
-    public static final Integer MISSION_COMPLETED = 1;
+    public static final Integer MISSION_FINISHED = 1;
     public static final Integer MISSION_IN_PROGRESS = 2;
 
     public String getMissionId() {
@@ -43,7 +43,7 @@ public class MissionProgress {
 
     private void updateStatus() {
         if(! this.taskProgress.containsValue(AbstractTask.TASK_NOT_STARTED)){
-            status = MISSION_COMPLETED;
+            status = MISSION_FINISHED;
         }else if(this.taskProgress.containsValue(AbstractTask.TASK_COMPLETED)){
             status = MISSION_IN_PROGRESS;
         }else status = MISSION_NOT_STARTED;

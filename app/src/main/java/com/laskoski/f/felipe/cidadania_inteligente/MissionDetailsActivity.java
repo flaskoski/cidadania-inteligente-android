@@ -32,6 +32,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
+import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import org.springframework.http.HttpEntity;
@@ -65,6 +66,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private TaskAdapter taskAdapter;
     private ProgressBar progressBar;
     private TextView taskscompleted;
+    private MissionProgress missionProgress;
 
     //HTTP requests
     private RestTemplate restTemplate = new RestTemplate();
@@ -242,12 +244,14 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 //Create the entity request (body plus headers)
                 HttpEntity<String[]> requestMissionProgress = new HttpEntity<String[]>(requestParams, headers);
                 //Send HTTP POST request with the token id and receive the list of missions
-                HashMap<String, Integer> tasksProgress = restTemplate.postForObject(url, requestMissionProgress, HashMap.class);
+
+                missionProgress = restTemplate.postForObject(url, requestMissionProgress, MissionProgress.class);
+                HashMap<String, Integer> tasksProgress = missionProgress.getTaskProgress();
                 if(tasksProgress != null) {
                     Iterator it = tasksProgress.entrySet().iterator();
                     while (it.hasNext()) {
                         Map.Entry task = ((Map.Entry) it.next());
-                        tasksMap.get(task.getKey()).setProgress(((Double) task.getValue()).intValue());
+                        tasksMap.get(task.getKey()).setProgress((Integer)task.getValue());
                         Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
                     }
                 }
@@ -322,11 +326,12 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     }
     @Override
     public void onBackPressed() {
-        Intent taskResult = new Intent();
-    //*************************************************************************************************************************
-        taskResult.putExtra("correct?", true);
-        setResult(RESULT_OK, taskResult);
-        finish();
+        if (missionProgress != null) {
+            Intent taskResult = new Intent();
+            taskResult.putExtra("missionStatus", missionProgress.getStatus());
+            setResult(RESULT_OK, taskResult);
+            finish();
+        }
     }
 }
 //***** set internal storage
