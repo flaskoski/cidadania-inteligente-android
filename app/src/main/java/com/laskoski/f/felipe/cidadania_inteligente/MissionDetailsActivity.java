@@ -1,5 +1,6 @@
 package com.laskoski.f.felipe.cidadania_inteligente;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -7,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +28,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
@@ -219,7 +223,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 headers.set("Authorization", uid);
 
                 //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                String url="http://10.0.2.2:8080/tasks";
+                String url= ServerProperties.SERVER_TASKS_URL;
                 //Create the entity request (body plus headers)
                 HttpEntity<List<String>> request = new HttpEntity<>(taskIds, headers);
                 //Send HTTP POST request with the token id and receive the list of missions
@@ -233,7 +237,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 }
 
                 //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                url="http://10.0.2.2:8080/player/taskProgress";
+                url= ServerProperties.SERVER_MISSION_PROGRESS_URL;
                 String[] requestParams = {currentMission.get_id()};
                 //Create the entity request (body plus headers)
                 HttpEntity<String[]> requestMissionProgress = new HttpEntity<String[]>(requestParams, headers);
@@ -315,6 +319,14 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
         return 0;
         //return tasks;
+    }
+    @Override
+    public void onBackPressed() {
+        Intent taskResult = new Intent();
+    //*************************************************************************************************************************
+        taskResult.putExtra("correct?", true);
+        setResult(RESULT_OK, taskResult);
+        finish();
     }
 }
 //***** set internal storage

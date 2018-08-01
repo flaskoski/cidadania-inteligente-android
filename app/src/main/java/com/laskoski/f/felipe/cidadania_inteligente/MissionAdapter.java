@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -58,28 +59,25 @@ public class MissionAdapter extends ArrayAdapter<MissionItem>{
             missionIcon.setVisibility(View.VISIBLE);
         }
         else{
-            Bitmap iconFromDB = getImageFromDB(ImageDownloader.SERVER_ROOT_URL+currentItem.get_id());
-            if(iconFromDB != null) {
+            try {
+                Bitmap iconFromDB = getImageFromDB(ImageDownloader.SERVER_IMAGE_URL + currentItem.get_id());
+//                if(iconFromDB != null) {
                 missionIcon.setImageBitmap(iconFromDB);
                 missionIcon.setVisibility(View.VISIBLE);
+//                }
             }
-            else
+            catch (Exception e) {
                 missionIcon.setVisibility(View.INVISIBLE);
+            }
         }
 
 
         return listItemView;
     }
 
-    public Bitmap getImageFromDB(String url) {
+    public Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException {
         ImageDownloader imageDownloader = new ImageDownloader();
-        try {
-            return imageDownloader.execute(url).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+        return imageDownloader.execute(url).get();
     }
 }

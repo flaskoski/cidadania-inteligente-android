@@ -36,7 +36,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
         setQuestion();
         setNumberOfAnswers();
         setAnswers();
-        if( this.task.isCompleted())
+        if( this.task.isFinished())
             setFinishedState();
 //        TextView question = (TextView) listItemView.findViewById((R.id.question));
 //        question.setText(((QuestionTask)currentItem).getQuestion());

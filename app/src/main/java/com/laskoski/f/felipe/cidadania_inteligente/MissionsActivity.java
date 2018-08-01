@@ -52,6 +52,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     private String uid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     public final int RC_SIGN_IN=1;
+    public final int ACTIVITY_MISSION_DETAILS=2;
     private String username;
 
     //Firebase Realtime Database
@@ -227,7 +228,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent goToMissionDetails = new Intent(getApplicationContext(), MissionDetailsActivity.class);
                 goToMissionDetails.putExtra("mission", missions.get(i));
-                startActivity(goToMissionDetails);
+                startActivityForResult(goToMissionDetails, ACTIVITY_MISSION_DETAILS);
             }
         });
     }
@@ -275,6 +276,9 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
             else if (resultCode == RESULT_CANCELED) {
                 finish();
             }
+        }
+        else if(ACTIVITY_MISSION_DETAILS == requestCode){
+            Log.w("retornou","da missão");
         }
     }
 
