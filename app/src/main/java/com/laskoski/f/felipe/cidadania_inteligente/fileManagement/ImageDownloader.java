@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -35,8 +36,9 @@ public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements 
             InputStream inputStream = connection.getInputStream();
             Bitmap downloadedImage = BitmapFactory.decodeStream(inputStream);
             return downloadedImage;
-        } catch (IOException e) {}
-        return null;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override

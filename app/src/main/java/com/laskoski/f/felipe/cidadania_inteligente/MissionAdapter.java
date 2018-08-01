@@ -18,6 +18,8 @@ import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloade
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 //import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -61,13 +63,11 @@ public class MissionAdapter extends ArrayAdapter<MissionItem>{
         else{
             try {
                 Bitmap iconFromDB = getImageFromDB(ImageDownloader.SERVER_IMAGE_URL + currentItem.get_id());
-//                if(iconFromDB != null) {
                 missionIcon.setImageBitmap(iconFromDB);
                 missionIcon.setVisibility(View.VISIBLE);
-//                }
             }
             catch (Exception e) {
-                missionIcon.setVisibility(View.INVISIBLE);
+                missionIcon.setImageResource(R.mipmap.image_not_found);
             }
         }
 
@@ -75,9 +75,10 @@ public class MissionAdapter extends ArrayAdapter<MissionItem>{
         return listItemView;
     }
 
-    public Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException {
+    public Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException, FileNotFoundException {
         ImageDownloader imageDownloader = new ImageDownloader();
-
-        return imageDownloader.execute(url).get();
+        Bitmap image = imageDownloader.execute(url).get();
+        if(image == null) throw new FileNotFoundException();
+        return image;
     }
 }
