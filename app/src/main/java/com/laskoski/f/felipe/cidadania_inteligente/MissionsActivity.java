@@ -292,8 +292,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         else if(ACTIVITY_MISSION_DETAILS == requestCode){
             if(resultCode == RESULT_OK)
             {
-                int missionStartedStatus=0;
-                data.getIntExtra("missionStatus", missionStartedStatus);
+                int missionStartedStatus = data.getIntExtra("missionStatus", 0);
                 missions.get(missionNumberStarted).setStatus(Integer.valueOf(missionStartedStatus));
             }
         }

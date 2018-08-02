@@ -252,13 +252,15 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
                 missionProgress = restTemplate.postForObject(url, requestMissionProgress, MissionProgress.class);
                 HashMap<String, Integer> tasksProgress = missionProgress.getTaskProgress();
-                if(tasksProgress != null) {
-                    Iterator it = tasksProgress.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry task = ((Map.Entry) it.next());
-                        tasksMap.get(task.getKey()).setProgress((Integer)task.getValue());
+
+                Iterator it = tasksMap.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry task = ((Map.Entry) it.next());
+                    if(tasksProgress.get(task.getKey()) != null) {
+                        tasksMap.get(task.getKey()).setProgress((Integer) tasksProgress.get(task.getKey()));
                         Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
                     }
+                    else tasksProgress.put(task.getKey().toString(), AbstractTask.TASK_NOT_STARTED);
                 }
 
                 return Arrays.asList(tasksFromDB);

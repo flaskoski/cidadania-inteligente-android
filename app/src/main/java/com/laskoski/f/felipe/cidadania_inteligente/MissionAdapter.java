@@ -83,7 +83,14 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             protected void publishResults(CharSequence constraint,FilterResults results) {
 
                 arrayList = (List<MissionItem>) results.values; // has the filtered values
-                notifyDataSetChanged();  // notifies the data with new filtered values
+                clear();
+                addAll(arrayList);
+
+                if (arrayList.size() > 0)
+                    notifyDataSetChanged();
+                else
+                    notifyDataSetInvalidated();
+                //notifyDataSetChanged();  // notifies the data with new filtered values
             }
 
             @Override
