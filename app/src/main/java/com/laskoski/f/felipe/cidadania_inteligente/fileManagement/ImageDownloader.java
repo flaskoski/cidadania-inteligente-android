@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Felipe on 7/29/2018.
@@ -19,8 +20,8 @@ import java.net.URL;
 
 public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements ServerProperties{
     public static final String SERVER_IMAGE_URL = SERVER_ROOT_URL+"downloadFile/";
-    public static final String SERVER_IMAGE_MISSIONS_URL = SERVER_IMAGE_URL + "missions/";
-    public static final String SERVER_MISSION_ICONS_URL = SERVER_IMAGE_MISSIONS_URL + "icons/";
+    public static final String SERVER_MISSION_IMAGES_URL = SERVER_IMAGE_URL+"missionImage";// + "missions/";
+    public static final String SERVER_MISSION_ICONS_URL = SERVER_IMAGE_URL+"missionIcon";// + "icons/";
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -44,5 +45,11 @@ public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
+    }
+
+    public static Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException, FileNotFoundException {
+        Bitmap image = new ImageDownloader().execute(url).get();
+        if(image == null) throw new FileNotFoundException();
+        return image;
     }
 }

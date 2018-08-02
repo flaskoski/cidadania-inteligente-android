@@ -63,31 +63,16 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
         missionTitle.setText(currentItem.getMissionName());
 
-        //if item has associated image
-//        if(currentItem.hasImage()) {
-//            missionIcon.setImageResource(currentItem.getMissionIconId());
-//            missionIcon.setVisibility(View.VISIBLE);
-//        }
-//        else{
-            try {
-                Bitmap iconFromDB = getImageFromDB(ImageDownloader.SERVER_IMAGE_URL + currentItem.get_id());
-                missionIcon.setImageBitmap(iconFromDB);
-                missionIcon.setVisibility(View.VISIBLE);
-            }
-            catch (Exception e) {
-                missionIcon.setImageResource(R.mipmap.image_not_found);
-            }
-        //
-
+        try {
+            Bitmap iconFromDB = ImageDownloader.getImageFromDB(ImageDownloader.SERVER_MISSION_ICONS_URL + currentItem.get_id());
+            missionIcon.setImageBitmap(iconFromDB);
+            missionIcon.setVisibility(View.VISIBLE);
+        }
+        catch (Exception e) {
+            missionIcon.setImageResource(R.mipmap.image_not_found);
+        }
 
         return listItemView;
-    }
-
-    private Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException, FileNotFoundException {
-        ImageDownloader imageDownloader = new ImageDownloader();
-        Bitmap image = imageDownloader.execute(url).get();
-        if(image == null) throw new FileNotFoundException();
-        return image;
     }
     @Override
     public Filter getFilter() {

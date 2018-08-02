@@ -2,7 +2,6 @@ package com.laskoski.f.felipe.cidadania_inteligente;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
@@ -158,7 +159,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
-
         asyncDownloadTasks = new AsyncDownloadTasks(this);
 
         Intent missionDetails = getIntent();
@@ -174,6 +174,14 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         Drawable progressDrawable = progressBar.getProgressDrawable().mutate();
         progressDrawable.setColorFilter(Color.GREEN, android.graphics.PorterDuff.Mode.SRC_IN);
         progressBar.setProgressDrawable(progressDrawable);
+
+        //set mission image
+        ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
+        try {
+            missionImage.setImageBitmap(ImageDownloader.getImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id()));
+        } catch (Exception e) {
+            missionImage.setImageDrawable(getResources().getDrawable(R.drawable.question));
+        }
 
         taskscompleted = findViewById(R.id.tasksCompleted);
         getTasksFromDB();
