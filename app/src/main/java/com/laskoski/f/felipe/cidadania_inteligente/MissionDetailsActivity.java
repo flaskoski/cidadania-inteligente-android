@@ -156,7 +156,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
+        actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
 
         asyncDownloadTasks = new AsyncDownloadTasks(this);

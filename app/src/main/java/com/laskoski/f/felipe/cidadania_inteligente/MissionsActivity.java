@@ -99,7 +99,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
         //draw action bar
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
+        actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
         //Navigation panel at the bottom
        //mTextMessage = (TextView) findViewById(R.id.message);

@@ -31,7 +31,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
 //***back button shouldnt appear here, so that players can't see the question and exit.
         ActionBar actionBar = getSupportActionBar();
 //        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff669900")));
+        actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
         this.task = getTaskDetails();
         setQuestion();
         setNumberOfAnswers();

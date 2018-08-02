@@ -64,11 +64,11 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
         missionTitle.setText(currentItem.getMissionName());
 
         //if item has associated image
-        if(currentItem.hasImage()) {
-            missionIcon.setImageResource(currentItem.getMissionIconId());
-            missionIcon.setVisibility(View.VISIBLE);
-        }
-        else{
+//        if(currentItem.hasImage()) {
+//            missionIcon.setImageResource(currentItem.getMissionIconId());
+//            missionIcon.setVisibility(View.VISIBLE);
+//        }
+//        else{
             try {
                 Bitmap iconFromDB = getImageFromDB(ImageDownloader.SERVER_IMAGE_URL + currentItem.get_id());
                 missionIcon.setImageBitmap(iconFromDB);
@@ -77,13 +77,13 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             catch (Exception e) {
                 missionIcon.setImageResource(R.mipmap.image_not_found);
             }
-        }
+        //
 
 
         return listItemView;
     }
 
-    public Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException, FileNotFoundException {
+    private Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException, FileNotFoundException {
         ImageDownloader imageDownloader = new ImageDownloader();
         Bitmap image = imageDownloader.execute(url).get();
         if(image == null) throw new FileNotFoundException();
@@ -99,12 +99,6 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
                 arrayList = (List<MissionItem>) results.values; // has the filtered values
                 notifyDataSetChanged();  // notifies the data with new filtered values
-                clear();
-                int count = arrayList.size();
-                for(int i = 0; i<count; i++){
-                    add(arrayList.get(i));
-                    notifyDataSetInvalidated();
-                }
             }
 
             @Override

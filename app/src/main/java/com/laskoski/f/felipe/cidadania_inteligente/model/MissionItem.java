@@ -9,7 +9,7 @@ import java.util.List;
 
 public class MissionItem implements Serializable{
     private String missionName;
-    private Integer missionIconId;
+    private Integer missionIconId; //Not being used
     private String description;
     private String _id;
     private List<String> taskIDs;
