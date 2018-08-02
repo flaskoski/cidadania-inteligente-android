@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -75,6 +76,32 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private FileInputStream reader;
     Gson gson = new Gson();
     private final String TASKSFILENAME = "/tasks.dat";
+
+    private void sendMissionProgressBack(){
+        if (missionProgress != null) {
+            Intent taskResult = new Intent();
+            taskResult.putExtra("missionStatus", missionProgress.getStatus());
+            setResult(RESULT_OK, taskResult);
+            finish();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                sendMissionProgressBack();
+                return true;
+        }
+        return(super.onOptionsItemSelected(item));
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        sendMissionProgressBack();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -330,15 +357,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
         return 0;
         //return tasks;
-    }
-    @Override
-    public void onBackPressed() {
-        if (missionProgress != null) {
-            Intent taskResult = new Intent();
-            taskResult.putExtra("missionStatus", missionProgress.getStatus());
-            setResult(RESULT_OK, taskResult);
-            finish();
-        }
     }
 }
 //***** set internal storage
