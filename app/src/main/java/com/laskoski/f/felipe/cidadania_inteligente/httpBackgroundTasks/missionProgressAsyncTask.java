@@ -33,10 +33,20 @@ public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<St
     @Override
         protected HashMap<String, Integer> doInBackground(String... params) {
         RestTemplate restTemplate = new RestTemplate();
-        try {
-            String uid = params[0];
-            String url = ServerProperties.SERVER_MISSION_PROGRESS_URL;
+        String url;
 
+        if(params == null || params[0] == null)
+            return null;
+
+        String uid = params[0];
+        String requestType = params[1];
+
+        if(requestType == null)
+            url = ServerProperties.SERVER_MISSION_PROGRESS_URL;
+        else //if(requestType.equals("all"))
+            url = ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL;
+
+        try {
             // Set the Accept header
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -47,11 +57,11 @@ public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<St
             //Create the entity request (body plus headers)
             HttpEntity<String> request = new HttpEntity<>("bar", headers);
             //Send HTTP POST request with the token id and receive the list of missions
-            HashMap<String, Integer> allMissionsStatus = restTemplate.postForObject(url, request, HashMap.class);
+            return restTemplate.postForObject(url, request, HashMap.class);
 
-            Log.w("missionStatus list", allMissionsStatus.toString());
-
-            return allMissionsStatus;
+//            Log.w("missionStatus list", allMissionsStatus.toString());
+//
+//            return allMissionsStatus;
 
         }catch (Exception e) {
             Log.e("http request:", e.getMessage(), e);
