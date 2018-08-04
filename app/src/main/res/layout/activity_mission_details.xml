@@ -67,7 +67,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="0/2"
+        android:text=""
         app:layout_constraintEnd_toEndOf="@+id/missionProgress"
         app:layout_constraintStart_toStartOf="@+id/missionProgress"
         app:layout_constraintTop_toBottomOf="@+id/missionDescription" />
