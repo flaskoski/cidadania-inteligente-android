@@ -1,4 +1,4 @@
-package com.laskoski.f.felipe.cidadania_inteligente.fileManagement;
+package com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
@@ -156,7 +157,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                                 asyncDownloadMissions.execute();
                             firstTimeRequestingMissions = false;
                         } else {
-                            // Handle error -> task.getException();
+                            Toast.makeText( getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -206,8 +207,10 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     }
     @Override
     public void processFinish(Object output) {
-        missions.addAll((List<MissionItem>) output);
-        missionsAdapter.notifyDataSetChanged();
+        if(output != null) {
+            missions.addAll((List<MissionItem>) output);
+            missionsAdapter.notifyDataSetChanged();
+        }
     }
 
     private void getExampleMissionsFromDBAndSetAdapter(){

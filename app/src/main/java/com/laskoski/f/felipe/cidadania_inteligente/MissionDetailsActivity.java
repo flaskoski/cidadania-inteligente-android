@@ -28,7 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
-import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
