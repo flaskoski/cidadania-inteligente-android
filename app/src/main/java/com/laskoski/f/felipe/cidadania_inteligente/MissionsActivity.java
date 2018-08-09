@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 public class MissionsActivity extends AppCompatActivity implements AsyncResponse {
@@ -66,12 +67,13 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     private CountingIdlingResource idlingSignIn = new CountingIdlingResource("SIGN_IN");
     //Activity Variables
     private MissionAdapter missionsAdapter;
-    private ArrayList<MissionItem> missions;
+    private List<MissionItem> missions = new ArrayList<>();
     //class to deal with request to get Missions list
     private AsyncDownloadMissions asyncDownloadMissions;
     private Boolean firstTimeRequestingMissions = true;
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
+    private CountDownLatch latch;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -111,11 +113,10 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         //Setup async thread: set delegate/listener back to this class
         if (savedInstanceState == null) {
             asyncDownloadMissions = new AsyncDownloadMissions(this);
-
+            setAdapter();
+            getExampleMissionsFromDBAndSetAdapter();
             //TODO infinite scroll
             authenticateAndLoadUserMissions();
-
-            getExampleMissionsFromDBAndSetAdapter();
         }
 
     }
@@ -157,9 +158,10 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                             if (firstTimeRequestingMissions) {
                                 try {
                                     //get missions
-                                    asyncDownloadMissions.execute();
+                                    missions.addAll(asyncDownloadMissions.execute().get());
                                     //get missions progress
-                                    missionsProgress = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
+                                    missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
+                                    updateMissionsProgress();
                                 } catch (InterruptedException | ExecutionException e) {
                                     e.printStackTrace();
                                 }
@@ -169,6 +171,17 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                         } else {
                             Toast.makeText(getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
                         }
+                    }
+
+                    private void updateMissionsProgress() throws NullPointerException, InterruptedException {
+                        for(MissionItem m : missions){
+                            MissionProgress missionProgress = missionsProgress.get(m.get_id());
+                            if(missionProgress != null)
+                                m.setStatus(missionsProgress.get(m.get_id()).getStatus());
+                        }
+                        //filter on ListView
+                        missionsAdapter.notifyDataSetChanged();
+                        missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
                     }
                 });
     }
@@ -206,6 +219,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
             }catch (Exception e) {
                 Log.e("http request:", e.getMessage(), e);
+                latch.countDown();
                 return null;
             }
         }
@@ -217,29 +231,31 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     }
     @Override
     public void processFinish(Object output) {
-        if(output != null) {
-            missions.addAll((List<MissionItem>) output);
-            missionsAdapter.notifyDataSetChanged();
-        }
+//        if(output != null) {
+//            missions.addAll((List<MissionItem>) output);
+//            missionsAdapter.notifyDataSetChanged();
+//        }
     }
 
-    private void getExampleMissionsFromDBAndSetAdapter(){
+    private void getExampleMissionsFromDBAndSetAdapter() {
         //TODO delete this function after DB fully operational
         //Database initialization
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
-
         //Adapter Initialization
-        missions = new ArrayList<>();
-        missionsAdapter = new MissionAdapter(this, missions);
+        //List<AbstractTask> tasks = getTasksFromDB();
 
-        List<AbstractTask> tasks = getTasksFromDB();
-
+//        mFirebaseDatabase = FirebaseDatabase.getInstance();
+//        missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
         //add 2 additional missions for prototyping
         missions.add(new MissionItem("Aventura no MASP",
                 "Agora você vai mostrar que sabe tudo de arte respondendo perguntas sobre obras de arte presentes num dos pontos mais famosos de São Paulo, o MASP!",
                 R.drawable.ic_info_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j", "-L6nRIpyJ2UO8Q42KM0G"})));
         missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j"})));
+        missionsAdapter.notifyDataSetChanged();
+    }
+    private void setAdapter(){
+
+
+        missionsAdapter = new MissionAdapter(this, missions);
 
         //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));

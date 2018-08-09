@@ -9,14 +9,18 @@ import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -57,7 +61,10 @@ public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<St
             //Create the entity request (body plus headers)
             HttpEntity<String> request = new HttpEntity<>("bar", headers);
             //Send HTTP POST request with the token id and receive the list of missions
-            return restTemplate.postForObject(url, request, HashMap.class);
+            ParameterizedTypeReference<HashMap<String, MissionProgress>> typeref = new ParameterizedTypeReference<HashMap<String, MissionProgress>>() {};
+            ResponseEntity<HashMap<String, MissionProgress>> response = restTemplate.exchange(url, HttpMethod.POST, request, typeref);
+            return response.getBody();
+            //return restTemplate.postForObject(url, request, HashMap.class);
 
 //            Log.w("missionStatus list", allMissionsStatus.toString());
 //

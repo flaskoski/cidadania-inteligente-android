@@ -7,9 +7,6 @@ import java.io.Serializable;
  */
 
 public abstract class AbstractTask implements Serializable{
-    public static final Integer TASK_COMPLETED = 100;
-    public static final Integer TASK_NOT_STARTED = 0;
-    public static final Integer TASK_FAILED = -1;
     protected String title = "";
     private String _id;
     private Boolean finished = false;
@@ -22,11 +19,11 @@ public abstract class AbstractTask implements Serializable{
 
     public void setProgress(Integer progress) {
         this.progress = progress;
-        if(progress == TASK_COMPLETED) {
+        if(progress == MissionProgress.TASK_COMPLETED) {
             finished = true;
             completed = true;
         }
-        else if(progress == TASK_FAILED)
+        else if(progress == MissionProgress.TASK_FAILED)
             finished=true;
     }
 

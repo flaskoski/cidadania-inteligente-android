@@ -112,7 +112,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
             tasks.get(taskNumberStarted).setFinished(true);
             ((QuestionTask)tasks.get(taskNumberStarted)).setCompleted(answeredCorrectly);
-            Integer taskStatus = (answeredCorrectly? AbstractTask.TASK_COMPLETED: AbstractTask.TASK_FAILED);
+            Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
             String[] httpParams = {currentMission.get_id(), tasks.get(taskNumberStarted).get_id(), taskStatus.toString()};
             //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
             new AsyncTask<String, Void, String>() {
@@ -287,7 +287,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                         tasksMap.get(task.getKey()).setProgress((Integer) tasksProgress.get(task.getKey()));
                         Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
                     }
-                    else tasksProgress.put(task.getKey().toString(), AbstractTask.TASK_NOT_STARTED);
+                    else tasksProgress.put(task.getKey().toString(), MissionProgress.TASK_NOT_STARTED);
                 }
 
                 return Arrays.asList(tasksFromDB);
