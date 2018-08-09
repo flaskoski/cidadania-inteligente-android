@@ -1,11 +1,8 @@
 package com.laskoski.f.felipe.cidadania_inteligente;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
@@ -34,6 +31,7 @@ import android.support.test.espresso.idling.*;
 
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
@@ -46,7 +44,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MissionsActivity extends AppCompatActivity implements AsyncResponse {
 
@@ -71,6 +71,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     private AsyncDownloadMissions asyncDownloadMissions;
     private Boolean firstTimeRequestingMissions = true;
     private Integer missionNumberStarted;
+    private HashMap<String, MissionProgress> missionsProgress;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -148,16 +149,25 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
     private void getMissions() {
 
-        mFirebaseAuth.getCurrentUser().getIdToken(true)
+        Task<GetTokenResult> getTokenResultTask = mFirebaseAuth.getCurrentUser().getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
-                            if(firstTimeRequestingMissions)
-                                asyncDownloadMissions.execute();
-                            firstTimeRequestingMissions = false;
+                            if (firstTimeRequestingMissions) {
+                                try {
+                                    //get missions
+                                    asyncDownloadMissions.execute();
+                                    //get missions progress
+                                    missionsProgress = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
+                                } catch (InterruptedException | ExecutionException e) {
+                                    e.printStackTrace();
+                                }
+                                firstTimeRequestingMissions = false;
+                            }
+
                         } else {
-                            Toast.makeText( getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

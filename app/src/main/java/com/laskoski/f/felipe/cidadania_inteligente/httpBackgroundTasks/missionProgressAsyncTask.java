@@ -28,10 +28,10 @@ import java.util.concurrent.ExecutionException;
  * Created by Felipe on 7/29/2018.
  */
 
-public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<String, Integer>> implements ServerProperties{
+public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<String, MissionProgress>> implements ServerProperties{
     @SuppressWarnings("unchecked")
     @Override
-        protected HashMap<String, Integer> doInBackground(String... params) {
+        protected HashMap<String, MissionProgress> doInBackground(String... params) {
         RestTemplate restTemplate = new RestTemplate();
         String url;
 
