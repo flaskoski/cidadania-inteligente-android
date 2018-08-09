@@ -342,6 +342,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         progressBar.setMax(tasks.size());
         progressBar.setProgress(countCompletedTasks);
         taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
+        if(missionIsCompleted()) setMissionCompletedView(false);
     }
 
 
