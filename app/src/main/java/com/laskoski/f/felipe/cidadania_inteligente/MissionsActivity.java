@@ -323,6 +323,12 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
             {
                 int missionStartedStatus = data.getIntExtra("missionStatus", 0);
                 missions.get(missionNumberStarted).setStatus(Integer.valueOf(missionStartedStatus));
+                BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+                if(missionStartedStatus == MissionProgress.MISSION_FINISHED)
+                    navigation.setSelectedItemId(R.id.navigation_completed);
+                else if(missionStartedStatus == MissionProgress.MISSION_IN_PROGRESS)
+                    navigation.setSelectedItemId(R.id.navigation_inProgress);
+                else navigation.setSelectedItemId(R.id.navigation_notStarted);
             }
         }
     }
