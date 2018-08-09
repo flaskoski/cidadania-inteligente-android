@@ -82,4 +82,17 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/missionProgress" />
 
+    <ImageView
+        android:id="@+id/missionCompleted"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/missionProgress"
+        app:layout_constraintStart_toStartOf="@+id/missionProgress"
+        app:layout_constraintTop_toBottomOf="@+id/missionDescription"
+        app:srcCompat="@mipmap/animated_checked_icon" />
+
 </android.support.constraint.ConstraintLayout>

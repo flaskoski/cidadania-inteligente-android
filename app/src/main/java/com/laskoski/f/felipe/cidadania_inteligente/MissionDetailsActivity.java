@@ -3,6 +3,7 @@ package com.laskoski.f.felipe.cidadania_inteligente;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -11,6 +12,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -140,6 +143,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                     }
                 }
             }.execute(httpParams);
+            if(missionIsCompleted()) setMissionCompletedView(true);
             taskAdapter.notifyDataSetChanged();
             if(answeredCorrectly){
                 incrementProgress();
@@ -152,6 +156,28 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 //                e.printStackTrace();
 //            }
         }
+    }
+
+    private void setMissionCompletedView(Boolean animate) {
+        if(animate) {
+            //Animation appear = AnimationUtils.loadAnimation(getApplicationContext(), R.anim)
+            ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
+            imgMissionCompleted.setVisibility(View.VISIBLE);
+        }
+        else{
+            ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
+            imgMissionCompleted.setVisibility(View.VISIBLE);
+        }
+        progressBar.setVisibility(View.INVISIBLE);
+        taskscompleted.setVisibility(View.INVISIBLE);
+    }
+
+    private boolean missionIsCompleted() {
+        for(AbstractTask t : tasks){
+            if(!t.isFinished())
+                return false;
+        }
+        return true;
     }
 
     private void incrementProgress(){
