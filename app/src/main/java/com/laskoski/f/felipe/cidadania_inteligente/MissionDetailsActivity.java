@@ -159,14 +159,12 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     }
 
     private void setMissionCompletedView(Boolean animate) {
+        ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
+        imgMissionCompleted.setVisibility(View.VISIBLE);
         if(animate) {
-            //Animation appear = AnimationUtils.loadAnimation(getApplicationContext(), R.anim)
-            ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
-            imgMissionCompleted.setVisibility(View.VISIBLE);
-        }
-        else{
-            ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
-            imgMissionCompleted.setVisibility(View.VISIBLE);
+            imgMissionCompleted.setAlpha(0f);
+            imgMissionCompleted.setTranslationY(40f);
+            imgMissionCompleted.animate().translationYBy(-40f).alpha(1f).setDuration(800);
         }
         progressBar.setVisibility(View.INVISIBLE);
         taskscompleted.setVisibility(View.INVISIBLE);
