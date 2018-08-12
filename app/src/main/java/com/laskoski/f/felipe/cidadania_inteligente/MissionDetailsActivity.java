@@ -25,7 +25,6 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
@@ -40,8 +39,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,7 +65,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private TextView taskscompleted;
     private MissionProgress missionProgress;
 
-    private AsyncDownloadTasks asyncDownloadTasks;
+    private TaskAsyncTask taskAsyncTask;
 
     private void sendMissionProgressBack(){
         if (missionProgress != null) {
@@ -104,7 +101,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
-        asyncDownloadTasks = new AsyncDownloadTasks(this);
+        taskAsyncTask = new TaskAsyncTask(this);
 
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
@@ -203,7 +200,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
 
-                            asyncDownloadTasks.execute(currentMission.getTaskIDs());
+                            taskAsyncTask.execute(currentMission.getTaskIDs());
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -211,10 +208,10 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 });
     }
 
-    private class AsyncDownloadTasks extends AsyncTask<Object, String, List<QuestionTask>> {
+    private class TaskAsyncTask extends AsyncTask<Object, String, List<QuestionTask>> {
         public AsyncResponse delegate = null;
 
-        public AsyncDownloadTasks(AsyncResponse delegate){
+        public TaskAsyncTask(AsyncResponse delegate){
             this.delegate = delegate;
         }
         @Override
