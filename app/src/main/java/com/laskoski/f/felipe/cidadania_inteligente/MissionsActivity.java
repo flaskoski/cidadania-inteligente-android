@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-public class MissionsActivity extends AppCompatActivity implements AsyncResponse {
+public class MissionsActivity extends AppCompatActivity {
 
     //For Firebase Authentication
     private FirebaseAuth mFirebaseAuth;
@@ -57,19 +57,13 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     public final int RC_SIGN_IN=1;
     public final int ACTIVITY_MISSION_DETAILS=2;
-    private String username;
 
-    //Firebase Realtime Database
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference missionsDatabaseReference;
-    private ChildEventListener missionsEventListener;
     //For Mockito functional tests using FB authentication
     private CountingIdlingResource idlingSignIn = new CountingIdlingResource("SIGN_IN");
     //Activity Variables
     private MissionAdapter missionsAdapter;
     private List<MissionItem> missions = new ArrayList<>();
     //class to deal with request to get Missions list
-    private AsyncDownloadMissions asyncDownloadMissions;
     private Boolean firstTimeRequestingMissions = true;
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
@@ -103,6 +97,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
         //draw action bar
         ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
         actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
         //Navigation panel at the bottom
@@ -112,7 +107,6 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 
         //Setup async thread: set delegate/listener back to this class
         if (savedInstanceState == null) {
-            asyncDownloadMissions = new AsyncDownloadMissions(this);
             setAdapter();
             //getExampleMissionsFromDBAndSetAdapter();
             //TODO infinite scroll
@@ -158,7 +152,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                             if (firstTimeRequestingMissions) {
                                 try {
                                     //get missions
-                                    missions.addAll(asyncDownloadMissions.execute().get());
+                                    missions.addAll(new AsyncDownloadMissions().execute().get());
                                     //get missions progress
                                     missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
                                     updateMissionsProgress();
@@ -191,12 +185,9 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     }
 
     private class AsyncDownloadMissions extends AsyncTask<Void, String, List<MissionItem>> implements ServerProperties{
-        public AsyncResponse delegate = null;
-        public static final String SERVER_MISSIONS_URL = SERVER_ROOT_URL+"myMissions";
+        AsyncResponse delegate = null;
+        static final String SERVER_MISSIONS_URL = SERVER_ROOT_URL+"myMissions";
 
-        public AsyncDownloadMissions(AsyncResponse delegate){
-            this.delegate = delegate;
-        }
         @Override
         protected void onPreExecute() {
             // before the network request begins, show a progress indicator
@@ -212,12 +203,11 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 headers.set("Authorization", uid);
 
                 //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                String url= SERVER_MISSIONS_URL;
                 //Create the entity request (body plus headers)
-                HttpEntity<String> request = new HttpEntity<>(new String("bar"), headers);
+                HttpEntity<String> request = new HttpEntity<>("body", headers);
                 //Send HTTP POST request with the token id and receive the list of missions
-                MissionItem[] missionsFromDB = restTemplate.postForObject(url, request, MissionItem[].class);
-                Log.w("http response", missionsFromDB.toString());
+                MissionItem[] missionsFromDB = restTemplate.postForObject(SERVER_MISSIONS_URL, request, MissionItem[].class);
+                Log.w("http response", Arrays.toString(missionsFromDB));
 
                 return Arrays.asList(missionsFromDB);
 
@@ -227,22 +217,11 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                 return null;
             }
         }
-        @Override
-        protected void onPostExecute(List<MissionItem> result) {
-            delegate.processFinish(result);
-        }
 
     }
-    @Override
-    public void processFinish(Object output) {
-//        if(output != null) {
-//            missions.addAll((List<MissionItem>) output);
-//            missionsAdapter.notifyDataSetChanged();
-//        }
-    }
 
-    private void getExampleMissionsFromDBAndSetAdapter() {
-        //TODO delete this function after DB fully operational
+//    private void getExampleMissionsFromDBAndSetAdapter() {
+//        //TODO delete this function after DB fully operational
         //Database initialization
         //Adapter Initialization
         //List<AbstractTask> tasks = getTasksFromDB();
@@ -250,12 +229,12 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
 //        mFirebaseDatabase = FirebaseDatabase.getInstance();
 //        missionsDatabaseReference = mFirebaseDatabase.getReference().child("missions");
         //add 2 additional missions for prototyping
-        missions.add(new MissionItem("Aventura no MASP",
-                "Agora você vai mostrar que sabe tudo de arte respondendo perguntas sobre obras de arte presentes num dos pontos mais famosos de São Paulo, o MASP!",
-                R.drawable.ic_info_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j", "-L6nRIpyJ2UO8Q42KM0G"})));
-        missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j"})));
-        missionsAdapter.notifyDataSetChanged();
-    }
+//        missions.add(new MissionItem("Aventura no MASP",
+//                "Agora você vai mostrar que sabe tudo de arte respondendo perguntas sobre obras de arte presentes num dos pontos mais famosos de São Paulo, o MASP!",
+//                R.drawable.ic_info_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j", "-L6nRIpyJ2UO8Q42KM0G"})));
+//        missions.add(new MissionItem("Em busca do tesouro...", "", R.drawable.ic_sync_black_24dp, Arrays.asList(new String[]{"-L6qBmFKK-6IggKrAV6j"})));
+//        missionsAdapter.notifyDataSetChanged();
+    //}
     private void setAdapter(){
 
 
@@ -278,36 +257,36 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         });
     }
 
-    private List<AbstractTask> getTasksFromDB() {
-        final List<AbstractTask> tasks = new ArrayList<>();
-
-        DatabaseReference tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
-        //Adapter Initialization
-        final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
-
-        //get missions from DB
-        ChildEventListener tasksEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                tasks.add(dataSnapshot.getValue(QuestionTask.class));
-                taskAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        tasksDatabaseReference.addChildEventListener(tasksEventListener);
-        return tasks;
-    }
+//    private List<AbstractTask> getTasksFromDB() {
+//        final List<AbstractTask> tasks = new ArrayList<>();
+//
+//        DatabaseReference tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
+//        //Adapter Initialization
+//        final TaskAdapter taskAdapter = new TaskAdapter(this,tasks);
+//
+//        //get missions from DB
+//        ChildEventListener tasksEventListener = new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                tasks.add(dataSnapshot.getValue(QuestionTask.class));
+//                taskAdapter.notifyDataSetChanged();
+//            }
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//            }
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//            }
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//            }
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//            }
+//        };
+//        tasksDatabaseReference.addChildEventListener(tasksEventListener);
+//        return tasks;
+//    }
 
     private void onSignedOutCleanUp() {
     }
@@ -338,7 +317,6 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
     }
 
     private void onSignedInInitialize(String username) {
-        this.username = username;
     }
 
     @Override
