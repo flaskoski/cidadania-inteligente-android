@@ -26,8 +26,14 @@ public class MissionProgress {
         return taskProgress;
     }
 
+    public void setOneTaskProgress(String taskId, Integer progress){
+        this.taskProgress.put(taskId, progress);
+        updateStatus();
+    }
+
     public void setTaskProgress(HashMap<String, Integer> taskProgress) {
         this.taskProgress = taskProgress;
+        updateStatus();
     }
 
 //    public Integer getStatus() {

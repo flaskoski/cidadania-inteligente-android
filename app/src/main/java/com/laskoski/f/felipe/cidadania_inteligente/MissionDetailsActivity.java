@@ -3,7 +3,6 @@ package com.laskoski.f.felipe.cidadania_inteligente;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -12,8 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -64,8 +61,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private DatabaseReference tasksDatabaseReference;
     private ChildEventListener tasksEventListener;
     private ArrayList<AbstractTask> tasks = new ArrayList<>();;
-    private Integer taskNumberStarted;
     private TaskAdapter taskAdapter;
+    private Integer taskStartedNumber;
     private ProgressBar progressBar;
     private TextView taskscompleted;
     private MissionProgress missionProgress;
@@ -74,11 +71,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private RestTemplate restTemplate = new RestTemplate();
 
     private AsyncDownloadTasks asyncDownloadTasks;
-
-    private FileWriter writer;
-    private FileInputStream reader;
-    Gson gson = new Gson();
-    private final String TASKSFILENAME = "/tasks.dat";
 
     private void sendMissionProgressBack(){
         if (missionProgress != null) {
@@ -105,102 +97,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         sendMissionProgressBack();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && data != null) {
-     //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
-
-
-            Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
-            tasks.get(taskNumberStarted).setFinished(true);
-            ((QuestionTask)tasks.get(taskNumberStarted)).setCompleted(answeredCorrectly);
-            Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
-            String[] httpParams = {currentMission.get_id(), tasks.get(taskNumberStarted).get_id(), taskStatus.toString()};
-            //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
-            new AsyncTask<String, Void, String>() {
-                @Override
-                protected String doInBackground(String... params) {
-                    try {
-                        // Set the Accept header
-                        HttpHeaders headers = new HttpHeaders();
-                        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                        headers.set("Authorization", uid);
-
-                        //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                        String url="http://10.0.2.2:8080/player/";
-                        //Create the entity request (body plus headers)
-
-                        HttpEntity<String[]> request = new HttpEntity<String[]>(params, headers);
-                        //Send HTTP POST request with the token id and receive the list of missions
-                        Boolean okResponse = restTemplate.postForObject(url, request, Boolean.class);
-                        Log.w("UpdatePlayerProgress: ", okResponse.toString());
-                        return "sucess";
-
-                    }catch (Exception e) {
-                        Log.e("http request:", e.getMessage(), e);
-                        return "error";
-                    }
-                }
-            }.execute(httpParams);
-            if(missionIsCompleted()) setMissionCompletedView(true);
-            taskAdapter.notifyDataSetChanged();
-            if(answeredCorrectly){
-                incrementProgress();
-            }
-//            try {
-//                Log.w("JSON", gson.toJson(tasks));
-//            //     writer.write(gson.toJson(tasks));
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-        }
-    }
-
-    private void setMissionCompletedView(Boolean animate) {
-        ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
-        imgMissionCompleted.setVisibility(View.VISIBLE);
-        if(animate) {
-            imgMissionCompleted.setAlpha(0f);
-            imgMissionCompleted.setTranslationY(40f);
-            imgMissionCompleted.animate().translationYBy(-40f).alpha(1f).setDuration(800);
-        }
-        progressBar.setVisibility(View.INVISIBLE);
-        taskscompleted.setVisibility(View.INVISIBLE);
-    }
-
-    private boolean missionIsCompleted() {
-        for(AbstractTask t : tasks){
-            if(!t.isFinished())
-                return false;
-        }
-        return true;
-    }
-
-    private void incrementProgress(){
-        progressBar.incrementProgressBy(1);
-        taskscompleted.setText(String.valueOf(progressBar.getProgress())+"/"+taskscompleted.getText().toString().split("/")[1]);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        try {
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the user's current game state
-        savedInstanceState.putSerializable("currentMission", currentMission);
-        //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
-
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -237,6 +133,94 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         taskscompleted = findViewById(R.id.tasksCompleted);
         getTasksFromDB();
         loadUserTasks();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && data != null) {
+     //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
+
+            String taskStartedId = data.getStringExtra("taskId" );
+            Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
+            Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
+            missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
+
+            String[] httpParams = {currentMission.get_id(), taskStartedId, taskStatus.toString()};
+            //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
+            new AsyncTask<String, Void, String>() {
+                @Override
+                protected String doInBackground(String... params) {
+                    try {
+                        // Set the Accept header
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                        headers.set("Authorization", uid);
+
+                        //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
+                        String url="http://10.0.2.2:8080/player/";
+                        //Create the entity request (body plus headers)
+
+                        HttpEntity<String[]> request = new HttpEntity<String[]>(params, headers);
+                        //Send HTTP POST request with the token id and receive the list of missions
+                        Boolean okResponse = restTemplate.postForObject(url, request, Boolean.class);
+                        Log.w("UpdatePlayerProgress: ", okResponse.toString());
+                        return "sucess";
+
+                    }catch (Exception e) {
+                        Log.e("http request:", e.getMessage(), e);
+                        //TODO send error msg on UI and save progress on cache for future sync.
+                        return "error";
+                    }
+                }
+            }.execute(httpParams);
+            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
+                setMissionCompletedView(true);
+
+            updateListViewWithTaskResult(answeredCorrectly);
+//            try {
+//                Log.w("JSON", gson.toJson(tasks));
+//            //     writer.write(gson.toJson(tasks));
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+        }
+    }
+
+    private void updateListViewWithTaskResult(Boolean answeredCorrectly) {
+        tasks.get(taskStartedNumber).setFinished(true);
+        ((QuestionTask)tasks.get(taskStartedNumber)).setCompleted(answeredCorrectly);
+        taskAdapter.notifyDataSetChanged();
+        if(answeredCorrectly){
+            incrementProgress();
+        }
+    }
+
+    private void setMissionCompletedView(Boolean animate) {
+        ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
+        imgMissionCompleted.setVisibility(View.VISIBLE);
+        if(animate) {
+            imgMissionCompleted.setAlpha(0f);
+            imgMissionCompleted.setTranslationY(40f);
+            imgMissionCompleted.animate().translationYBy(-40f).alpha(1f).setDuration(800);
+        }
+        progressBar.setVisibility(View.INVISIBLE);
+        taskscompleted.setVisibility(View.INVISIBLE);
+    }
+
+    private void incrementProgress(){
+        progressBar.incrementProgressBy(1);
+        taskscompleted.setText(String.valueOf(progressBar.getProgress())+"/"+taskscompleted.getText().toString().split("/")[1]);
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putSerializable("currentMission", currentMission);
+        //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
     private void setListView(){
 
@@ -301,6 +285,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 HttpEntity<String[]> requestMissionProgress = new HttpEntity<String[]>(requestParams, headers);
                 //Send HTTP POST request with the token id and receive the list of missions
 
+                //Get Mission Progress from DB.
                 missionProgress = restTemplate.postForObject(url, requestMissionProgress, MissionProgress.class);
                 HashMap<String, Integer> tasksProgress = missionProgress.getTaskProgress();
 
@@ -340,7 +325,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         progressBar.setMax(tasks.size());
         progressBar.setProgress(countCompletedTasks);
         taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
-        if(missionIsCompleted()) setMissionCompletedView(false);
+        if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
+            setMissionCompletedView(false);
     }
 
 
@@ -374,8 +360,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
                 Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
+                taskStartedNumber = taskNumber;
                 goToTaskDetails.putExtra("task", tasks.get(taskNumber));
-                taskNumberStarted = taskNumber;
                 startActivityForResult(goToTaskDetails, taskNumber);
             }
         });

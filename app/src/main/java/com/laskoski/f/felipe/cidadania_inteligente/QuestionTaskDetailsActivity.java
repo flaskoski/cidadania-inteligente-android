@@ -20,6 +20,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 public class QuestionTaskDetailsActivity extends AppCompatActivity {
     public QuestionTask task;
     private Boolean goBackConfirmed;
+    Intent taskResult = new Intent();
     public static final int[] answerViewIds = {R.id.answer1, R.id.answer2, R.id.answer3, R.id.answer4, R.id.answer5, R.id.answer6};
 
     @Override
@@ -84,7 +85,6 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
                 .setMessage("Quer mesmo sair da questão? Você não vai poder voltar para responder depois.")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent taskResult = new Intent();
                         taskResult.putExtra("correct?", false);
                         setResult(RESULT_OK, taskResult);
                         finish();
@@ -162,7 +162,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
             if(answerView != null)
                 answerView.setOnClickListener(null);
         }
-        Intent taskResult = new Intent();
+        taskResult.putExtra("taskId", task.get_id());
         taskResult.putExtra("correct?", answeredCorrectly);
         setResult(RESULT_OK, taskResult);
 

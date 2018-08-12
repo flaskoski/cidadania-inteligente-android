@@ -114,7 +114,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         if (savedInstanceState == null) {
             asyncDownloadMissions = new AsyncDownloadMissions(this);
             setAdapter();
-            getExampleMissionsFromDBAndSetAdapter();
+            //getExampleMissionsFromDBAndSetAdapter();
             //TODO infinite scroll
             authenticateAndLoadUserMissions();
         }
@@ -162,10 +162,16 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                                     //get missions progress
                                     missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
                                     updateMissionsProgress();
-                                } catch (InterruptedException | ExecutionException e) {
+                                } catch (InterruptedException | ExecutionException | NullPointerException e) {
+                                    if(missionsProgress == null)
+                                        missionsProgress = new HashMap<>();
                                     e.printStackTrace();
                                 }
                                 firstTimeRequestingMissions = false;
+
+                                //filter on ListView
+                                missionsAdapter.notifyDataSetChanged();
+                                missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
                             }
 
                         } else {
@@ -179,9 +185,7 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
                             if(missionProgress != null)
                                 m.setStatus(missionsProgress.get(m.get_id()).getStatus());
                         }
-                        //filter on ListView
-                        missionsAdapter.notifyDataSetChanged();
-                        missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
+
                     }
                 });
     }
@@ -314,9 +318,9 @@ public class MissionsActivity extends AppCompatActivity implements AsyncResponse
         if(RC_SIGN_IN == requestCode) {
             if (resultCode == RESULT_OK)
                 Toast.makeText(this, "Bem Vindo!", Toast.LENGTH_SHORT).show();
-            else if (resultCode == RESULT_CANCELED) {
-                finish();
-            }
+//            else if (resultCode == RESULT_CANCELED) {
+//                finish();
+//            }
         }
         else if(ACTIVITY_MISSION_DETAILS == requestCode){
             if(resultCode == RESULT_OK)
