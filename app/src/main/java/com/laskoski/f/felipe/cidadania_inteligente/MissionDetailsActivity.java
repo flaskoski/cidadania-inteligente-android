@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.UpdatePlayerProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
@@ -66,9 +67,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private ProgressBar progressBar;
     private TextView taskscompleted;
     private MissionProgress missionProgress;
-
-    //HTTP requests
-    private RestTemplate restTemplate = new RestTemplate();
 
     private AsyncDownloadTasks asyncDownloadTasks;
 
@@ -144,47 +142,17 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             String taskStartedId = data.getStringExtra("taskId" );
             Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
             Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
-            missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
 
-            String[] httpParams = {currentMission.get_id(), taskStartedId, taskStatus.toString()};
+            String[] params = {uid, currentMission.get_id(), taskStartedId, taskStatus.toString()};
             //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
-            new AsyncTask<String, Void, String>() {
-                @Override
-                protected String doInBackground(String... params) {
-                    try {
-                        // Set the Accept header
-                        HttpHeaders headers = new HttpHeaders();
-                        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                        headers.set("Authorization", uid);
+            new UpdatePlayerProgressAsyncTask().execute(params);
 
-                        //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                        String url="http://10.0.2.2:8080/player/";
-                        //Create the entity request (body plus headers)
-
-                        HttpEntity<String[]> request = new HttpEntity<String[]>(params, headers);
-                        //Send HTTP POST request with the token id and receive the list of missions
-                        Boolean okResponse = restTemplate.postForObject(url, request, Boolean.class);
-                        Log.w("UpdatePlayerProgress: ", okResponse.toString());
-                        return "sucess";
-
-                    }catch (Exception e) {
-                        Log.e("http request:", e.getMessage(), e);
-                        //TODO send error msg on UI and save progress on cache for future sync.
-                        return "error";
-                    }
-                }
-            }.execute(httpParams);
+            //--Update missionProgress object and ListView
+            missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
+            updateListViewWithTaskResult(answeredCorrectly);
             if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
                 setMissionCompletedView(true);
-
-            updateListViewWithTaskResult(answeredCorrectly);
-//            try {
-//                Log.w("JSON", gson.toJson(tasks));
-//            //     writer.write(gson.toJson(tasks));
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            //--
         }
     }
 
@@ -257,7 +225,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         protected List<QuestionTask> doInBackground(Object... params) {
             // Create a new RestTemplate instance
             List<String> taskIds = (List<String>) params[0];
-
+            //HTTP requests
+            RestTemplate restTemplate = new RestTemplate();
             try {
                 // Set the Accept header
                 HttpHeaders headers = new HttpHeaders();
