@@ -3,6 +3,8 @@ package com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,7 +16,7 @@ import java.util.Arrays;
  * Created by Felipe on 8/11/2018.
  */
 
-public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, String> {
+public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, String> implements ServerProperties {
     @Override
     protected String doInBackground(String... params) {
         if(params == null || params[0] == null)
@@ -32,7 +34,7 @@ public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, Strin
             headers.set("Authorization", uid);
 
             //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-            String url="http://10.0.2.2:8080/player/";
+            String url=SERVER_PLAYER_URL;
             //Create the entity request (body plus headers)
 
             HttpEntity<String[]> request = new HttpEntity<String[]>(httpParams, headers);

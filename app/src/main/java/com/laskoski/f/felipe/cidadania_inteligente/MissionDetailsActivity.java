@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -283,16 +284,20 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         if(output != null){
             tasks.addAll((List<AbstractTask>) output);
             taskAdapter.notifyDataSetChanged();
+            Integer countCompletedTasks = 0;
+            for(AbstractTask task : tasks)
+                if(task.isCompleted())
+                    countCompletedTasks++;
+            progressBar.setMax(tasks.size());
+            progressBar.setProgress(countCompletedTasks);
+            taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
+            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
+                setMissionCompletedView(false);
         }
-        Integer countCompletedTasks = 0;
-        for(AbstractTask task : tasks)
-            if(task.isCompleted())
-                countCompletedTasks++;
-        progressBar.setMax(tasks.size());
-        progressBar.setProgress(countCompletedTasks);
-        taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
-        if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
-            setMissionCompletedView(false);
+        else{
+            Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
