@@ -2,8 +2,6 @@ package com.laskoski.f.felipe.cidadania_inteligente;
 
 
 import android.support.test.espresso.DataInteraction;
-import android.support.test.espresso.Espresso;
-import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -11,8 +9,8 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.support.test.espresso.IdlingResource;
-import android.support.test.espresso.Espresso;
+
+import com.laskoski.f.felipe.cidadania_inteligente.activity.MissionsActivity;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

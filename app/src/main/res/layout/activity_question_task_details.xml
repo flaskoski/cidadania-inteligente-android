@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
-    tools:context="com.laskoski.f.felipe.cidadania_inteligente.QuestionTaskDetailsActivity">
+    tools:context="com.laskoski.f.felipe.cidadania_inteligente.activity.QuestionTaskDetailsActivity">
 
     <TextView
         android:id="@+id/question"

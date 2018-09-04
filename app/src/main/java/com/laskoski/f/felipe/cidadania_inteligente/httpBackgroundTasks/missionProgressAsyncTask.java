@@ -1,12 +1,17 @@
 package com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.RequestFuture;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.gson.reflect.TypeToken;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
-import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,22 +22,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Felipe on 7/29/2018.
  */
 
 public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<String, MissionProgress>> implements ServerProperties{
+    private static HashMap<String, MissionProgress> missionsProgress;
+
     @SuppressWarnings("unchecked")
     @Override
         protected HashMap<String, MissionProgress> doInBackground(String... params) {
@@ -81,4 +81,25 @@ public class missionProgressAsyncTask extends AsyncTask<String, Void, HashMap<St
 //        if(image == null) throw new FileNotFoundException();
 //        return image;
 //   }
+
+    public static GsonRequest<HashMap<String, MissionProgress>> getMissionProgressGson(String uid, OnCompleteListener<GetTokenResult> queue, RequestFuture<HashMap<String, MissionProgress>> future) throws InterruptedException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", uid);
+        Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
+        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+        JsonObjectRequest
+        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, new Response.Listener<HashMap<String, MissionProgress>>() {
+            @Override
+            public void onResponse(HashMap<String, MissionProgress> response) {
+                missionsProgress = response;
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                missionsProgress = null;
+            }
+        });
+        return request;
+    }
 }
