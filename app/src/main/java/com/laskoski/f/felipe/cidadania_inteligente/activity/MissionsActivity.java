@@ -16,8 +16,6 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,25 +26,19 @@ import com.google.firebase.auth.GetTokenResult;
 
 import android.support.test.espresso.idling.*;
 
-import com.google.gson.reflect.TypeToken;
 import com.laskoski.f.felipe.cidadania_inteligente.CreateMissionActivity;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.MissionAdapter;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
-import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.GsonRequest;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class MissionsActivity extends AppCompatActivity {
 
@@ -66,7 +58,7 @@ public class MissionsActivity extends AppCompatActivity {
     private Boolean firstTimeRequestingMissions = true;
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
-    private RequestQueue queue = Volley.newRequestQueue(this);
+    private RequestQueue queue;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -144,7 +136,7 @@ public class MissionsActivity extends AppCompatActivity {
 
 
     private void getMissions() {
-
+        queue = Volley.newRequestQueue(this);
         Task<GetTokenResult> getTokenResultTask = mFirebaseAuth.getCurrentUser().getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
@@ -155,21 +147,18 @@ public class MissionsActivity extends AppCompatActivity {
                                     //get missions
                                     missions.addAll(new MissionAsyncTask().execute(uid).get());
                                     //get missions progress
-                                    RequestFuture<HashMap<String, MissionProgress>> future = RequestFuture.newFuture();
-                                    queue.add(missionProgressAsyncTask.getMissionProgressGson(uid, this, future));
-                                    //missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
-                                    queue.addRequestFinishedListener();
-                                    updateMissionsProgress();
+
+                                    missionProgressAsyncTask.getMissionProgressGson(uid, queue, missionProgressResponseListener);
+                                   // missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
+
+                                    firstTimeRequestingMissions = false;
+
                                 } catch (InterruptedException | ExecutionException | NullPointerException e) {
                                     if(missionsProgress == null)
                                         missionsProgress = new HashMap<>();
                                     e.printStackTrace();
                                 }
-                                firstTimeRequestingMissions = false;
 
-                                //filter on ListView
-                                missionsAdapter.notifyDataSetChanged();
-                                missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
                             }
 
                         } else {
@@ -178,17 +167,27 @@ public class MissionsActivity extends AppCompatActivity {
                     }
 
                     private void updateMissionsProgress() throws NullPointerException, InterruptedException {
-                        for(MissionItem m : missions){
-                            MissionProgress missionProgress = missionsProgress.get(m.get_id());
-                            if(missionProgress != null)
-                                m.setStatus(missionsProgress.get(m.get_id()).getStatus());
-                        }
+
 
                     }
                 });
     }
 
-
+    private Response.Listener<HashMap<String, MissionProgress>> missionProgressResponseListener = new Response.Listener<HashMap<String,MissionProgress>>()
+    {
+        @Override
+        public void onResponse (HashMap <String, MissionProgress> response){
+            missionsProgress = response;
+            for(MissionItem m : missions){
+                MissionProgress missionProgress = missionsProgress.get(m.get_id());
+                if(missionProgress != null)
+                    m.setStatus(missionsProgress.get(m.get_id()).getStatus());
+            }
+            //filter on ListView
+            missionsAdapter.notifyDataSetChanged();
+            missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
+        }
+    };
 
     //}
     private void setAdapter(){
