@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,11 +35,17 @@ import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionPr
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
+import java.io.InputStream;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 public class MissionsActivity extends AppCompatActivity {
 
@@ -58,7 +65,7 @@ public class MissionsActivity extends AppCompatActivity {
     private Boolean firstTimeRequestingMissions = true;
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
-    private RequestQueue queue;
+    private RequestQueue mRequestQueue;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -133,10 +140,49 @@ public class MissionsActivity extends AppCompatActivity {
         };
     }
 
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, newSslSocketFactory()));
+        }
+        return mRequestQueue;
+    }
+
+    private final String KEYSTORE_PASSWORD = "smartcitzenUSP";
+    private SSLSocketFactory newSslSocketFactory() {
+        try {
+            // Get an instance of the RSA format
+            // Created with keytool -genkey -alias mydomain -keyalg RSA -keystore KeyStore.jks -keysize 2048
+            // (BKS) - Bouncy Castle KeyStore format
+            KeyStore trusted = KeyStore.getInstance("JKS");
+            // Get the raw resource, which contains the keystore with
+            // your trusted certificates (root and any intermediate certs)
+            InputStream in = getApplicationContext().getResources().openRawResource(R.raw.keystore);
+            try {
+                // Initialize the keystore with the provided trusted certificates
+                // Provide the password of the keystore
+                trusted.load(in, KEYSTORE_PASSWORD.toCharArray());
+            } finally {
+                in.close();
+            }
+
+            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+            tmf.init(trusted);
+
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, tmf.getTrustManagers(), null);
+
+            SSLSocketFactory sf = context.getSocketFactory();
+            return sf;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
 
 
     private void getMissions() {
-        queue = Volley.newRequestQueue(this);
+        mRequestQueue = getRequestQueue();
+
         Task<GetTokenResult> getTokenResultTask = mFirebaseAuth.getCurrentUser().getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
@@ -148,7 +194,7 @@ public class MissionsActivity extends AppCompatActivity {
                                     missions.addAll(new MissionAsyncTask().execute(uid).get());
                                     //get missions progress
 
-                                    missionProgressAsyncTask.getMissionProgressGson(uid, queue, missionProgressResponseListener);
+                                    missionProgressAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionProgressResponseListener);
                                    // missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
 
                                     firstTimeRequestingMissions = false;
