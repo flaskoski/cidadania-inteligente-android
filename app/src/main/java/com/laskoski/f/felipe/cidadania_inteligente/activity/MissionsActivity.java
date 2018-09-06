@@ -36,7 +36,10 @@ import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionPr
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.KeyStore;
 import java.security.Security;
 import java.util.ArrayList;
@@ -45,7 +48,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -144,10 +150,35 @@ public class MissionsActivity extends AppCompatActivity {
 
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, newSslSocketFactory()));
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, newSslSocketFactory()));/*{
+
+                    @Override
+                    protected HttpURLConnection createConnection(URL url) throws IOException {
+                    HttpsURLConnection httpsURLConnection = (HttpsURLConnection) super.createConnection(url);
+                    try {
+                        httpsURLConnection.setSSLSocketFactory(newSslSocketFactory());
+                        httpsURLConnection.setHostnameVerifier(getHostnameVerifier());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return httpsURLConnection;
+
+                };
+            });*/
         }
         return mRequestQueue;
     }
+    /*
+    private HostnameVerifier getHostnameVerifier() {
+        return new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                //return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
+                HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+                return hv.verify("10.0.2.2", session);
+            }
+        };
+    }*/
 
     private final String KEYSTORE_PASSWORD = "smartcitzenUSP";
     private SSLSocketFactory newSslSocketFactory() {
