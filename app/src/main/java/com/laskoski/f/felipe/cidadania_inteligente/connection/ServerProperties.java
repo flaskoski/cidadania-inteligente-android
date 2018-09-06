@@ -6,7 +6,7 @@ package com.laskoski.f.felipe.cidadania_inteligente.connection;
 
 public interface ServerProperties {
     public static final String SERVER_ROOT_URL = "http://10.0.2.2:8080/";
-    public static final String SERVER_ROOT_SAFE_URL = "https://10.0.2.2:8080/";
+    public static final String SERVER_ROOT_SAFE_URL = "https://10.0.2.2:6443/";
     public static final String SERVER_PLAYER_URL = SERVER_ROOT_URL+"player/";
     public static final String SERVER_MISSION_PROGRESS_URL = SERVER_ROOT_URL+"player/missionProgress";
     public static final String SERVER_TASKS_URL = SERVER_ROOT_URL+"tasks";

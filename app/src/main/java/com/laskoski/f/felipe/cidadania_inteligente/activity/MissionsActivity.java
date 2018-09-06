@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,6 +38,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -151,9 +153,9 @@ public class MissionsActivity extends AppCompatActivity {
     private SSLSocketFactory newSslSocketFactory() {
         try {
             // Get an instance of the RSA format
-            // Created with keytool -genkey -alias mydomain -keyalg RSA -keystore KeyStore.jks -keysize 2048
+            // (JKS) Sun implementation
             // (BKS) - Bouncy Castle KeyStore format
-            KeyStore trusted = KeyStore.getInstance("JKS");
+            KeyStore trusted = KeyStore.getInstance("pkcs12");
             // Get the raw resource, which contains the keystore with
             // your trusted certificates (root and any intermediate certs)
             InputStream in = getApplicationContext().getResources().openRawResource(R.raw.keystore);
@@ -191,15 +193,16 @@ public class MissionsActivity extends AppCompatActivity {
                             if (firstTimeRequestingMissions) {
                                 try {
                                     //get missions
-                                    missions.addAll(new MissionAsyncTask().execute(uid).get());
+                                   // missions.addAll(new MissionAsyncTask().execute(uid).get());
                                     //get missions progress
 
+                                    MissionAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionsResponseListener);
                                     missionProgressAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionProgressResponseListener);
                                    // missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
 
                                     firstTimeRequestingMissions = false;
 
-                                } catch (InterruptedException | ExecutionException | NullPointerException e) {
+                                } catch (InterruptedException | /*ExecutionException | */NullPointerException e) {
                                     if(missionsProgress == null)
                                         missionsProgress = new HashMap<>();
                                     e.printStackTrace();
@@ -218,6 +221,14 @@ public class MissionsActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private Response.Listener<List<MissionItem>> missionsResponseListener = new Response.Listener<List<MissionItem>>()
+    {
+        @Override
+        public void onResponse (List<MissionItem> response){
+            missions.addAll(response);
+        }
+    };
 
     private Response.Listener<HashMap<String, MissionProgress>> missionProgressResponseListener = new Response.Listener<HashMap<String,MissionProgress>>()
     {

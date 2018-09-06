@@ -33,7 +33,7 @@ public class GsonRequest<T> extends Request<T> {
      * @param listener
      */
     public GsonRequest(String url, Type clazz, Map<String, String> headers,
-                       Response.Listener<HashMap<String, MissionProgress>> listener, Response.ErrorListener errorListener) {
+                       Response.Listener<T> listener, Response.ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         this.clazz = clazz;
         this.headers = headers;
