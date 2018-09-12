@@ -15,9 +15,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Felipe on 8/31/2018.
- */
 
 public class GsonRequest<T> extends Request<T> {
     private final Gson gson = new Gson();

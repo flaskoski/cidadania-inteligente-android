@@ -3,6 +3,7 @@ package com.laskoski.f.felipe.cidadania_inteligente.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -48,6 +49,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLSocketFactory;
 
 public class MissionDetailsActivity extends AppCompatActivity implements AsyncResponse {
     MissionItem currentMission;
@@ -123,7 +126,8 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         //set mission image
         ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
         try {
-            missionImage.setImageBitmap(ImageDownloader.getImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id()));
+//            ImageDownloader imageDownloader = new ImageDownloader(null);
+//            missionImage.setImageBitmap(imageDownloader.getImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id()));
         } catch (Exception e) {
             missionImage.setImageDrawable(getResources().getDrawable(R.drawable.question));
         }

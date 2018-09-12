@@ -13,6 +13,9 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
@@ -21,6 +24,8 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.SSLSocketFactory;
+
 /**
  * Created by Felipe on 11/25/2017.
  */
@@ -28,16 +33,21 @@ import java.util.List;
 public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filterable{
     List<MissionItem> mOriginalValues;
     List<MissionItem> arrayList;
+    RequestQueue requestQueue;
 
+    public void setRequestQueue(RequestQueue requestQueue) {
+        this.requestQueue = requestQueue;
+    }
 
     public MissionAdapter(@NonNull Context context, @NonNull List<MissionItem> missionItems) {
         super(context, 0, missionItems);
         arrayList = missionItems;
     }
-
     /**
      * Connect MissionItem object with the listView
      */
+
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -49,18 +59,24 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
         TextView missionTitle = (TextView) listItemView.findViewById(R.id.missionTitle);
         TextView missionDescription = (TextView) listItemView.findViewById(R.id.missionDescription);
-        ImageView missionIcon = (ImageView) listItemView.findViewById(R.id.missionIcon);
+        final ImageView missionIcon = (ImageView) listItemView.findViewById(R.id.missionIcon);
 
         missionTitle.setText(currentItem.getMissionName());
 
+        ImageDownloader imageDownloader = new ImageDownloader(requestQueue);
+        Response.ErrorListener responseError = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                missionIcon.setImageResource(R.mipmap.image_not_found);
+            }
+        };
         try {
-            Bitmap iconFromDB = ImageDownloader.getImageFromDB(ImageDownloader.SERVER_MISSION_ICONS_URL + currentItem.get_id());
-            missionIcon.setImageBitmap(iconFromDB);
-            missionIcon.setVisibility(View.VISIBLE);
-        }
-        catch (Exception e) {
+            imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_ICONS_URL + currentItem.get_id(), missionIcon, responseError);
+        } catch (Exception e) {
             missionIcon.setImageResource(R.mipmap.image_not_found);
         }
+        //missionIcon.setVisibility(View.VISIBLE);
+
 
         return listItemView;
     }

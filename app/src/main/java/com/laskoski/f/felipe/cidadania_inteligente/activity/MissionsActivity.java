@@ -1,6 +1,7 @@
 package com.laskoski.f.felipe.cidadania_inteligente.activity;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -31,6 +32,9 @@ import android.support.test.espresso.idling.*;
 import com.laskoski.f.felipe.cidadania_inteligente.CreateMissionActivity;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.MissionAdapter;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.SslSocketFactoryConfiguration;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
@@ -57,6 +61,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class MissionsActivity extends AppCompatActivity {
 
+
+
     //For Firebase Authentication
     private FirebaseAuth mFirebaseAuth;
     private String uid;
@@ -74,6 +80,10 @@ public class MissionsActivity extends AppCompatActivity {
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
     private RequestQueue mRequestQueue;
+    private SslSocketFactoryConfiguration sslSocketFactoryConfiguration;
+
+    //for getting missions info
+    private ParallelRequestsManager missionRequestsRemaining = new ParallelRequestsManager(2);
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -110,6 +120,8 @@ public class MissionsActivity extends AppCompatActivity {
        //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        sslSocketFactoryConfiguration = new SslSocketFactoryConfiguration(getApplicationContext());
 
         //If first time on the activity
         if (savedInstanceState == null) {
@@ -150,67 +162,11 @@ public class MissionsActivity extends AppCompatActivity {
 
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, newSslSocketFactory()));/*{
-
-                    @Override
-                    protected HttpURLConnection createConnection(URL url) throws IOException {
-                    HttpsURLConnection httpsURLConnection = (HttpsURLConnection) super.createConnection(url);
-                    try {
-                        httpsURLConnection.setSSLSocketFactory(newSslSocketFactory());
-                        httpsURLConnection.setHostnameVerifier(getHostnameVerifier());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return httpsURLConnection;
-
-                };
-            });*/
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, sslSocketFactoryConfiguration.getSslSocketFactory()));
         }
         return mRequestQueue;
     }
-    /*
-    private HostnameVerifier getHostnameVerifier() {
-        return new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                //return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
-                HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-                return hv.verify("10.0.2.2", session);
-            }
-        };
-    }*/
 
-    private final String KEYSTORE_PASSWORD = "smartcitzenUSP";
-    private SSLSocketFactory newSslSocketFactory() {
-        try {
-            // Get an instance of the RSA format
-            // (JKS) Sun implementation
-            // (BKS) - Bouncy Castle KeyStore format
-            KeyStore trusted = KeyStore.getInstance("pkcs12");
-            // Get the raw resource, which contains the keystore with
-            // your trusted certificates (root and any intermediate certs)
-            InputStream in = getApplicationContext().getResources().openRawResource(R.raw.keystore);
-            try {
-                // Initialize the keystore with the provided trusted certificates
-                // Provide the password of the keystore
-                trusted.load(in, KEYSTORE_PASSWORD.toCharArray());
-            } finally {
-                in.close();
-            }
-
-            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-            tmf.init(trusted);
-
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
-
-            SSLSocketFactory sf = context.getSocketFactory();
-            return sf;
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
 
 
     private void getMissions() {
@@ -258,30 +214,42 @@ public class MissionsActivity extends AppCompatActivity {
         @Override
         public void onResponse (List<MissionItem> response){
             missions.addAll(response);
+            missionsAdapter.notifyDataSetChanged();
+            missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
+            missionRequestsRemaining.decreaseRemainingRequests();
+            if(missionRequestsRemaining.isComplete())
+                updateMissionsProgressAndAdapter();
         }
     };
+
 
     private Response.Listener<HashMap<String, MissionProgress>> missionProgressResponseListener = new Response.Listener<HashMap<String,MissionProgress>>()
     {
         @Override
         public void onResponse (HashMap <String, MissionProgress> response){
             missionsProgress = response;
-            for(MissionItem m : missions){
-                MissionProgress missionProgress = missionsProgress.get(m.get_id());
-                if(missionProgress != null)
-                    m.setStatus(missionsProgress.get(m.get_id()).getStatus());
-            }
-            //filter on ListView
-            missionsAdapter.notifyDataSetChanged();
-            missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
+            missionRequestsRemaining.decreaseRemainingRequests();
+            if(missionRequestsRemaining.isComplete())
+                updateMissionsProgressAndAdapter();
         }
     };
 
+    private void updateMissionsProgressAndAdapter() {
+        for(MissionItem m : missions){
+            MissionProgress missionProgress = missionsProgress.get(m.get_id());
+            if(missionProgress != null)
+                m.setStatus(missionsProgress.get(m.get_id()).getStatus());
+        }
+        //filter on ListView
+        missionsAdapter.notifyDataSetChanged();
+        missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
+    }
     //}
     private void setAdapter(){
 
 
         missionsAdapter = new MissionAdapter(this, missions);
+        missionsAdapter.setRequestQueue(getRequestQueue());
 
         //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
