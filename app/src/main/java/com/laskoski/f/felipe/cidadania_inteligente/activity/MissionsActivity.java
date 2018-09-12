@@ -42,6 +42,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyStore;

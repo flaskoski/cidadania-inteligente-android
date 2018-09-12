@@ -73,8 +73,16 @@ public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements 
         super.onPostExecute(bitmap);
     }
 
+    private Response.ErrorListener responseError = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+        }
+    };
+
     public void requestImageFromDB(String url, final ImageView view, Response.ErrorListener responseError) throws Exception {
         if(requestQueue == null) throw new Exception("Request queue not set. Use queue setter.");
+        if(responseError != null) this.responseError = responseError;
         Response.Listener<Bitmap> imageResponseListener = new Response.Listener<Bitmap>() {
             @Override
             public void onResponse(Bitmap response) {
@@ -85,7 +93,7 @@ public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements 
                 0, // Image height
                 ImageView.ScaleType.FIT_XY, // Image scale type
                 Bitmap.Config.RGB_565, //Image decode configuration new Response.ErrorListener() {
-                responseError
+                this.responseError
         );
         requestQueue.add(imageRequest);
     }

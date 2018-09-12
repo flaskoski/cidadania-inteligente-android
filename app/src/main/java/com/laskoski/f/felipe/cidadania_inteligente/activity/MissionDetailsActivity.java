@@ -19,6 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +36,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.TaskAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.SslSocketFactoryConfiguration;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.UpdatePlayerProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
@@ -72,6 +78,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private MissionProgress missionProgress;
 
     private TaskAsyncTask taskAsyncTask;
+    private RequestQueue mRequestQueue;
 
     private void sendMissionProgressBack(){
         if (missionProgress != null) {
@@ -125,16 +132,25 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
         //set mission image
         ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
+        ImageDownloader imageDownloader = new ImageDownloader(getRequestQueue());
+
         try {
-//            ImageDownloader imageDownloader = new ImageDownloader(null);
-//            missionImage.setImageBitmap(imageDownloader.getImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id()));
+            imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id(), missionImage, null);
         } catch (Exception e) {
-            missionImage.setImageDrawable(getResources().getDrawable(R.drawable.question));
+            e.printStackTrace();
         }
 
         taskscompleted = findViewById(R.id.tasksCompleted);
         getTasksFromDB();
         loadUserTasks();
+    }
+
+    //TODO centralizar requestqueue em um novo builder que deixe transparente esse setup
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, new SslSocketFactoryConfiguration(getApplicationContext()).getSslSocketFactory()));
+        }
+        return mRequestQueue;
     }
 
     @Override

@@ -12,7 +12,7 @@
         android:adjustViewBounds="true"
         android:paddingLeft="5dp"
         android:visibility="visible"
-        app:srcCompat="@drawable/ic_info_black_24dp" />
+        app:srcCompat="@mipmap/image_not_found" />
 
     <TextView
 

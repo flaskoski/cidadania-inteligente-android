@@ -73,7 +73,7 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
         try {
             imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_ICONS_URL + currentItem.get_id(), missionIcon, responseError);
         } catch (Exception e) {
-            missionIcon.setImageResource(R.mipmap.image_not_found);
+            e.printStackTrace();
         }
         //missionIcon.setVisibility(View.VISIBLE);
 
