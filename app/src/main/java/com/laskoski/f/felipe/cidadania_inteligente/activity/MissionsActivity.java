@@ -33,6 +33,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.CreateMissionActivity;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.MissionAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslSocketFactoryConfiguration;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
@@ -81,8 +82,7 @@ public class MissionsActivity extends AppCompatActivity {
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
     private RequestQueue mRequestQueue;
-    private SslSocketFactoryConfiguration sslSocketFactoryConfiguration;
-
+    private SslRequestQueue sslRequestQueue;
     //for getting missions info
     private ParallelRequestsManager missionRequestsRemaining = new ParallelRequestsManager(2);
 
@@ -122,7 +122,7 @@ public class MissionsActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        sslSocketFactoryConfiguration = new SslSocketFactoryConfiguration(getApplicationContext());
+        mRequestQueue = new SslRequestQueue(getApplicationContext()).getSslRequesQueue();
 
         //If first time on the activity
         if (savedInstanceState == null) {
@@ -161,17 +161,7 @@ public class MissionsActivity extends AppCompatActivity {
         };
     }
 
-    public RequestQueue getRequestQueue() {
-        if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, sslSocketFactoryConfiguration.getSslSocketFactory()));
-        }
-        return mRequestQueue;
-    }
-
-
-
     private void getMissions() {
-        mRequestQueue = getRequestQueue();
 
         Task<GetTokenResult> getTokenResultTask = mFirebaseAuth.getCurrentUser().getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
@@ -247,10 +237,8 @@ public class MissionsActivity extends AppCompatActivity {
     }
     //}
     private void setAdapter(){
-
-
         missionsAdapter = new MissionAdapter(this, missions);
-        missionsAdapter.setRequestQueue(getRequestQueue());
+        missionsAdapter.setRequestQueue(mRequestQueue);
 
         //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));

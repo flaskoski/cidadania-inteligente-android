@@ -36,6 +36,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.TaskAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslSocketFactoryConfiguration;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.UpdatePlayerProgressAsyncTask;
@@ -131,8 +132,9 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         progressBar.setProgressDrawable(progressDrawable);
 
         //set mission image
+        mRequestQueue = new SslRequestQueue(getApplicationContext()).getSslRequesQueue();
         ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
-        ImageDownloader imageDownloader = new ImageDownloader(getRequestQueue());
+        ImageDownloader imageDownloader = new ImageDownloader(mRequestQueue);
 
         try {
             imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id(), missionImage, null);
@@ -143,14 +145,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         taskscompleted = findViewById(R.id.tasksCompleted);
         getTasksFromDB();
         loadUserTasks();
-    }
-
-    //TODO centralizar requestqueue em um novo builder que deixe transparente esse setup
-    public RequestQueue getRequestQueue() {
-        if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack(null, new SslSocketFactoryConfiguration(getApplicationContext()).getSslSocketFactory()));
-        }
-        return mRequestQueue;
     }
 
     @Override
