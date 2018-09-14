@@ -73,6 +73,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
     private ProgressBar progressBar;
     private TextView taskscompleted;
     private MissionProgress missionProgress;
+    private HashMap<String, AbstractTask> tasksMap;
 
     private TaskAsyncTask taskAsyncTask;
     private RequestQueue mRequestQueue;
@@ -212,24 +213,55 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         @Override
         public void onResponse(List<QuestionTask> tasksFromDB) {
             //Log.w("http response", tasksFromDB.toString());
+
+            //if(tasksFromDB == null?
             Log.w("http response", currentMission.getTaskIDs().toString());
-            HashMap<String, AbstractTask> tasksMap = new HashMap<>();
+            tasksMap = new HashMap<>();
             for(AbstractTask task : tasksFromDB){
                 tasksMap.put(task.get_id(), task);
             }
             taskRequestsRemaining.decreaseRemainingRequests();
             if(taskRequestsRemaining.isComplete())
-                System.out.print("oi");//doSomething();
+                updateTasksProgress();
         }
     };
 
+    private void updateTasksProgress() {
+        HashMap<String, Integer> tasksProgress = missionProgress.getTaskProgress();
+        Iterator it = tasksMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry task = ((Map.Entry) it.next());
+            if(tasksProgress.get(task.getKey()) != null) {
+                tasksMap.get(task.getKey()).setProgress((Integer) tasksProgress.get(task.getKey()));
+                Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
+            }
+            else tasksProgress.put(task.getKey().toString(), MissionProgress.TASK_NOT_STARTED);
+        }
+            tasks.addAll(tasksMap.values());
+            taskAdapter.notifyDataSetChanged();
+            Integer countCompletedTasks = 0;
+            for(AbstractTask task : tasks)
+                if(task.isCompleted())
+                    countCompletedTasks++;
+            progressBar.setMax(tasks.size());
+            progressBar.setProgress(countCompletedTasks);
+            taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
+            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
+                setMissionCompletedView(false);
+//        }
+//        else{
+          //  Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();
+        //}
+    }
+
     private Response.Listener<MissionProgress> onMissionProgressResponse = new Response.Listener<MissionProgress>() {
-        //TODO: nao chega aqui. Investigar
         @Override
-        public void onResponse(MissionProgress missionProgress) {
+        public void onResponse(MissionProgress response) {
+            //if(response == null?
+            missionProgress = response;
             taskRequestsRemaining.decreaseRemainingRequests();
             if(taskRequestsRemaining.isComplete())
-                System.out.print("oi");//doSomething();
+                updateTasksProgress();
         }
     };
 
@@ -243,7 +275,7 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                             uid = task.getResult().getToken();
 
                             TaskAsyncTask.getTasks(uid, mRequestQueue, onTasksResponse, currentMission.getTaskIDs());
-                           // MissionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
+                            MissionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
                             //taskAsyncTask.execute(currentMission.getTaskIDs());
                         } else {
                             // Handle error -> task.getException();

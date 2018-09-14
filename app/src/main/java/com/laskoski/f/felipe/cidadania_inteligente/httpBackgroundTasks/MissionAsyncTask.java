@@ -84,7 +84,7 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
         headers.put("Authorization", uid);
         headers.put("missionID", id);
 
-        Type hashType = new TypeToken<List<MissionItem>>() {}.getType();
+        Type hashType = new TypeToken<MissionProgress>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
         GsonRequest<MissionProgress> request = new GsonRequest<>(SERVER_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {

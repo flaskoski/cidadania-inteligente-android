@@ -154,7 +154,7 @@ public class MissionsActivity extends AppCompatActivity {
                                     //get missions progress
 
                                     MissionAsyncTask.getMissionsGson(uid, mRequestQueue, missionsResponseListener);
-                                    missionProgressAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionProgressResponseListener);
+                                    missionProgressAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionProgressResponseListener, true);
                                    // missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
 
                                     firstTimeRequestingMissions = false;

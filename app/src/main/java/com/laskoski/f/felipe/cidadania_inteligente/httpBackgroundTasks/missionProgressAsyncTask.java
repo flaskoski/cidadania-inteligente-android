@@ -104,14 +104,19 @@ public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<St
 //        return image;
 //   }
 
-    public static void getMissionProgressGson(String uid, RequestQueue queue, Response.Listener<HashMap<String, MissionProgress>> responseListener) throws InterruptedException {
+    public static void getMissionProgressGson(String uid, RequestQueue queue, Response.Listener<HashMap<String, MissionProgress>> responseListener, Boolean getAll) throws InterruptedException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
 
         Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+        String url;
+        if(getAll)
+            url = ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL;
+        else //if(requestType.equals("all"))
+            url = ServerProperties.SERVER_MISSION_PROGRESS_URL;
 
-        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
+        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(url, hashType, headers, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 missionsProgress = null;
@@ -119,4 +124,5 @@ public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<St
         });
         queue.add(request);
     }
+
 }
