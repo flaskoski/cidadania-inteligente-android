@@ -3,7 +3,6 @@ package com.laskoski.f.felipe.cidadania_inteligente.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -21,9 +20,6 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,10 +31,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.TaskAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
+import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.SslSocketFactoryConfiguration;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.TaskAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.UpdatePlayerProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
@@ -56,8 +54,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.SSLSocketFactory;
 
 public class MissionDetailsActivity extends AppCompatActivity implements AsyncResponse {
     MissionItem currentMission;
@@ -80,14 +76,15 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
     private TaskAsyncTask taskAsyncTask;
     private RequestQueue mRequestQueue;
+    private ParallelRequestsManager taskRequestsRemaining;
 
     private void sendMissionProgressBack(){
         if (missionProgress != null) {
             Intent taskResult = new Intent();
             taskResult.putExtra("missionStatus", missionProgress.getStatus());
             setResult(RESULT_OK, taskResult);
-            finish();
         }
+        finish();
     }
 
     @Override
@@ -115,8 +112,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
-        taskAsyncTask = new TaskAsyncTask(this);
-
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
         actionBar.setTitle(currentMission.getMissionName().subSequence(0, currentMission.getMissionName().length()));
@@ -131,10 +126,15 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
         progressDrawable.setColorFilter(Color.GREEN, android.graphics.PorterDuff.Mode.SRC_IN);
         progressBar.setProgressDrawable(progressDrawable);
 
+        //
+        taskRequestsRemaining = new ParallelRequestsManager(2);
         //set mission image
         mRequestQueue = new SslRequestQueue(getApplicationContext()).getSslRequesQueue();
         ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
         ImageDownloader imageDownloader = new ImageDownloader(mRequestQueue);
+
+        //taskAsyncTask = new TaskAsyncTask(this);
+
 
         try {
             imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id(), missionImage, null);
@@ -208,6 +208,31 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
 
     }
 
+    private Response.Listener<List<QuestionTask>> onTasksResponse = new Response.Listener<List<QuestionTask>>() {
+        @Override
+        public void onResponse(List<QuestionTask> tasksFromDB) {
+            //Log.w("http response", tasksFromDB.toString());
+            Log.w("http response", currentMission.getTaskIDs().toString());
+            HashMap<String, AbstractTask> tasksMap = new HashMap<>();
+            for(AbstractTask task : tasksFromDB){
+                tasksMap.put(task.get_id(), task);
+            }
+            taskRequestsRemaining.decreaseRemainingRequests();
+            if(taskRequestsRemaining.isComplete())
+                System.out.print("oi");//doSomething();
+        }
+    };
+
+    private Response.Listener<MissionProgress> onMissionProgressResponse = new Response.Listener<MissionProgress>() {
+        //TODO: nao chega aqui. Investigar
+        @Override
+        public void onResponse(MissionProgress missionProgress) {
+            taskRequestsRemaining.decreaseRemainingRequests();
+            if(taskRequestsRemaining.isComplete())
+                System.out.print("oi");//doSomething();
+        }
+    };
+
     private void loadUserTasks() {
         //idlingSignIn.increment();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -217,7 +242,9 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
 
-                            taskAsyncTask.execute(currentMission.getTaskIDs());
+                            TaskAsyncTask.getTasks(uid, mRequestQueue, onTasksResponse, currentMission.getTaskIDs());
+                           // MissionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
+                            //taskAsyncTask.execute(currentMission.getTaskIDs());
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -225,10 +252,10 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 });
     }
 
-    private class TaskAsyncTask extends AsyncTask<Object, String, List<QuestionTask>> {
+    private class TasksAsyncTask extends AsyncTask<Object, String, List<QuestionTask>> {
         public AsyncResponse delegate = null;
 
-        public TaskAsyncTask(AsyncResponse delegate){
+        public TasksAsyncTask(AsyncResponse delegate){
             this.delegate = delegate;
         }
         @Override

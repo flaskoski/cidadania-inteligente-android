@@ -11,6 +11,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
+import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -63,7 +64,7 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
             return null;
         }
     }
-    public static void getMissionProgressGson(String uid, RequestQueue queue, Response.Listener<List<MissionItem>> responseListener) throws InterruptedException {
+    public static void getMissionsGson(String uid, RequestQueue queue, Response.Listener<List<MissionItem>> responseListener) throws InterruptedException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
 
@@ -78,4 +79,21 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
         });
         queue.add(request);
     }
+    public static void getMissionProgress(String uid, RequestQueue queue, Response.Listener<MissionProgress> responseListener, String id) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", uid);
+        headers.put("missionID", id);
+
+        Type hashType = new TypeToken<List<MissionItem>>() {}.getType();
+        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+
+        GsonRequest<MissionProgress> request = new GsonRequest<>(SERVER_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
 }

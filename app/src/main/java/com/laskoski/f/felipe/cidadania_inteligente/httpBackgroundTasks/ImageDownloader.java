@@ -86,7 +86,8 @@ public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements 
         Response.Listener<Bitmap> imageResponseListener = new Response.Listener<Bitmap>() {
             @Override
             public void onResponse(Bitmap response) {
-                view.setImageBitmap(response);
+                if(response != null)
+                    view.setImageBitmap(response);
             }
         };
         ImageRequest imageRequest = new ImageRequest(url+".png", imageResponseListener,0, // Image width

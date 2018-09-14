@@ -1,13 +1,11 @@
 package com.laskoski.f.felipe.cidadania_inteligente.activity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,8 +16,6 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,32 +30,15 @@ import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.MissionAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.SslSocketFactoryConfiguration;
-import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.KeyStore;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 
 public class MissionsActivity extends AppCompatActivity {
 
@@ -174,7 +153,7 @@ public class MissionsActivity extends AppCompatActivity {
                                    // missions.addAll(new MissionAsyncTask().execute(uid).get());
                                     //get missions progress
 
-                                    MissionAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionsResponseListener);
+                                    MissionAsyncTask.getMissionsGson(uid, mRequestQueue, missionsResponseListener);
                                     missionProgressAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionProgressResponseListener);
                                    // missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
 
