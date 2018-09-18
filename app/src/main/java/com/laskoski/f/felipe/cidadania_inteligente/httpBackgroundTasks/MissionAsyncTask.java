@@ -19,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -91,6 +93,28 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
+    public static void setMissionProgress(String uid, RequestQueue queue, Response.Listener<Boolean> responseListener, String missionId, String taskId, String taskProgress) {
+        Hashtable<String, String> headers = new Hashtable<>();
+        Hashtable<String, String> params = new Hashtable();
+        headers.put("Authorization", uid);
+        params.put("missionId", missionId);
+        params.put("taskId", taskId);
+        params.put("taskProgress", taskProgress);
+
+        Type hashType = new TypeToken<Boolean>() {}.getType();
+        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+
+        GsonRequest<Boolean> request = new GsonRequest<>(SERVER_PLAYER_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+              //  Log.e("http request:", error.getMessage());
+                //TODO send error msg on UI and save progress on cache for future sync.
+               // error.printStackTrace();
             }
         });
         queue.add(request);

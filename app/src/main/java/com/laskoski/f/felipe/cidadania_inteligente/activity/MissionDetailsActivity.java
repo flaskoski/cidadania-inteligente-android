@@ -55,7 +55,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class MissionDetailsActivity extends AppCompatActivity implements AsyncResponse {
+public class MissionDetailsActivity extends AppCompatActivity {
     MissionItem currentMission;
     //For Firebase Authentication
     private FirebaseUser firebaseUser;
@@ -158,9 +158,9 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
             Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
 
-            String[] params = {uid, currentMission.get_id(), taskStartedId, taskStatus.toString()};
-            //CRIEI IDs de MISSÁO E TASK, VAI DAR ERRO?
-            new UpdatePlayerProgressAsyncTask().execute(params);
+            //new UpdatePlayerProgressAsyncTask().execute(params);
+            MissionAsyncTask.setMissionProgress(uid, mRequestQueue, onSetMissionProgressResponse, currentMission.get_id(), taskStartedId, taskStatus.toString());
+
 
             //--Update missionProgress object and ListView
             missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
@@ -170,6 +170,14 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
             //--
         }
     }
+
+    private Response.Listener<Boolean> onSetMissionProgressResponse = new Response.Listener<Boolean>() {
+        @Override
+        public void onResponse(Boolean response) {
+            if(response != null)
+                Log.w("UpdatePlayerProgress: ", response.toString());
+        }
+    };
 
     private void updateListViewWithTaskResult(Boolean answeredCorrectly) {
         tasks.get(taskStartedNumber).setFinished(true);
@@ -284,96 +292,6 @@ public class MissionDetailsActivity extends AppCompatActivity implements AsyncRe
                 });
     }
 
-    private class TasksAsyncTask extends AsyncTask<Object, String, List<QuestionTask>> {
-        public AsyncResponse delegate = null;
-
-        public TasksAsyncTask(AsyncResponse delegate){
-            this.delegate = delegate;
-        }
-        @Override
-        protected void onPreExecute() {
-            // before the network request begins, show a progress indicator
-        }
-        @Override
-        protected List<QuestionTask> doInBackground(Object... params) {
-            // Create a new RestTemplate instance
-            List<String> taskIds = (List<String>) params[0];
-            //HTTP requests
-            RestTemplate restTemplate = new RestTemplate();
-            try {
-                // Set the Accept header
-                HttpHeaders headers = new HttpHeaders();
-                headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                headers.set("Authorization", uid);
-
-                //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                String url= ServerProperties.SERVER_TASKS_URL;
-                //Create the entity request (body plus headers)
-                HttpEntity<List<String>> request = new HttpEntity<>(taskIds, headers);
-                //Send HTTP POST request with the token id and receive the list of missions
-                QuestionTask[] tasksFromDB = restTemplate.postForObject(url, request, QuestionTask[].class);
-
-                Log.w("http response", tasksFromDB.toString());
-                Log.w("http response", taskIds.toString());
-                HashMap<String, AbstractTask> tasksMap = new HashMap<>();
-                for(AbstractTask task : tasksFromDB){
-                    tasksMap.put(task.get_id(), task);
-                }
-
-                //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-                url= ServerProperties.SERVER_MISSION_PROGRESS_URL;
-                String[] requestParams = {currentMission.get_id()};
-                //Create the entity request (body plus headers)
-                HttpEntity<String[]> requestMissionProgress = new HttpEntity<String[]>(requestParams, headers);
-                //Send HTTP POST request with the token id and receive the list of missions
-
-                //Get Mission Progress from DB.
-                missionProgress = restTemplate.postForObject(url, requestMissionProgress, MissionProgress.class);
-                HashMap<String, Integer> tasksProgress = missionProgress.getTaskProgress();
-
-                Iterator it = tasksMap.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry task = ((Map.Entry) it.next());
-                    if(tasksProgress.get(task.getKey()) != null) {
-                        tasksMap.get(task.getKey()).setProgress((Integer) tasksProgress.get(task.getKey()));
-                        Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
-                    }
-                    else tasksProgress.put(task.getKey().toString(), MissionProgress.TASK_NOT_STARTED);
-                }
-
-                return Arrays.asList(tasksFromDB);
-
-            }catch (Exception e) {
-                Log.e("http request:", e.getMessage(), e);
-                return null;
-            }
-        }
-        @Override
-        protected void onPostExecute(List<QuestionTask> result) {
-            delegate.processFinish(result);
-        }
-
-    }
-    @Override
-    public void processFinish(Object output) {
-        if(output != null){
-            tasks.addAll((List<AbstractTask>) output);
-            taskAdapter.notifyDataSetChanged();
-            Integer countCompletedTasks = 0;
-            for(AbstractTask task : tasks)
-                if(task.isCompleted())
-                    countCompletedTasks++;
-            progressBar.setMax(tasks.size());
-            progressBar.setProgress(countCompletedTasks);
-            taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
-            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
-                setMissionCompletedView(false);
-        }
-        else{
-            Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();
-        }
-
-    }
 
 
 

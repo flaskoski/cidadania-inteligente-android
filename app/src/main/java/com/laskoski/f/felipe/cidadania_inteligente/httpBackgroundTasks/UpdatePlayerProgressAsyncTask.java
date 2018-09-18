@@ -45,7 +45,6 @@ public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, Strin
 
         }catch (Exception e) {
             Log.e("http request:", e.getMessage(), e);
-            //TODO send error msg on UI and save progress on cache for future sync.
             return "error";
         }
     }
