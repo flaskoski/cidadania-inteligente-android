@@ -1,11 +1,13 @@
 package com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks;
 
-import android.os.AsyncTask;
-import android.util.Log;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.google.gson.reflect.TypeToken;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
@@ -13,27 +15,26 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
-
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Felipe on 8/11/2018.
  */
 
-public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>> implements ServerProperties {
+public class MissionAsyncTask {
+    public static final String IMAGE_TYPE_MISSION_IMAGE = "missionImage";
+    public static final String IMAGE_TYPE_ICON = "icon";
     AsyncResponse delegate = null;
-    static final String SERVER_MISSIONS_URL = SERVER_ROOT_SAFE_URL+"myMissions";
+    ServerProperties serverProperties;
 
-    @Override
+    public MissionAsyncTask(Context applicationContext){
+        serverProperties = new ServerProperties(applicationContext);
+    }
+    /*@Override
     protected void onPreExecute() {
         // before the network request begins, show a progress indicator
     }
@@ -65,15 +66,15 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
             Log.e("http request:", e.getMessage(), e);
             return null;
         }
-    }
-    public static void getMissionsGson(String uid, RequestQueue queue, Response.Listener<List<MissionItem>> responseListener) throws InterruptedException {
+    }*/
+    public void getMissionsGson(String uid, RequestQueue queue, Response.Listener<List<MissionItem>> responseListener) throws InterruptedException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
 
         Type hashType = new TypeToken<List<MissionItem>>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<List<MissionItem>> request = new GsonRequest<>(SERVER_MISSIONS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
+        GsonRequest<List<MissionItem>> request = new GsonRequest<>(serverProperties.SERVER_MISSIONS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                error.printStackTrace();
@@ -81,7 +82,7 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
         });
         queue.add(request);
     }
-    public static void getMissionProgress(String uid, RequestQueue queue, Response.Listener<MissionProgress> responseListener, String id) {
+    public void getMissionProgress(String uid, RequestQueue queue, Response.Listener<MissionProgress> responseListener, String id) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
         headers.put("missionID", id);
@@ -89,7 +90,7 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
         Type hashType = new TypeToken<MissionProgress>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<MissionProgress> request = new GsonRequest<>(SERVER_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
+        GsonRequest<MissionProgress> request = new GsonRequest<>(serverProperties.SERVER_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
@@ -98,7 +99,7 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
         queue.add(request);
     }
 
-    public static void setMissionProgress(String uid, RequestQueue queue, Response.Listener<Boolean> responseListener, String missionId, String taskId, String taskProgress) {
+    public void setMissionProgress(String uid, RequestQueue queue, Response.Listener<Boolean> responseListener, String missionId, String taskId, String taskProgress) {
         Hashtable<String, String> headers = new Hashtable<>();
         Hashtable<String, String> params = new Hashtable();
         headers.put("Authorization", uid);
@@ -109,7 +110,7 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
         Type hashType = new TypeToken<Boolean>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<Boolean> request = new GsonRequest<>(SERVER_PLAYER_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
+        GsonRequest<Boolean> request = new GsonRequest<>(serverProperties.SERVER_PLAYER_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
               //  Log.e("http request:", error.getMessage());
@@ -118,6 +119,93 @@ public class MissionAsyncTask extends AsyncTask<String, Void, List<MissionItem>>
             }
         });
         queue.add(request);
+    }
+
+   // private HashMap<String, MissionProgress> missionsProgress;
+
+    public void getMissionProgressGson(String uid, RequestQueue queue, Response.Listener<HashMap<String, MissionProgress>> responseListener, Boolean getAll) throws InterruptedException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", uid);
+
+        Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
+        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+        String url;
+        if(getAll)
+            url = serverProperties.SERVER_ALL_MISSION_PROGRESS_URL;
+        else //if(requestType.equals("all"))
+            url = serverProperties.SERVER_MISSION_PROGRESS_URL;
+
+        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(url, hashType, headers, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //missionsProgress = null;
+                //TODO error message
+            }
+        });
+        queue.add(request);
+    }
+
+
+    public void getTasks(String uid, RequestQueue queue, Response.Listener<List<QuestionTask>> responseListener, List<String> taskIDs) {
+        Map<String, String> headers = new Hashtable<>();
+        Map<String, String> params = new Hashtable<>();
+        headers.put("Authorization", uid);
+        String body = taskIDs.toString();
+        Integer i=0;
+        for(String taskID : taskIDs){
+            params.put("taskID"+i.toString(), taskID);
+            i++;
+        }
+
+        Type hashType = new TypeToken<List<QuestionTask>>() {}.getType();
+        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+
+        GsonRequest<List<QuestionTask>> request = new GsonRequest<>(serverProperties.SERVER_TASKS_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
+
+    private Response.ErrorListener responseError = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+        }
+    };
+
+
+
+    public void requestImageFromDB(String imageType, RequestQueue requestQueue, String url, final ImageView view, Response.ErrorListener responseError) throws Exception {
+        if(requestQueue == null) throw new Exception("Request queue not set. Use queue setter.");
+        if(responseError != null) this.responseError = responseError;
+        Response.Listener<Bitmap> imageResponseListener = new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap response) {
+                if(response != null)
+                    view.setImageBitmap(response);
+            }
+        };
+        switch (imageType){
+            case IMAGE_TYPE_ICON:
+                url = serverProperties.SERVER_MISSION_ICONS_URL + url;
+                break;
+            case IMAGE_TYPE_MISSION_IMAGE:
+                url = serverProperties.SERVER_MISSION_IMAGES_URL + url;
+                break;
+            default:
+                url = serverProperties.SERVER_IMAGE_URL + url;
+        }
+        ImageRequest imageRequest = new ImageRequest(url+".png", imageResponseListener,0, // Image width
+                0, // Image height
+                ImageView.ScaleType.FIT_XY, // Image scale type
+                Bitmap.Config.RGB_565, //Image decode configuration new Response.ErrorListener() {
+                this.responseError
+        );
+        requestQueue.add(imageRequest);
     }
 
 }

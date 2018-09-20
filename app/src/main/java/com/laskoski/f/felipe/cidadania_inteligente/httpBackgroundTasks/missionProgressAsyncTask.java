@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
  * Created by Felipe on 7/29/2018.
  */
 
-public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<String, MissionProgress>> implements ServerProperties{
+public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<String, MissionProgress>>{
     static RequestFuture<HashMap<String, MissionProgress>> future;
     static CountDownLatch latch = new CountDownLatch(1);
     private static HashMap<String, MissionProgress> missionsProgress;
@@ -35,21 +35,21 @@ public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<St
 
 
 
-        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, new Response.Listener<HashMap<String, MissionProgress>>() {
-            @Override
-            public void onResponse(HashMap<String, MissionProgress> response) {
-                missionsProgress = response;
-                latch.countDown();
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                missionsProgress = null;
-                latch.countDown();
-            }
-        });
-        ((RequestQueue)params[1]).add(request);
+//        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, new Response.Listener<HashMap<String, MissionProgress>>() {
+//            @Override
+//            public void onResponse(HashMap<String, MissionProgress> response) {
+//                missionsProgress = response;
+//                latch.countDown();
+//            }
+//
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                missionsProgress = null;
+//                latch.countDown();
+//            }
+//        });
+    //    ((RequestQueue)params[1]).add(request);
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -104,25 +104,6 @@ public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<St
 //        return image;
 //   }
 
-    public static void getMissionProgressGson(String uid, RequestQueue queue, Response.Listener<HashMap<String, MissionProgress>> responseListener, Boolean getAll) throws InterruptedException {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("Authorization", uid);
 
-        Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
-        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
-        String url;
-        if(getAll)
-            url = ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL;
-        else //if(requestType.equals("all"))
-            url = ServerProperties.SERVER_MISSION_PROGRESS_URL;
-
-        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(url, hashType, headers, responseListener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                missionsProgress = null;
-            }
-        });
-        queue.add(request);
-    }
 
 }

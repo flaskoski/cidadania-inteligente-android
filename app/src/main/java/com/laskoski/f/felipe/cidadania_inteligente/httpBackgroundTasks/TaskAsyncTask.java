@@ -30,7 +30,7 @@ import java.util.Map;
  * Created by Felipe on 8/11/2018.
  */
 
-public class TaskAsyncTask implements ServerProperties {
+public class TaskAsyncTask {
 
     public static void getTasks(String uid, RequestQueue queue, Response.Listener<List<QuestionTask>> responseListener, List<String> taskIDs) {
         Map<String, String> headers = new Hashtable<>();
@@ -46,12 +46,12 @@ public class TaskAsyncTask implements ServerProperties {
         Type hashType = new TypeToken<List<QuestionTask>>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<List<QuestionTask>> request = new GsonRequest<>(SERVER_TASKS_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-               error.printStackTrace();
-            }
-        });
-        queue.add(request);
+//        GsonRequest<List<QuestionTask>> request = new GsonRequest<>(SERVER_TASKS_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//               error.printStackTrace();
+//            }
+//        });
+//        queue.add(request);
     }
 }

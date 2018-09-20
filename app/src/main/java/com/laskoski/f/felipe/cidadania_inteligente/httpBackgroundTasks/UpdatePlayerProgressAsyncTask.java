@@ -16,7 +16,7 @@ import java.util.Arrays;
  * Created by Felipe on 8/11/2018.
  */
 
-public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, String> implements ServerProperties {
+public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
         if(params == null || params[0] == null)
@@ -34,13 +34,13 @@ public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, Strin
             headers.set("Authorization", uid);
 
             //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-            String url=SERVER_PLAYER_URL;
+           // String url=SERVER_PLAYER_URL;
             //Create the entity request (body plus headers)
 
             HttpEntity<String[]> request = new HttpEntity<String[]>(httpParams, headers);
             //Send HTTP POST request with the token id and receive the list of missions
-            Boolean okResponse = restTemplate.postForObject(url, request, Boolean.class);
-            Log.w("UpdatePlayerProgress: ", okResponse.toString());
+           // Boolean okResponse = restTemplate.postForObject(url, request, Boolean.class);
+           // Log.w("UpdatePlayerProgress: ", okResponse.toString());
             return "sucess";
 
         }catch (Exception e) {

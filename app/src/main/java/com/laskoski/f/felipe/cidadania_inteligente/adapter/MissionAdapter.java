@@ -18,6 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
+import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 //import com.laskoski.f.felipe.cidadania_inteligente.fileManagement.ImageDownloader;
 
@@ -33,10 +34,12 @@ import javax.net.ssl.SSLSocketFactory;
 public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filterable{
     List<MissionItem> mOriginalValues;
     List<MissionItem> arrayList;
-    RequestQueue requestQueue;
+    private RequestQueue requestQueue;
+    private MissionAsyncTask missionAsyncTask;
 
-    public void setRequestQueue(RequestQueue requestQueue) {
+    public void setRequestQueue(RequestQueue requestQueue, MissionAsyncTask missionAsyncTask) {
         this.requestQueue = requestQueue;
+        this.missionAsyncTask = missionAsyncTask;
     }
 
     public MissionAdapter(@NonNull Context context, @NonNull List<MissionItem> missionItems) {
@@ -71,7 +74,7 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             }
         };
         try {
-            imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_ICONS_URL + currentItem.get_id(), missionIcon, responseError);
+            missionAsyncTask.requestImageFromDB(MissionAsyncTask.IMAGE_TYPE_ICON , requestQueue, currentItem.get_id(), missionIcon, responseError);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -25,10 +25,10 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Felipe on 7/29/2018.
  */
 
-public class ImageDownloader extends AsyncTask<String, Void, Bitmap> implements ServerProperties{
-    public static final String SERVER_IMAGE_URL = SERVER_ROOT_SAFE_URL+"downloadFile/";
-    public static final String SERVER_MISSION_IMAGES_URL = SERVER_IMAGE_URL+"missionImage";// + "missions/";
-    public static final String SERVER_MISSION_ICONS_URL = SERVER_IMAGE_URL+"missionIcon";// + "icons/";
+public class ImageDownloader extends AsyncTask<String, Void, Bitmap>{
+//    public static final String SERVER_IMAGE_URL = SERVER_ROOT_SAFE_URL+"downloadFile/";
+//    public static final String SERVER_MISSION_IMAGES_URL = SERVER_IMAGE_URL+"missionImage";// + "missions/";
+//    public static final String SERVER_MISSION_ICONS_URL = SERVER_IMAGE_URL+"missionIcon";// + "icons/";
     @Override
     protected void onPreExecute() {
         super.onPreExecute();

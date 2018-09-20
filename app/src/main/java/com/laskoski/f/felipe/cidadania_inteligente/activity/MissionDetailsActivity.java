@@ -3,7 +3,6 @@ package com.laskoski.f.felipe.cidadania_inteligente.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -30,26 +28,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.TaskAdapter;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
-import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.ImageDownloader;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.TaskAsyncTask;
-import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.UpdatePlayerProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -78,6 +66,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private TaskAsyncTask taskAsyncTask;
     private RequestQueue mRequestQueue;
     private ParallelRequestsManager taskRequestsRemaining;
+    private MissionAsyncTask missionAsyncTask;
 
     private void sendMissionProgressBack(){
         if (missionProgress != null) {
@@ -131,14 +120,16 @@ public class MissionDetailsActivity extends AppCompatActivity {
         taskRequestsRemaining = new ParallelRequestsManager(2);
         //set mission image
         mRequestQueue = new SslRequestQueue(getApplicationContext()).getSslRequesQueue();
-        ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
-        ImageDownloader imageDownloader = new ImageDownloader(mRequestQueue);
 
+        //Load server information from application.properties
+        missionAsyncTask = new MissionAsyncTask(this);
+
+        ImageView missionImage = (ImageView)  findViewById(R.id.missionImage);
         //taskAsyncTask = new TaskAsyncTask(this);
 
 
         try {
-            imageDownloader.requestImageFromDB(ImageDownloader.SERVER_MISSION_IMAGES_URL + currentMission.get_id(), missionImage, null);
+            missionAsyncTask.requestImageFromDB(MissionAsyncTask.IMAGE_TYPE_MISSION_IMAGE, mRequestQueue, currentMission.get_id(), missionImage, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,7 +150,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
             Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
 
             //new UpdatePlayerProgressAsyncTask().execute(params);
-            MissionAsyncTask.setMissionProgress(uid, mRequestQueue, onSetMissionProgressResponse, currentMission.get_id(), taskStartedId, taskStatus.toString());
+            missionAsyncTask.setMissionProgress(uid, mRequestQueue, onSetMissionProgressResponse, currentMission.get_id(), taskStartedId, taskStatus.toString());
 
 
             //--Update missionProgress object and ListView
@@ -282,8 +273,8 @@ public class MissionDetailsActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
 
-                            TaskAsyncTask.getTasks(uid, mRequestQueue, onTasksResponse, currentMission.getTaskIDs());
-                            MissionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
+                            missionAsyncTask.getTasks(uid, mRequestQueue, onTasksResponse, currentMission.getTaskIDs());
+                            missionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
                             //taskAsyncTask.execute(currentMission.getTaskIDs());
                         } else {
                             // Handle error -> task.getException();
