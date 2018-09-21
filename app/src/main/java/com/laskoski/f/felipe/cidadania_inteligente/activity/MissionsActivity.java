@@ -158,6 +158,7 @@ public class MissionsActivity extends AppCompatActivity  {
                             uid = task.getResult().getToken();
                             if (firstTimeRequestingMissions) {
                                 getMissions();
+                                firstTimeRequestingMissions = false;
                             }
 
                         } else {
@@ -173,8 +174,6 @@ public class MissionsActivity extends AppCompatActivity  {
             //get missions progress
             missionAsyncTask.getMissionsProgress(uid, mRequestQueue, missionProgressResponseListener);
 
-            firstTimeRequestingMissions = false;
-
         } catch (InterruptedException | /*ExecutionException | */NullPointerException e) {
             if(missionsProgress == null)
                 missionsProgress = new HashMap<>();
@@ -186,7 +185,12 @@ public class MissionsActivity extends AppCompatActivity  {
     {
         @Override
         public void onResponse (List<MissionItem> response){
-            missions.addAll(response);
+            //Add the missions the server sent that are not on the missions list
+            for(MissionItem m : response) {
+                if (!missions.contains(m))
+                    missions.add(m);
+            }
+            //missions.addAll(response);
             missionsAdapter.notifyDataSetChanged();
             missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
             missionRequestsRemaining.decreaseRemainingRequests();

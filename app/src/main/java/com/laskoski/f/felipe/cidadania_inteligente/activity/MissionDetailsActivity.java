@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -135,8 +136,8 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
 
         taskscompleted = findViewById(R.id.tasksCompleted);
-        getTasksFromDB();
-        loadUserTasks();
+        setAdapter();
+        validateUserAndGetTasks();
     }
 
     @Override
@@ -231,22 +232,24 @@ public class MissionDetailsActivity extends AppCompatActivity {
         while (it.hasNext()) {
             Map.Entry task = ((Map.Entry) it.next());
             if(tasksProgress.get(task.getKey()) != null) {
-                tasksMap.get(task.getKey()).setProgress((Integer) tasksProgress.get(task.getKey()));
-                Log.w("Task Progress: ", tasksMap.get(task.getKey()).getProgress().toString());
+                ((AbstractTask) task.getValue()).setProgress((Integer) tasksProgress.get(task.getKey()));
+                Log.w("Task Progress: ", ((AbstractTask) task.getValue()).getProgress().toString());
             }
-            else tasksProgress.put(task.getKey().toString(), MissionProgress.TASK_NOT_STARTED);
+            else
+                tasksProgress.put(task.getKey().toString(), MissionProgress.TASK_NOT_STARTED);
+            if(!tasks.contains((AbstractTask) task.getValue()))
+                tasks.add((AbstractTask) task.getValue());
         }
-            tasks.addAll(tasksMap.values());
-            taskAdapter.notifyDataSetChanged();
-            Integer countCompletedTasks = 0;
-            for(AbstractTask task : tasks)
-                if(task.isCompleted())
-                    countCompletedTasks++;
-            progressBar.setMax(tasks.size());
-            progressBar.setProgress(countCompletedTasks);
-            taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
-            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
-                setMissionCompletedView(false);
+        taskAdapter.notifyDataSetChanged();
+        Integer countCompletedTasks = 0;
+        for(AbstractTask task : tasks)
+            if(task.isCompleted())
+                countCompletedTasks++;
+        progressBar.setMax(tasks.size());
+        progressBar.setProgress(countCompletedTasks);
+        taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
+        if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
+            setMissionCompletedView(false);
 //        }
 //        else{
           //  Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();
@@ -264,7 +267,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
     };
 
-    private void loadUserTasks() {
+    private void validateUserAndGetTasks() {
         //idlingSignIn.increment();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseUser.getIdToken(true)
@@ -272,10 +275,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
-
-                            missionAsyncTask.getTasks(uid, mRequestQueue, onTasksResponse, currentMission.getTaskIDs());
-                            missionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
-                            //taskAsyncTask.execute(currentMission.getTaskIDs());
+                            getTasksFromDB();
                         } else {
                             // Handle error -> task.getException();
                         }
@@ -283,32 +283,42 @@ public class MissionDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    private void getTasksFromDB() {
+        missionAsyncTask.getTasks(uid, mRequestQueue, onTasksResponse, currentMission.getTaskIDs());
+        missionAsyncTask.getMissionProgress(uid, mRequestQueue, onMissionProgressResponse, currentMission.get_id());
+    }
 
-
-
-    private int getTasksFromDB() {
+    private void setAdapter(){
 
         //Database initialization
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
+//        mFirebaseDatabase = FirebaseDatabase.getInstance();
+//        tasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
         //Adapter Initialization
         taskAdapter = new TaskAdapter(this,tasks);
+        final SwipeRefreshLayout swipeRefreshLayout = (findViewById(R.id.swipeRefresh));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getTasksFromDB();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         //set List view and adapter
         ListView taskList = (ListView) findViewById(R.id.tasksList);
         taskList.setAdapter(taskAdapter);
-
-        ArrayList<String> answers = new ArrayList<>();
-        if(currentMission.get_id() == null) {
-            answers.add("Pablo Picasso");
-            answers.add("Leonardo da Vinci");
-            answers.add("Michelangelo Buonarroti");
-            answers.add("Claude Monet");
-
-            tasks.add(new QuestionTask("Pinturas", "Quem pintou o quadro Mona Lisa?", answers, 2));
-            tasks.add(new QuestionTask("Esculturas", "test question 2?", answers, 4));
-        }
+//
+//        ArrayList<String> answers = new ArrayList<>();
+//        if(currentMission.get_id() == null) {
+//            answers.add("Pablo Picasso");
+//            answers.add("Leonardo da Vinci");
+//            answers.add("Michelangelo Buonarroti");
+//            answers.add("Claude Monet");
+//
+//            tasks.add(new QuestionTask("Pinturas", "Quem pintou o quadro Mona Lisa?", answers, 2));
+//            tasks.add(new QuestionTask("Esculturas", "test question 2?", answers, 4));
+//        }
 
         //Add action to list item
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -321,8 +331,6 @@ public class MissionDetailsActivity extends AppCompatActivity {
             }
         });
 
-        return 0;
-        //return tasks;
     }
 }
 //***** set internal storage

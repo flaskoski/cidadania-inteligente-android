@@ -61,4 +61,9 @@ public abstract class AbstractTask implements Serializable{
     public Boolean isCompleted(){
         return completed;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.get_id().equals(((AbstractTask)obj).get_id());
+    }
 }

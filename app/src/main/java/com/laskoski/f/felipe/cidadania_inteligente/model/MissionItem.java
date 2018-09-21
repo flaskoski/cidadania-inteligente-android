@@ -109,6 +109,9 @@ public class MissionItem implements Serializable{
         this.description = description;
     }
 
-
+    @Override
+    public boolean equals(Object obj) {
+        return this.get_id().equals(((MissionItem)obj).get_id());
+    }
 
 }
