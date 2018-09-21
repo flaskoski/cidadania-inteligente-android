@@ -28,45 +28,19 @@ import java.util.Map;
 public class MissionAsyncTask {
     public static final String IMAGE_TYPE_MISSION_IMAGE = "missionImage";
     public static final String IMAGE_TYPE_ICON = "icon";
-    AsyncResponse delegate = null;
     ServerProperties serverProperties;
 
     public MissionAsyncTask(Context applicationContext){
         serverProperties = new ServerProperties(applicationContext);
     }
-    /*@Override
-    protected void onPreExecute() {
-        // before the network request begins, show a progress indicator
-    }
-    @Override
-    protected List<MissionItem> doInBackground(String... params) {
-        if(params == null || params[0] == null)
-            return null;
-        String uid = params[0];
 
-
-        // Create a new RestTemplate instance
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            // Set the Accept header
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.set("Authorization", uid);
-
-            //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-            //Create the entity request (body plus headers)
-            HttpEntity<String> request = new HttpEntity<>("body", headers);
-            //Send HTTP POST request with the token id and receive the list of missions
-            MissionItem[] missionsFromDB = restTemplate.postForObject(SERVER_MISSIONS_URL, request, MissionItem[].class);
-            Log.w("http response", Arrays.toString(missionsFromDB));
-
-            return Arrays.asList(missionsFromDB);
-
-        }catch (Exception e) {
-            Log.e("http request:", e.getMessage(), e);
-            return null;
-        }
-    }*/
+    /**
+     *
+     * @param uid - Player id for server authorization
+     * @param queue - https request queue
+     * @param responseListener
+     * @throws InterruptedException
+     */
     public void getMissionsGson(String uid, RequestQueue queue, Response.Listener<List<MissionItem>> responseListener) throws InterruptedException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
@@ -82,23 +56,19 @@ public class MissionAsyncTask {
         });
         queue.add(request);
     }
-    public void getMissionProgress(String uid, RequestQueue queue, Response.Listener<MissionProgress> responseListener, String id) {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("Authorization", uid);
-        headers.put("missionID", id);
 
-        Type hashType = new TypeToken<MissionProgress>() {}.getType();
-        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<MissionProgress> request = new GsonRequest<>(serverProperties.SERVER_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
-        queue.add(request);
-    }
 
+    /**
+     /**
+     *
+     * @param uid - Player id for server authorization
+     * @param queue - https request queue
+     * @param responseListener
+     * @param missionId
+     * @param taskId
+     * @param taskProgress - Progress of the task (from -1 to 100) as string
+     */
     public void setMissionProgress(String uid, RequestQueue queue, Response.Listener<Boolean> responseListener, String missionId, String taskId, String taskProgress) {
         Hashtable<String, String> headers = new Hashtable<>();
         Hashtable<String, String> params = new Hashtable();
@@ -121,21 +91,47 @@ public class MissionAsyncTask {
         queue.add(request);
     }
 
+    /**
+     * @param uid - Player id for server authorization
+     * @param queue - https request queue
+     * @param responseListener
+     * @param missionId
+     */
+    public void getMissionProgress(String uid, RequestQueue queue, Response.Listener<MissionProgress> responseListener, String missionId) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", uid);
+        headers.put("missionID", missionId);
+
+        Type hashType = new TypeToken<MissionProgress>() {}.getType();
+        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+
+        GsonRequest<MissionProgress> request = new GsonRequest<>(serverProperties.SERVER_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
    // private HashMap<String, MissionProgress> missionsProgress;
 
-    public void getMissionProgressGson(String uid, RequestQueue queue, Response.Listener<HashMap<String, MissionProgress>> responseListener, Boolean getAll) throws InterruptedException {
+    /**
+     *
+     /**
+     *
+     * @param uid - Player id for server authorization
+     * @param queue - https request queue
+     * @param responseListener
+     * @throws InterruptedException
+     */
+    public void getMissionsProgress(String uid, RequestQueue queue, Response.Listener<HashMap<String, MissionProgress>> responseListener) throws InterruptedException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
 
         Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
-        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
-        String url;
-        if(getAll)
-            url = serverProperties.SERVER_ALL_MISSION_PROGRESS_URL;
-        else //if(requestType.equals("all"))
-            url = serverProperties.SERVER_MISSION_PROGRESS_URL;
 
-        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(url, hashType, headers, responseListener, new Response.ErrorListener() {
+        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(serverProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //missionsProgress = null;

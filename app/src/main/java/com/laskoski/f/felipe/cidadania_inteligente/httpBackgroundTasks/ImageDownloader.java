@@ -70,7 +70,8 @@ public class ImageDownloader extends AsyncTask<String, Void, Bitmap>{
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        super.onPostExecute(bitmap);
+        if(bitmap != null)
+            super.onPostExecute(bitmap);
     }
 
     private Response.ErrorListener responseError = new Response.ErrorListener() {

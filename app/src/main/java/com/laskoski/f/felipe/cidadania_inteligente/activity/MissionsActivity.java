@@ -1,14 +1,20 @@
 package com.laskoski.f.felipe.cidadania_inteligente.activity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -29,10 +35,8 @@ import com.laskoski.f.felipe.cidadania_inteligente.CreateMissionActivity;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.MissionAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
-import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.missionProgressAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
@@ -41,7 +45,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class MissionsActivity extends AppCompatActivity {
+public class MissionsActivity extends AppCompatActivity  {
 
 
 
@@ -62,7 +66,6 @@ public class MissionsActivity extends AppCompatActivity {
     private Integer missionNumberStarted;
     private HashMap<String, MissionProgress> missionsProgress;
     private RequestQueue mRequestQueue;
-    private SslRequestQueue sslRequestQueue;
     private MissionAsyncTask missionAsyncTask;
     //for getting missions info
     private ParallelRequestsManager missionRequestsRemaining = new ParallelRequestsManager(2);
@@ -130,7 +133,7 @@ public class MissionsActivity extends AppCompatActivity {
                     onSignedInInitialize(user.getDisplayName());
                     //for testing purposes
                     //idlingSignIn.decrement();
-                    getMissions();
+                    validatePlayerAndGetMissions();
                 }else {//user signed out
                     onSignedOutCleanUp();
                     startActivityForResult(
@@ -146,7 +149,7 @@ public class MissionsActivity extends AppCompatActivity {
         };
     }
 
-    private void getMissions() {
+    private void validatePlayerAndGetMissions() {
 
         Task<GetTokenResult> getTokenResultTask = mFirebaseAuth.getCurrentUser().getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
@@ -154,35 +157,29 @@ public class MissionsActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
                             if (firstTimeRequestingMissions) {
-                                try {
-                                    //get missions
-                                   // missions.addAll(new MissionAsyncTask().execute(uid).get());
-                                    //get missions progress
-
-                                    missionAsyncTask.getMissionsGson(uid, mRequestQueue, missionsResponseListener);
-                                    missionAsyncTask.getMissionProgressGson(uid, mRequestQueue, missionProgressResponseListener, true);
-                                   // missionsProgress  = new missionProgressAsyncTask().execute(new String[]{uid, "all"}).get();
-
-                                    firstTimeRequestingMissions = false;
-
-                                } catch (InterruptedException | /*ExecutionException | */NullPointerException e) {
-                                    if(missionsProgress == null)
-                                        missionsProgress = new HashMap<>();
-                                    e.printStackTrace();
-                                }
-
+                                getMissions();
                             }
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
                         }
                     }
-
-                    private void updateMissionsProgress() throws NullPointerException, InterruptedException {
-
-
-                    }
                 });
+    }
+    private void getMissions(){
+        try {
+            //get missions
+            missionAsyncTask.getMissionsGson(uid, mRequestQueue, missionsResponseListener);
+            //get missions progress
+            missionAsyncTask.getMissionsProgress(uid, mRequestQueue, missionProgressResponseListener);
+
+            firstTimeRequestingMissions = false;
+
+        } catch (InterruptedException | /*ExecutionException | */NullPointerException e) {
+            if(missionsProgress == null)
+                missionsProgress = new HashMap<>();
+            e.printStackTrace();
+        }
     }
 
     private Response.Listener<List<MissionItem>> missionsResponseListener = new Response.Listener<List<MissionItem>>()
@@ -210,6 +207,8 @@ public class MissionsActivity extends AppCompatActivity {
         }
     };
 
+
+
     private void updateMissionsProgressAndAdapter() {
         for(MissionItem m : missions){
             MissionProgress missionProgress = missionsProgress.get(m.get_id());
@@ -220,6 +219,7 @@ public class MissionsActivity extends AppCompatActivity {
         missionsAdapter.notifyDataSetChanged();
         missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
     }
+
     //}
     private void setAdapter(){
         missionsAdapter = new MissionAdapter(this, missions);
@@ -228,6 +228,14 @@ public class MissionsActivity extends AppCompatActivity {
 
         //set List view and adapter
         ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
+        final SwipeRefreshLayout swipeRefreshLayout = (findViewById(R.id.swipeRefresh));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getMissions();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, missions);
         missionsListView.setAdapter(missionsAdapter);
 
