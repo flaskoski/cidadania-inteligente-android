@@ -24,6 +24,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,6 +37,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.MissionAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
+import com.laskoski.f.felipe.cidadania_inteligente.featureAdmin.ToggleRouter;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
@@ -69,6 +71,8 @@ public class MissionsActivity extends AppCompatActivity  {
     private MissionAsyncTask missionAsyncTask;
     //for getting missions info
     private ParallelRequestsManager missionRequestsRemaining = new ParallelRequestsManager(2);
+    private ToggleRouter toggleRouter;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -105,6 +109,9 @@ public class MissionsActivity extends AppCompatActivity  {
        //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        toggleRouter = new ToggleRouter(this);
+        toggleRouter.setAllFeatures();
 
         //HTTPS requests queue
         mRequestQueue = new SslRequestQueue(getApplicationContext()).getSslRequesQueue();
@@ -153,7 +160,7 @@ public class MissionsActivity extends AppCompatActivity  {
 
         Task<GetTokenResult> getTokenResultTask = mFirebaseAuth.getCurrentUser().getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                    public void onComplete(Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             uid = task.getResult().getToken();
                             if (firstTimeRequestingMissions) {
@@ -165,8 +172,16 @@ public class MissionsActivity extends AppCompatActivity  {
                             Toast.makeText(getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
                         }
                     }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
+
+
+    //--Get missions List
     private void getMissions(){
         try {
             //get missions
@@ -210,7 +225,7 @@ public class MissionsActivity extends AppCompatActivity  {
                 updateMissionsProgressAndAdapter();
         }
     };
-
+    //--
 
 
     private void updateMissionsProgressAndAdapter() {
@@ -310,10 +325,10 @@ public class MissionsActivity extends AppCompatActivity  {
             case R.id.sign_out_menu:
                 AuthUI.getInstance().signOut(this);
                 return true;
-            case R.id.create_mission:
-                Intent createMissionIntent = new Intent(getApplicationContext(), CreateMissionActivity.class);
-                startActivity(createMissionIntent);
-                return true;
+//            case R.id.create_mission:
+//                Intent createMissionIntent = new Intent(getApplicationContext(), CreateMissionActivity.class);
+//                startActivity(createMissionIntent);
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

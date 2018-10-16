@@ -72,6 +72,15 @@ public class MissionProgress {
                 }else status = MISSION_NOT_STARTED;
     }
 
+    public Integer getXp() {
+        return xp;
+    }
+
+    public void setXp(Integer xp) {
+        this.xp = xp;
+    }
+
+    private Integer xp;
     private String progressId;
     private HashMap<String, Integer> taskProgress;
     private Integer status;

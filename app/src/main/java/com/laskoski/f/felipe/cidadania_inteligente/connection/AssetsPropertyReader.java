@@ -29,7 +29,7 @@ public class AssetsPropertyReader {
     }
 
     public Properties getProperties(String FileName) {
-
+        InputStream inputStream=null;
         try {
             /**
              * getAssets() Return an AssetManager instance for your
@@ -40,7 +40,7 @@ public class AssetsPropertyReader {
             /**
              * Open an asset using ACCESS_STREAMING mode. This
              */
-            InputStream inputStream = assetManager.open(FileName);
+            inputStream = assetManager.open(FileName);
             /**
              * Loads properties from the specified InputStream,
              */
@@ -49,6 +49,15 @@ public class AssetsPropertyReader {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             Log.e("AssetsPropertyReader",e.toString());
+        }
+        finally{
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return properties;
 
