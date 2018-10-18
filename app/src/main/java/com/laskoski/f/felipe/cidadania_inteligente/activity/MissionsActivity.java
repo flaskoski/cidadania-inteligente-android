@@ -79,7 +79,7 @@ public class MissionsActivity extends AppCompatActivity  {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            missionsAdapter.getFilter().filter(null);
+  //         missionsAdapter.getFilter().filter(null);
             switch (item.getItemId()) {
                 case R.id.navigation_notStarted:
                     missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
@@ -206,8 +206,6 @@ public class MissionsActivity extends AppCompatActivity  {
                     missions.add(m);
             }
             //missions.addAll(response);
-            missionsAdapter.notifyDataSetChanged();
-            missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
             missionRequestsRemaining.decreaseRemainingRequests();
             if(missionRequestsRemaining.isComplete())
                 updateMissionsProgressAndAdapter();
@@ -221,6 +219,7 @@ public class MissionsActivity extends AppCompatActivity  {
         public void onResponse (HashMap <String, MissionProgress> response){
             missionsProgress = response;
             missionRequestsRemaining.decreaseRemainingRequests();
+
             if(missionRequestsRemaining.isComplete())
                 updateMissionsProgressAndAdapter();
         }
@@ -240,8 +239,8 @@ public class MissionsActivity extends AppCompatActivity  {
             else m.setStatus(MissionItem.MISSION_NOT_STARTED);
         }
         //filter on ListView
-        missionsAdapter.notifyDataSetChanged();
-        missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setSelectedItemId(navigation.getSelectedItemId());
     }
 
     //}
@@ -258,6 +257,8 @@ public class MissionsActivity extends AppCompatActivity  {
             public void onRefresh() {
                 getMissions();
                 swipeRefreshLayout.setRefreshing(false);
+                BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+                navigation.setSelectedItemId(navigation.getSelectedItemId());
             }
         });
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, missions);
@@ -293,14 +294,18 @@ public class MissionsActivity extends AppCompatActivity  {
             {
                 int missionStartedStatus = data.getIntExtra("missionStatus", 0);
                 missions.get(missionNumberStarted).setStatus(Integer.valueOf(missionStartedStatus));
-                BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-                if(missionStartedStatus == MissionProgress.MISSION_FINISHED)
-                    navigation.setSelectedItemId(R.id.navigation_completed);
-                else if(missionStartedStatus == MissionProgress.MISSION_IN_PROGRESS)
-                    navigation.setSelectedItemId(R.id.navigation_inProgress);
-                else navigation.setSelectedItemId(R.id.navigation_notStarted);
+                updateNavigationOptionList(missionStartedStatus);
             }
         }
+    }
+
+    private void updateNavigationOptionList(int status) {
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        if(status == MissionProgress.MISSION_FINISHED)
+            navigation.setSelectedItemId(R.id.navigation_completed);
+        else if(status == MissionProgress.MISSION_IN_PROGRESS)
+            navigation.setSelectedItemId(R.id.navigation_inProgress);
+        else navigation.setSelectedItemId(R.id.navigation_notStarted);
     }
 
     private void onSignedInInitialize(String username) {

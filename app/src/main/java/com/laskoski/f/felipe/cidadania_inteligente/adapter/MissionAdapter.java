@@ -35,6 +35,7 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
     List<MissionItem> mOriginalValues;
     List<MissionItem> arrayList;
     private RequestQueue requestQueue;
+    private Boolean avoidMultipleCalls=false;
     private MissionAsyncTask missionAsyncTask;
 
     public void setRequestQueue(RequestQueue requestQueue, MissionAsyncTask missionAsyncTask) {
@@ -104,6 +105,7 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
+
                 FilterResults results = new FilterResults();        // Holds the results of a filtering operation in values
                 List<MissionItem> FilteredArrList = new ArrayList<MissionItem>();
 
