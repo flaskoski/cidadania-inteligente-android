@@ -19,43 +19,43 @@ import java.util.concurrent.ExecutionException;
  * Created by Felipe on 7/29/2018.
  */
 
-public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<String, MissionProgress>>{
-    static RequestFuture<HashMap<String, MissionProgress>> future;
-    static CountDownLatch latch = new CountDownLatch(1);
-    private static HashMap<String, MissionProgress> missionsProgress;
-
-    @SuppressWarnings("unchecked")
-    @Override
-        protected HashMap<String, MissionProgress> doInBackground(Object... params) {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("Authorization", (String)params[0]);
-
-        Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
-        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
-
-
-
-//        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, new Response.Listener<HashMap<String, MissionProgress>>() {
-//            @Override
-//            public void onResponse(HashMap<String, MissionProgress> response) {
-//                missionsProgress = response;
-//                latch.countDown();
-//            }
+public class missionProgressAsyncTask{//} extends AsyncTask<Object, Void, HashMap<String, MissionProgress>>{
+//    static RequestFuture<HashMap<String, MissionProgress>> future;
+//    static CountDownLatch latch = new CountDownLatch(1);
+//    private static HashMap<String, MissionProgress> missionsProgress;
 //
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                missionsProgress = null;
-//                latch.countDown();
-//            }
-//        });
-    //    ((RequestQueue)params[1]).add(request);
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return missionsProgress;
+//    @SuppressWarnings("unchecked")
+//    @Override
+//        protected HashMap<String, MissionProgress> doInBackground(Object... params) {
+//        HashMap<String, String> headers = new HashMap<>();
+//        headers.put("Authorization", (String)params[0]);
+//
+//        Type hashType = new TypeToken<HashMap<String, MissionProgress>>() {}.getType();
+//        //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
+//
+//
+//
+////        GsonRequest<HashMap<String, MissionProgress>> request = new GsonRequest<>(ServerProperties.SERVER_ALL_MISSION_PROGRESS_URL, hashType, headers, new Response.Listener<HashMap<String, MissionProgress>>() {
+////            @Override
+////            public void onResponse(HashMap<String, MissionProgress> response) {
+////                missionsProgress = response;
+////                latch.countDown();
+////            }
+////
+////        }, new Response.ErrorListener() {
+////            @Override
+////            public void onErrorResponse(VolleyError error) {
+////                missionsProgress = null;
+////                latch.countDown();
+////            }
+////        });
+//    //    ((RequestQueue)params[1]).add(request);
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        return missionsProgress;
 
       /*
         RestTemplate restTemplate = new RestTemplate();
@@ -96,7 +96,7 @@ public class missionProgressAsyncTask extends AsyncTask<Object, Void, HashMap<St
             Log.e("http request:", e.getMessage(), e);
             return null;
         }*/
-    }
+  //  }
 
 //    public static Bitmap getImageFromDB(String url) throws ExecutionException, InterruptedException, FileNotFoundException {
 //        Bitmap image = new missionProgressAsyncTask().execute(url).get();

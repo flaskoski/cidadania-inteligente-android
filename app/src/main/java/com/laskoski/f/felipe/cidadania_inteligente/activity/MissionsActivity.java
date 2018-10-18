@@ -229,10 +229,15 @@ public class MissionsActivity extends AppCompatActivity  {
 
 
     private void updateMissionsProgressAndAdapter() {
-        for(MissionItem m : missions){
-            MissionProgress missionProgress = missionsProgress.get(m.get_id());
-            if(missionProgress != null)
-                m.setStatus(missionsProgress.get(m.get_id()).getStatus());
+        missionRequestsRemaining.reset();
+        for (MissionItem m : missions) {
+            if(missionsProgress != null) {
+                MissionProgress missionProgress = missionsProgress.get(m.get_id());
+                if (missionProgress != null)
+                    m.setStatus(missionsProgress.get(m.get_id()).getStatus());
+                else m.setStatus(MissionItem.MISSION_NOT_STARTED);
+            }
+            else m.setStatus(MissionItem.MISSION_NOT_STARTED);
         }
         //filter on ListView
         missionsAdapter.notifyDataSetChanged();

@@ -11,6 +11,7 @@ import java.util.Properties;
 
 /**
  * Created by Felipe on 10/8/2018.
+ * Uses application.properties
  */
 
 public class ToggleRouter {
@@ -27,8 +28,10 @@ public class ToggleRouter {
         Enumeration<?> e = applicationProperties.propertyNames();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
-            String value = applicationProperties.getProperty(key);
-            Log.w("Key : " + key, ", Value : " + value);
+            if(key.startsWith("feature.")) {
+                Boolean value = Boolean.valueOf(applicationProperties.getProperty(key));
+                featureConfig.put(key, value);
+            }
         }
     }
 

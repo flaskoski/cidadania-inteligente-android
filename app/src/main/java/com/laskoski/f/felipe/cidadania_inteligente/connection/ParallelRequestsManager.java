@@ -10,15 +10,18 @@ public class ParallelRequestsManager {
 //    public static final int BOTH = 2;
 
     Integer numberOfRequestsToFinish;
+    Integer originalNumberOfRequestsToFinish;
 
     public ParallelRequestsManager(int numberOfRequestsToFinish) {
         this.numberOfRequestsToFinish = numberOfRequestsToFinish;
+        this.originalNumberOfRequestsToFinish = numberOfRequestsToFinish;
     }
     public  Integer getNumberOfRequestsToFinish() {
         return numberOfRequestsToFinish;
     }
     public void    setNumberOfRequestsToFinish(Integer numberOfRequestsToFinish) {
         this.numberOfRequestsToFinish = numberOfRequestsToFinish;
+        this.originalNumberOfRequestsToFinish = numberOfRequestsToFinish;
     }
     public Integer decreaseRemainingRequests() {
         if(numberOfRequestsToFinish > 0)
@@ -27,5 +30,9 @@ public class ParallelRequestsManager {
     }
     public Boolean isComplete(){
         return numberOfRequestsToFinish==0;
+    }
+
+    public void reset() {
+        this.numberOfRequestsToFinish = this.originalNumberOfRequestsToFinish;
     }
 }
