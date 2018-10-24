@@ -1,11 +1,13 @@
 package com.laskoski.f.felipe.cidadania_inteligente.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,6 +34,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.TaskAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.SslRequestQueue;
+import com.laskoski.f.felipe.cidadania_inteligente.featureAdmin.ToggleRouter;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.TaskAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
@@ -68,6 +72,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private RequestQueue mRequestQueue;
     private ParallelRequestsManager taskRequestsRemaining;
     private MissionAsyncTask missionAsyncTask;
+    private ToggleRouter toggleRouter;
 
     private void sendMissionProgressBack(){
         if (missionProgress != null) {
@@ -105,6 +110,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
+        toggleRouter = (ToggleRouter) missionDetails.getSerializableExtra("toggleFeature");
         actionBar.setTitle(currentMission.getMissionName().subSequence(0, currentMission.getMissionName().length()));
 
         //Set mission description on screen
@@ -148,7 +154,12 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
             String taskStartedId = data.getStringExtra("taskId" );
             Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
-            Integer taskStatus = (answeredCorrectly? MissionProgress.TASK_COMPLETED: MissionProgress.TASK_FAILED);
+            Integer taskStatus;
+            if(answeredCorrectly) {
+                taskStatus = MissionProgress.TASK_COMPLETED;
+                Toast.makeText(this, "+"+tasks.get(taskStartedNumber).getXp().toString()+" XP", Toast.LENGTH_LONG).show();
+            }
+            else taskStatus = MissionProgress.TASK_FAILED;
 
             //new UpdatePlayerProgressAsyncTask().execute(params);
             missionAsyncTask.setMissionProgress(uid, mRequestQueue, onSetMissionProgressResponse, currentMission.get_id(), taskStartedId, taskStatus.toString());
@@ -157,8 +168,9 @@ public class MissionDetailsActivity extends AppCompatActivity {
             //--Update missionProgress object and ListView
             missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
             updateListViewWithTaskResult(answeredCorrectly);
-            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
-                setMissionCompletedView(true);
+            if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED) {
+                setMissionCompletedView(true, missionProgress.isAllCorrect());
+            }
             //--
         }
     }
@@ -180,7 +192,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setMissionCompletedView(Boolean animate) {
+    private void setMissionCompletedView(Boolean animate, Boolean AllCorrect) {
         ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
         imgMissionCompleted.setVisibility(View.VISIBLE);
         if(animate) {
@@ -190,6 +202,14 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
         progressBar.setVisibility(View.INVISIBLE);
         taskscompleted.setVisibility(View.INVISIBLE);
+
+        if(AllCorrect) {
+            AlertDialog.Builder dialogs = new AlertDialog.Builder(this, R.style.Theme_AppCompat_Dialog);
+            dialogs.setIcon(R.drawable.gift)
+                    .setMessage("Missão 100% correta: " + currentMission.getXp() + " XP!")
+                    .setNeutralButton("OK", null);
+            dialogs.show();
+        }
     }
 
     private void incrementProgress(){
@@ -249,7 +269,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         progressBar.setProgress(countCompletedTasks);
         taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
         if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
-            setMissionCompletedView(false);
+            setMissionCompletedView(false, missionProgress.isAllCorrect());
 //        }
 //        else{
           //  Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();

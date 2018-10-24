@@ -270,6 +270,7 @@ public class MissionsActivity extends AppCompatActivity  {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent goToMissionDetails = new Intent(getApplicationContext(), MissionDetailsActivity.class);
                 goToMissionDetails.putExtra("mission", missions.get(i));
+                goToMissionDetails.putExtra("toggleFeature", toggleRouter);
                 missionNumberStarted = i;
                 startActivityForResult(goToMissionDetails, ACTIVITY_MISSION_DETAILS);
             }

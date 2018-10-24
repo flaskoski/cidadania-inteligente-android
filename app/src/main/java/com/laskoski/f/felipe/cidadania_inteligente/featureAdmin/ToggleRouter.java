@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.laskoski.f.felipe.cidadania_inteligente.connection.AssetsPropertyReader;
 
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -14,7 +15,7 @@ import java.util.Properties;
  * Uses application.properties
  */
 
-public class ToggleRouter {
+public class ToggleRouter implements Serializable {
     Hashtable<String, Boolean> featureConfig = new Hashtable<>();
     private static Properties applicationProperties;
 

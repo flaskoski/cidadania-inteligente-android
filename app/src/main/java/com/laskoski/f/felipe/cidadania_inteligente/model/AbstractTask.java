@@ -1,6 +1,7 @@
 package com.laskoski.f.felipe.cidadania_inteligente.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by Felipe on 11/25/2017.
@@ -61,6 +62,39 @@ public abstract class AbstractTask implements Serializable{
     public Boolean isCompleted(){
         return completed;
     }
+
+    //experience points that earns if completes the mission
+    private Integer xp=0;
+    //mission difficulty (from 1 to 10)
+    private Integer difficulty=1;
+    //tags to search the mission
+    private List<String> tags;
+
+    public Integer getXp() {
+        return xp;
+    }
+
+    public void setXp(Integer xp) {
+        this.xp = xp;
+    }
+
+
+    public Integer getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Integer difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
 
     @Override
     public boolean equals(Object obj) {

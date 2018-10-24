@@ -89,4 +89,10 @@ public class MissionProgress {
         updateStatus();
         return status;
     }
+
+    public Boolean isAllCorrect(){
+        if(this.status != MISSION_FINISHED)
+            return false;
+        return (!this.taskProgress.containsValue(TASK_FAILED) && !this.taskProgress.containsValue(TASK_NOT_STARTED));
+    }
 }
