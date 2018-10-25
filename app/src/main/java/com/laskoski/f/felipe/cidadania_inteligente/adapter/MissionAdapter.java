@@ -45,8 +45,30 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
     public MissionAdapter(@NonNull Context context, @NonNull List<MissionItem> missionItems) {
         super(context, 0, missionItems);
+        mOriginalValues = missionItems;
         arrayList = missionItems;
     }
+
+    @Override
+    public void add(@Nullable MissionItem object) {
+        mOriginalValues.add(object);
+    }
+
+    @Override
+    public void insert(@Nullable MissionItem object, int index) {
+        mOriginalValues.add(index, object);
+    }
+
+    @Override
+    public void remove(@Nullable MissionItem object) {
+        mOriginalValues.remove(object);
+    }
+
+    @Override
+    public void clear() {
+        mOriginalValues.clear();
+    }
+
     /**
      * Connect MissionItem object with the listView
      */
@@ -87,7 +109,6 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
     @Override
     public Filter getFilter() {
         Filter filter = new Filter() {
-
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint,FilterResults results) {
@@ -107,11 +128,10 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             protected FilterResults performFiltering(CharSequence constraint) {
 
                 FilterResults results = new FilterResults();        // Holds the results of a filtering operation in values
-                List<MissionItem> FilteredArrList = new ArrayList<MissionItem>();
 
-                if (mOriginalValues == null) {
-                    mOriginalValues = new ArrayList<MissionItem>(arrayList); // saves the original data in mOriginalValues
-                }
+//                if (mOriginalValues == null) {
+//                    mOriginalValues = new ArrayList<MissionItem>(arrayList); // saves the original data in mOriginalValues
+//                }
 
                 /********
                  *
@@ -120,20 +140,20 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
                  *
                  ********/
                 if (constraint == null || constraint.length() == 0) {
-
                     // set the Original result to return
                     results.count = mOriginalValues.size();
                     results.values = mOriginalValues;
                 } else {
+                    arrayList = new ArrayList<MissionItem>();
                     for (int i = 0; i < mOriginalValues.size(); i++) {
                         MissionItem data = mOriginalValues.get(i);
                         if (Integer.valueOf(constraint.toString()) == data.getStatus()) {
-                            FilteredArrList.add(data);
+                            arrayList.add(data);
                         }
                     }
                     // set the Filtered result to return
-                    results.count = FilteredArrList.size();
-                    results.values = FilteredArrList;
+                    results.count = arrayList.size();
+                    results.values = arrayList;
                 }
                 return results;
             }

@@ -205,6 +205,12 @@ public class MissionsActivity extends AppCompatActivity  {
                 if (!missions.contains(m))
                     missions.add(m);
             }
+            //remove missions which are not on DB anymore.
+            for(MissionItem m : missions){
+                if(!response.contains(m))
+                    missions.remove(m);
+            }
+            missionsAdapter.notifyDataSetChanged();
             //missions.addAll(response);
             missionRequestsRemaining.decreaseRemainingRequests();
             if(missionRequestsRemaining.isComplete())
