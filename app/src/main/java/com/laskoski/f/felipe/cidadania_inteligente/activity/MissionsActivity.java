@@ -79,7 +79,6 @@ public class MissionsActivity extends AppCompatActivity  {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            //TODO missions loses status that were altered by the user action. After completing mission, update original values.
             missions = missionsAdapter.getOriginalValues();
             missionsAdapter.notifyDataSetChanged();
             switch (item.getItemId()) {
