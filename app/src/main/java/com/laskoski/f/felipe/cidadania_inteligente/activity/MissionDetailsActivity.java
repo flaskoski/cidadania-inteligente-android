@@ -157,7 +157,8 @@ public class MissionDetailsActivity extends AppCompatActivity {
             Integer taskStatus;
             if(answeredCorrectly) {
                 taskStatus = MissionProgress.TASK_COMPLETED;
-                Toast.makeText(this, "+"+tasks.get(taskStartedNumber).getXp().toString()+" XP", Toast.LENGTH_LONG).show();
+                if(toggleRouter.featureIsEnabled("feature.xp"))
+                    Toast.makeText(this, "+"+tasks.get(taskStartedNumber).getXp().toString()+" XP", Toast.LENGTH_LONG).show();
             }
             else taskStatus = MissionProgress.TASK_FAILED;
 
@@ -203,13 +204,14 @@ public class MissionDetailsActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
         taskscompleted.setVisibility(View.INVISIBLE);
 
-        if(AllCorrect) {
-            AlertDialog.Builder dialogs = new AlertDialog.Builder(this, R.style.Theme_AppCompat_Dialog);
-            dialogs.setIcon(R.drawable.gift)
-                    .setMessage("Missão 100% correta: " + currentMission.getXp() + " XP!")
-                    .setNeutralButton("OK", null);
-            dialogs.show();
-        }
+        if(toggleRouter.featureIsEnabled("feature.xp"))
+            if(AllCorrect) {
+                AlertDialog.Builder dialogs = new AlertDialog.Builder(this, R.style.Theme_AppCompat_Dialog);
+                dialogs.setIcon(R.drawable.gift)
+                        .setMessage("Missão 100% correta: " + currentMission.getXp() + " XP!")
+                        .setNeutralButton("OK", null);
+                dialogs.show();
+            }
     }
 
     private void incrementProgress(){

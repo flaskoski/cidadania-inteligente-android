@@ -36,10 +36,10 @@ public class ToggleRouter implements Serializable {
         }
     }
 
-    void setFeature(String feature, Boolean isEnabled){
+    public void setFeature(String feature, Boolean isEnabled){
         featureConfig.put(feature, isEnabled);
     }
-    Boolean featureIsEnabled(String feature){
+    public Boolean featureIsEnabled(String feature){
         return featureConfig.get(feature);
     }
 }
