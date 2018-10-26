@@ -1,7 +1,6 @@
 package com.laskoski.f.felipe.cidadania_inteligente.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -25,18 +24,18 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.net.ssl.SSLSocketFactory;
-
 /**
  * Created by Felipe on 11/25/2017.
  */
 
 public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filterable{
     List<MissionItem> mOriginalValues;
+    List<MissionItem> mListVisible;
     List<MissionItem> arrayList;
     private RequestQueue requestQueue;
     private Boolean avoidMultipleCalls=false;
     private MissionAsyncTask missionAsyncTask;
+    private boolean isFilter = false;
 
     public void setRequestQueue(RequestQueue requestQueue, MissionAsyncTask missionAsyncTask) {
         this.requestQueue = requestQueue;
@@ -45,29 +44,9 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
     public MissionAdapter(@NonNull Context context, @NonNull List<MissionItem> missionItems) {
         super(context, 0, missionItems);
-        mOriginalValues = missionItems;
-        arrayList = missionItems;
+        mListVisible = missionItems;
     }
 
-    @Override
-    public void add(@Nullable MissionItem object) {
-        mOriginalValues.add(object);
-    }
-
-    @Override
-    public void insert(@Nullable MissionItem object, int index) {
-        mOriginalValues.add(index, object);
-    }
-
-    @Override
-    public void remove(@Nullable MissionItem object) {
-        mOriginalValues.remove(object);
-    }
-
-    @Override
-    public void clear() {
-        mOriginalValues.clear();
-    }
 
     /**
      * Connect MissionItem object with the listView
@@ -112,16 +91,11 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint,FilterResults results) {
-
-                arrayList = (List<MissionItem>) results.values; // has the filtered values
+                arrayList = (List<MissionItem>) results.values;
                 clear();
                 addAll(arrayList);
-
-                if (arrayList.size() > 0)
-                    notifyDataSetChanged();
-                else
-                    notifyDataSetInvalidated();
-                //notifyDataSetChanged();  // notifies the data with new filtered values
+               // mListVisible = (List<MissionItem>) results.values; // has the filtered values
+                notifyDataSetChanged();
             }
 
             @Override
@@ -159,5 +133,13 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             }
         };
         return filter;
+    }
+
+    public void setOriginalValues(List<MissionItem> response) {
+        this.mOriginalValues = response;
+    }
+
+    public List<MissionItem> getOriginalValues() {
+        return this.mOriginalValues;
     }
 }

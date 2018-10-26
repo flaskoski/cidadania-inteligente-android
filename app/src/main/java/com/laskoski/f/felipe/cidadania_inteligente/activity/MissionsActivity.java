@@ -79,7 +79,9 @@ public class MissionsActivity extends AppCompatActivity  {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-  //         missionsAdapter.getFilter().filter(null);
+            //TODO missions loses status that were altered by the user action. After completing mission, update original values.
+            missions = missionsAdapter.getOriginalValues();
+            missionsAdapter.notifyDataSetChanged();
             switch (item.getItemId()) {
                 case R.id.navigation_notStarted:
                     missionsAdapter.getFilter().filter(MissionProgress.MISSION_NOT_STARTED.toString());
@@ -201,16 +203,17 @@ public class MissionsActivity extends AppCompatActivity  {
         @Override
         public void onResponse (List<MissionItem> response){
             //Add the missions the server sent that are not on the missions list
-            for(MissionItem m : response) {
-                if (!missions.contains(m))
-                    missions.add(m);
-            }
-            //remove missions which are not on DB anymore.
-            for(MissionItem m : missions){
-                if(!response.contains(m))
-                    missions.remove(m);
-            }
-            missionsAdapter.notifyDataSetChanged();
+//            for(MissionItem m : response) {
+//                if (!missions.contains(m))
+//                    missions.add(m);
+//            }
+//            //remove missions which are not on DB anymore.
+//            for(MissionItem m : missions){
+//                if(!response.contains(m))
+//                    missions.remove(m);
+//            }
+            missions = response;
+            //missionsAdapter.notifyDataSetChanged();
             //missions.addAll(response);
             missionRequestsRemaining.decreaseRemainingRequests();
             if(missionRequestsRemaining.isComplete())
@@ -244,6 +247,7 @@ public class MissionsActivity extends AppCompatActivity  {
             }
             else m.setStatus(MissionItem.MISSION_NOT_STARTED);
         }
+        missionsAdapter.setOriginalValues(missions);
         //filter on ListView
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setSelectedItemId(navigation.getSelectedItemId());
@@ -263,8 +267,8 @@ public class MissionsActivity extends AppCompatActivity  {
             public void onRefresh() {
                 getMissions();
                 swipeRefreshLayout.setRefreshing(false);
-                BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-                navigation.setSelectedItemId(navigation.getSelectedItemId());
+//                BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+//                navigation.setSelectedItemId(navigation.getSelectedItemId());
             }
         });
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, missions);
