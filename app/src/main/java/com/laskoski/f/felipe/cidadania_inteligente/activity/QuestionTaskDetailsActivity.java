@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -11,9 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
+
+import org.w3c.dom.Text;
 
 public class QuestionTaskDetailsActivity extends AppCompatActivity {
     public QuestionTask task;
@@ -32,11 +36,14 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
 //        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
         this.task = getTaskDetails();
+        this.taskResult.putExtra("taskId", task.get_id());
         setQuestion();
         setNumberOfAnswers();
         setAnswers();
         if( this.task.isFinished())
             setFinishedState();
+
+        setTime();
 //        TextView question = (TextView) listItemView.findViewById((R.id.question));
 //        question.setText(((QuestionTask)currentItem).getQuestion());
 //
@@ -46,6 +53,40 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
 //            counter++;
 //        }
 
+    }
+
+    private void setTime() {
+        final TextView timer = (TextView) findViewById(R.id.lb_timer);
+        if(task.getTimeToAnswer() != null && task.getTimeToAnswer() > 0){
+            new CountDownTimer(task.getTimeToAnswer()*1000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    timer.setText(String.valueOf(millisUntilFinished / 1000));
+                }
+                public void onFinish() {
+                    timer.setText("0");
+                    taskResult.putExtra("correct?", false);
+                    setResult(RESULT_OK, taskResult);
+
+                    AlertDialog.Builder dialogs = new AlertDialog.Builder(QuestionTaskDetailsActivity.this, R.style.Theme_AppCompat_Dialog_Alert);
+                    dialogs.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })      .setTitle("Atenção")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setMessage("O seu tempo acabou!")
+                            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialogInterface) {
+                                    finish();
+                                }
+                            });
+                    dialogs.show();
+                }
+            }.start();
+        }
+        else timer.setVisibility(View.GONE);
     }
 
     private void setFinishedState() {
@@ -160,7 +201,6 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
             if(answerView != null)
                 answerView.setOnClickListener(null);
         }
-        taskResult.putExtra("taskId", task.get_id());
         taskResult.putExtra("correct?", answeredCorrectly);
         setResult(RESULT_OK, taskResult);
 

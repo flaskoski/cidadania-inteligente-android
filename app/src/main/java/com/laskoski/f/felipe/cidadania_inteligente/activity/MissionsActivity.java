@@ -259,7 +259,7 @@ public class MissionsActivity extends AppCompatActivity  {
         missionsAdapter.setRequestQueue(mRequestQueue, missionAsyncTask);
 
         //set List view and adapter
-        ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
+        final ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
         final SwipeRefreshLayout swipeRefreshLayout = (findViewById(R.id.swipeRefresh));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -278,7 +278,7 @@ public class MissionsActivity extends AppCompatActivity  {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent goToMissionDetails = new Intent(getApplicationContext(), MissionDetailsActivity.class);
-                goToMissionDetails.putExtra("mission", missions.get(i));
+                goToMissionDetails.putExtra("mission", (MissionItem) missionsListView.getAdapter().getItem(i));
                 goToMissionDetails.putExtra("toggleFeature", toggleRouter);
                 missionNumberStarted = i;
                 startActivityForResult(goToMissionDetails, ACTIVITY_MISSION_DETAILS);
