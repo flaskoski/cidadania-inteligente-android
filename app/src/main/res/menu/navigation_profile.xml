@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_perfil"
+        android:icon="@drawable/baseline_library_add_black_48"
+        android:title="@string/perfil" />
+
+    <item
+        android:id="@+id/navigation_perfil_concluidas"
+        android:icon="@drawable/baseline_play_arrow_black_48"
+        android:title="@string/missoes_concluidas" />
+
+    <item
+        android:id="@+id/navigation_perfil_conquistas"
+        android:icon="@drawable/baseline_done_outline_black_48"
+        android:title="@string/conquistas" />
+
+</menu>

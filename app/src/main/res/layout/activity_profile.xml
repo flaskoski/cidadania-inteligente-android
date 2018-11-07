@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.ProfileActivity">
+
+    <TextView
+        android:id="@+id/lbPlayerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="24dp"
+        android:text="Player Name"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/lbPlayerLevelValue"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation_bar_profile"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/navigation_profile" />
+
+    <TextView
+        android:id="@+id/lbPlayerXp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Pontos"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lbPlayerLevel" />
+
+    <TextView
+        android:id="@+id/lbPlayerXpValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pontos"
+        app:layout_constraintBottom_toTopOf="@+id/playerXpProgress"
+        app:layout_constraintEnd_toEndOf="@+id/playerXpProgress"
+        app:layout_constraintStart_toStartOf="@+id/playerXpProgress" />
+
+    <TextView
+        android:id="@+id/lbPlayerLevel"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_marginTop="4dp"
+        android:text="Nível"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/lbPlayerLevelValue"
+        app:layout_constraintHorizontal_bias="0.529"
+        app:layout_constraintStart_toStartOf="@+id/lbPlayerLevelValue"
+        app:layout_constraintTop_toBottomOf="@+id/lbPlayerLevelValue" />
+
+    <TextView
+        android:id="@+id/lbPlayerLevelValue"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="16dp"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/playerXpProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/lbPlayerXp"
+        app:layout_constraintTop_toBottomOf="@+id/lbPlayerLevel" />
+
+</android.support.constraint.ConstraintLayout>

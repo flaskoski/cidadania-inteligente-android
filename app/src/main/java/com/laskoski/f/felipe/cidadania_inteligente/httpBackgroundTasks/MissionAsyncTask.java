@@ -9,10 +9,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.google.gson.reflect.TypeToken;
-import com.laskoski.f.felipe.cidadania_inteligente.connection.AsyncResponse;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
+import com.laskoski.f.felipe.cidadania_inteligente.model.Player;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import java.lang.reflect.Type;
@@ -204,4 +204,23 @@ public class MissionAsyncTask {
         requestQueue.add(imageRequest);
     }
 
+    public Player getPlayerInfo(String uid, RequestQueue queue, Response.Listener<Player> responseListener) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", uid);
+
+        /*GsonRequest<Player> request = new GsonRequest<>(serverProperties., Player.class, headers, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //missionsProgress = null;
+                //TODO error message
+            }
+        });
+        queue.add(request);*/
+        //----MOCK------
+        Player p = new Player(uid);
+        p.setXp(1050);
+        p.setLevel(10);
+        return p;
+        //----------------
+    }
 }

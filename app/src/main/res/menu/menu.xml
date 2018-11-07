@@ -5,7 +5,12 @@
         android:title="Criar Nova Missão"
         />-->
     <item
+        android:id="@+id/profile_menu"
+        android:title="Perfil"
+        />
+    <item
         android:id="@+id/sign_out_menu"
         android:title="Desconectar"
         />
+
 </menu>

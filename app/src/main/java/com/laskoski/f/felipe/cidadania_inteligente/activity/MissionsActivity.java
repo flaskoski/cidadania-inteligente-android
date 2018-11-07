@@ -345,6 +345,11 @@ public class MissionsActivity extends AppCompatActivity  {
             case R.id.sign_out_menu:
                 AuthUI.getInstance().signOut(this);
                 return true;
+            case R.id.profile_menu:
+                Intent goToPlayerProfileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
+                goToPlayerProfileIntent.putExtra("uid", uid);
+                startActivity(goToPlayerProfileIntent);
+                return true;
 //            case R.id.create_mission:
 //                Intent createMissionIntent = new Intent(getApplicationContext(), CreateMissionActivity.class);
 //                startActivity(createMissionIntent);
