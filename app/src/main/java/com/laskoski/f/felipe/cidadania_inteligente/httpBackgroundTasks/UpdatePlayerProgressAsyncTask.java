@@ -34,7 +34,7 @@ public class UpdatePlayerProgressAsyncTask extends AsyncTask<String, Void, Strin
             headers.set("Authorization", uid);
 
             //this ip corresponds to localhost. Since its virtual machine, it can't find localhost directly
-           // String url=SERVER_PLAYER_URL;
+           // String url=SERVER_MISSION_PROGRESS_UPDATE_URL;
             //Create the entity request (body plus headers)
 
             HttpEntity<String[]> request = new HttpEntity<String[]>(httpParams, headers);

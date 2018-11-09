@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -57,39 +58,30 @@ public class ProfileActivity extends AppCompatActivity {
         mRequestQueue = new SslRequestQueue(getApplicationContext()).getSslRequesQueue();
 
         //get profile information (MOCK)
-        Player p = missionAsyncTask.getPlayerInfo(uid, mRequestQueue, setPlayerInfo);
-        TextView playerName = (TextView) findViewById(R.id.lbPlayerName);
-        TextView level = (TextView) findViewById(R.id.lbPlayerLevelValue);
-        TextView xp = (TextView) findViewById(R.id.lbPlayerXpValue);
-        ProgressBar xpProgress = (ProgressBar) findViewById(R.id.playerXpProgress);
-
-        playerName.setText(p.getUsername());
-        level.setText(p.getLevel().toString());
-        xp.setText(p.getXp().toString());
-        //TODO variable from properties file
-        xpProgress.setMax(10000);
-        xpProgress.setProgress(p.getXp());
-    }
-
-    private void setPlayerInfo() {
-
-
-
+        missionAsyncTask.getPlayerInfo(uid, mRequestQueue, setPlayerInfo);
 
     }
 
     Response.Listener<Player> setPlayerInfo = new Response.Listener<Player>() {
         @Override
         public void onResponse(Player p) {
+            TextView playerName = (TextView) findViewById(R.id.lbPlayerName);
             TextView level = findViewById(R.id.lbPlayerLevelValue);
             TextView xp = findViewById(R.id.lbPlayerXpValue);
             ProgressBar xpProgress = findViewById(R.id.playerXpProgress);
 
-            level.setText(p.getLevel());
-            xp.setText(p.getXp());
-            //TODO variable from properties file
-            xpProgress.setMax(10000);
-            xpProgress.setProgress(p.getXp());
+            try {
+                playerName.setText(p.getUsername());
+                level.setText(p.getLevel().toString());
+                xp.setText(p.getXp().toString());
+            }
+            catch(NullPointerException e){
+                Toast.makeText(ProfileActivity.this, "Erro 401 - Falha ao carregar informações de Perfil", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+                xpProgress.setMax(10000);
+                xpProgress.setProgress(p.getXp());
+
         }
     };
 

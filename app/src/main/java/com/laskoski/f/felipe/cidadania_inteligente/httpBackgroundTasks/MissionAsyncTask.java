@@ -80,7 +80,7 @@ public class MissionAsyncTask {
         Type hashType = new TypeToken<Boolean>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<Boolean> request = new GsonRequest<>(serverProperties.SERVER_PLAYER_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
+        GsonRequest<Boolean> request = new GsonRequest<>(serverProperties.SERVER_MISSION_PROGRESS_UPDATE_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
               //  Log.e("http request:", error.getMessage());
@@ -204,23 +204,22 @@ public class MissionAsyncTask {
         requestQueue.add(imageRequest);
     }
 
-    public Player getPlayerInfo(String uid, RequestQueue queue, Response.Listener<Player> responseListener) {
+    public void getPlayerInfo(String uid, RequestQueue queue, Response.Listener<Player> responseListener) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", uid);
 
-        /*GsonRequest<Player> request = new GsonRequest<>(serverProperties., Player.class, headers, responseListener, new Response.ErrorListener() {
+        GsonRequest<Player> request = new GsonRequest<>(serverProperties.SERVER_PLAYER_INFO_URL, Player.class, headers, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //missionsProgress = null;
-                //TODO error message
             }
         });
-        queue.add(request);*/
+        queue.add(request);
         //----MOCK------
-        Player p = new Player(uid);
-        p.setXp(1050);
-        p.setLevel(10);
-        return p;
+//        Player p = new Player(uid);
+//        p.setXp(1050);
+//        p.setLevel(10);
+//        return p;
         //----------------
     }
 }
