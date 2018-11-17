@@ -20,18 +20,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import java.util.Arrays;
 
 public class CreateTaskActivity extends AppCompatActivity {
-    private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference taskDatabaseReference;
-    private ChildEventListener tasksEventListener;
+//    private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+//    private DatabaseReference taskDatabaseReference;
+//    private ChildEventListener tasksEventListener;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -80,10 +77,10 @@ public class CreateTaskActivity extends AppCompatActivity {
     private void saveTaskInDB() {
         AbstractTask task = new QuestionTask("tituloExample","pergunta alguma coisa?", Arrays.asList(new String[]{"a", "b", "c"}),2);
         //TODO: check if it really saved on the DB.
-        taskDatabaseReference = mDatabase.getReference().child("tasks").push();
-        taskDatabaseReference.setValue(task);
+//        taskDatabaseReference = mDatabase.getReference().child("tasks").push();
+//        taskDatabaseReference.setValue(task);
         Intent taskCreatedIntent = new Intent();
-        taskCreatedIntent.putExtra("taskID",taskDatabaseReference.getKey());
+//        taskCreatedIntent.putExtra("taskID",taskDatabaseReference.getKey());
         setResult(RESULT_OK, taskCreatedIntent);
         Toast.makeText(this, "Tarefa criada!", Toast.LENGTH_SHORT).show();
         finish();

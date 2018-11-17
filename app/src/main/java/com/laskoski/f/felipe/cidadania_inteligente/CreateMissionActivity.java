@@ -8,22 +8,17 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 
 import java.util.List;
 
 public class CreateMissionActivity extends AppCompatActivity {
 
-    private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference missionsDatabaseReference;
-    private DatabaseReference tasksDatabaseReference;
+//    private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+//    private DatabaseReference missionsDatabaseReference;
+//    private DatabaseReference tasksDatabaseReference;
     private List<String> taskIDs;
-    private ChildEventListener tasksEventListener;
+//    private ChildEventListener tasksEventListener;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -39,33 +34,33 @@ public class CreateMissionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_mission);
-        missionsDatabaseReference = mDatabase.getReference().child("missions");
-//        tasksDatabaseReference = mDatabase.getReference().child("missions");
-
-        tasksEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                tasks.add(dataSnapshot.getValue(AbstractTask.class));
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
+//        missionsDatabaseReference = mDatabase.getReference().child("missions");
+////        tasksDatabaseReference = mDatabase.getReference().child("missions");
+//
+//        tasksEventListener = new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+////                tasks.add(dataSnapshot.getValue(AbstractTask.class));
+//            }
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//            }
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//            }
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//            }
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//            }
+//        };
 //        tasksDatabaseReference.addChildEventListener(tasksEventListener);
 
 
     }
     public void addTask(View v){
-        tasksDatabaseReference = mDatabase.getReference().child("tasks");
+//        tasksDatabaseReference = mDatabase.getReference().child("tasks");
         Intent createTaskIntent = new Intent(getApplicationContext(), CreateTaskActivity.class);
         startActivityForResult(createTaskIntent,0);
         //TODO save taskID on mission var
@@ -90,7 +85,7 @@ public class CreateMissionActivity extends AppCompatActivity {
         TextView description = findViewById(R.id.missionDescription);
         MissionItem newMission = new MissionItem(title.getText().toString(), description.getText().toString(),-1,taskIDs);
         //TODO: check if it really save on the DB.
-        missionsDatabaseReference.push().setValue(newMission);
+//        missionsDatabaseReference.push().setValue(newMission);
         Toast.makeText(this, "Missão criada!", Toast.LENGTH_SHORT).show();
         finish();
     }
