@@ -27,9 +27,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.adapter.TaskAdapter;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ParallelRequestsManager;
@@ -57,9 +54,9 @@ public class MissionDetailsActivity extends AppCompatActivity {
     public final int RC_SIGN_IN=1;
     private String username;
 
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference tasksDatabaseReference;
-    private ChildEventListener tasksEventListener;
+//    private FirebaseDatabase mFirebaseDatabase;
+//    private DatabaseReference tasksDatabaseReference;
+//    private ChildEventListener tasksEventListener;
     private ArrayList<AbstractTask> tasks = new ArrayList<>();;
     private TaskAdapter taskAdapter;
     private Integer taskStartedNumber;
