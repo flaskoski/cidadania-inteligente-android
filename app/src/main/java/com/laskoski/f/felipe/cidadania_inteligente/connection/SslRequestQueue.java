@@ -13,7 +13,8 @@ import com.android.volley.toolbox.Volley;
 public class SslRequestQueue {
     RequestQueue mRequestQueue;
     public SslRequestQueue(Context context) {
-        mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, new SslSocketFactoryConfiguration(context).getSslSocketFactory()));
+        mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null));
+        //mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, new SslSocketFactoryConfiguration(context).getSslSocketFactory()));
     }
     public RequestQueue getSslRequesQueue(){
         return mRequestQueue;

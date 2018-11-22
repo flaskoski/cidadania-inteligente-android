@@ -167,7 +167,15 @@ public class MissionDetailsActivity extends AppCompatActivity {
             missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
             updateListViewWithTaskResult(answeredCorrectly);
             if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED) {
-                setMissionCompletedView(true, missionProgress.isAllCorrect());
+                setMissionCompletedView(true);
+                if(toggleRouter.featureIsEnabled("feature.xp"))
+                    if(missionProgress.isAllCorrect()) {
+                        AlertDialog.Builder dialogs = new AlertDialog.Builder(this, R.style.Theme_AppCompat_Dialog);
+                        dialogs.setIcon(R.drawable.gift)
+                                .setMessage("Missão 100% correta: " + currentMission.getXp() + " XP!")
+                                .setNeutralButton("OK", null);
+                        dialogs.show();
+                    }
             }
             //--
         }
@@ -190,7 +198,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setMissionCompletedView(Boolean animate, Boolean AllCorrect) {
+    private void setMissionCompletedView(Boolean animate) {
         ImageView imgMissionCompleted = findViewById(R.id.missionCompleted);
         imgMissionCompleted.setVisibility(View.VISIBLE);
         if(animate) {
@@ -201,14 +209,6 @@ public class MissionDetailsActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
         taskscompleted.setVisibility(View.INVISIBLE);
 
-        if(toggleRouter.featureIsEnabled("feature.xp"))
-            if(AllCorrect) {
-                AlertDialog.Builder dialogs = new AlertDialog.Builder(this, R.style.Theme_AppCompat_Dialog);
-                dialogs.setIcon(R.drawable.gift)
-                        .setMessage("Missão 100% correta: " + currentMission.getXp() + " XP!")
-                        .setNeutralButton("OK", null);
-                dialogs.show();
-            }
     }
 
     private void incrementProgress(){
@@ -268,7 +268,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         progressBar.setProgress(countCompletedTasks);
         taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
         if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED)
-            setMissionCompletedView(false, missionProgress.isAllCorrect());
+            setMissionCompletedView(false);
 //        }
 //        else{
           //  Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();

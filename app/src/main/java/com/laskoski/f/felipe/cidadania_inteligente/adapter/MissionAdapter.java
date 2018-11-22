@@ -30,8 +30,8 @@ import java.util.List;
 
 public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filterable{
     List<MissionItem> mOriginalValues;
-    List<MissionItem> mListVisible;
-    List<MissionItem> arrayList;
+    //List<MissionItem> mListVisible;
+    List<MissionItem> arrayList = new ArrayList<MissionItem>();
     private RequestQueue requestQueue;
     private Boolean avoidMultipleCalls=false;
     private MissionAsyncTask missionAsyncTask;
@@ -44,7 +44,7 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
 
     public MissionAdapter(@NonNull Context context, @NonNull List<MissionItem> missionItems) {
         super(context, 0, missionItems);
-        mListVisible = missionItems;
+        mOriginalValues = missionItems;
     }
 
 
@@ -93,7 +93,9 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
             protected void publishResults(CharSequence constraint,FilterResults results) {
                 arrayList = (List<MissionItem>) results.values;
                 clear();
-                addAll(arrayList);
+
+                if(arrayList != null)
+                    addAll(arrayList);
                // mListVisible = (List<MissionItem>) results.values; // has the filtered values
                 notifyDataSetChanged();
             }
@@ -118,7 +120,8 @@ public class MissionAdapter extends ArrayAdapter<MissionItem> implements Filtera
                     results.count = mOriginalValues.size();
                     results.values = mOriginalValues;
                 } else {
-                    arrayList = new ArrayList<MissionItem>();
+
+                    arrayList.clear();
                     for (int i = 0; i < mOriginalValues.size(); i++) {
                         MissionItem data = mOriginalValues.get(i);
                         if (Integer.valueOf(constraint.toString()) == data.getStatus()) {

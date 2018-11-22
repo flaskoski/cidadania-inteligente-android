@@ -61,6 +61,7 @@ public class MissionsActivity extends AppCompatActivity  {
     //For Mockito functional tests using FB authentication
     private CountingIdlingResource idlingSignIn = new CountingIdlingResource("SIGN_IN");
     //Activity Variables
+    private ListView missionsListView;
     private MissionAdapter missionsAdapter;
     private List<MissionItem> missions = new ArrayList<>();
     //class to deal with request to get Missions list
@@ -80,6 +81,8 @@ public class MissionsActivity extends AppCompatActivity  {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             missions = missionsAdapter.getOriginalValues();
+            //TODO bug with wrong image icons
+            //mRequestQueue.cancelAll(RequestFiler ...);
             missionsAdapter.notifyDataSetChanged();
             switch (item.getItemId()) {
                 case R.id.navigation_notStarted:
@@ -259,7 +262,7 @@ public class MissionsActivity extends AppCompatActivity  {
         missionsAdapter.setRequestQueue(mRequestQueue, missionAsyncTask);
 
         //set List view and adapter
-        final ListView missionsListView = (ListView)(findViewById(R.id.missionsListView));
+        missionsListView = (ListView)(findViewById(R.id.missionsListView));
         final SwipeRefreshLayout swipeRefreshLayout = (findViewById(R.id.swipeRefresh));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -303,7 +306,7 @@ public class MissionsActivity extends AppCompatActivity  {
             if(resultCode == RESULT_OK)
             {
                 int missionStartedStatus = data.getIntExtra("missionStatus", 0);
-                missions.get(missionNumberStarted).setStatus(Integer.valueOf(missionStartedStatus));
+                ((MissionItem)missionsListView.getAdapter().getItem(missionNumberStarted)).setStatus(Integer.valueOf(missionStartedStatus));
                 updateNavigationOptionList(missionStartedStatus);
             }
         }
@@ -324,13 +327,15 @@ public class MissionsActivity extends AppCompatActivity  {
     @Override
     protected void onPause() {
         super.onPause();
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        if(mAuthStateListener != null)
+            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+        if(mAuthStateListener != null)
+            mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

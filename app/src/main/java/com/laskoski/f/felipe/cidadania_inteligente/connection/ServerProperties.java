@@ -27,7 +27,7 @@ public class ServerProperties {
     public ServerProperties(Context context){
         this.assetsPropertyReader = new AssetsPropertyReader(context);
         this.applicationProperties = this.assetsPropertyReader.getProperties("application.properties");
-        this.SERVER_ROOT_SAFE_URL = "https://"+ this.applicationProperties.getProperty("server_ip") + ":" + this.applicationProperties.getProperty("server_port") + "/";
+        this.SERVER_ROOT_SAFE_URL = this.applicationProperties.getProperty("server_protocol")+"://"+ this.applicationProperties.getProperty("server_ip") + ":" + this.applicationProperties.getProperty("server_port") + "/";
         this.SERVER_MISSION_PROGRESS_UPDATE_URL = this.SERVER_ROOT_SAFE_URL+"player/updateOne";
         this.SERVER_MISSION_PROGRESS_URL = this.SERVER_ROOT_SAFE_URL+"player/missionProgress";
         this.SERVER_PLAYER_INFO_URL = this.SERVER_ROOT_SAFE_URL+"player";
