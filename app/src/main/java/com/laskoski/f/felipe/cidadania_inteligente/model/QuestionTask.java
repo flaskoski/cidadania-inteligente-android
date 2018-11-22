@@ -1,5 +1,7 @@
 package com.laskoski.f.felipe.cidadania_inteligente.model;
 
+import com.laskoski.f.felipe.cidadania_inteligente.activity.QuestionTaskDetailsActivity;
+
 import java.security.InvalidParameterException;
 import java.util.List;
 
@@ -79,6 +81,11 @@ public class QuestionTask extends AbstractTask {
     @Override
     public String getType() {
         return "Pergunta";
+    }
+
+    @Override
+    public Class<?> getActivityClass() {
+        return QuestionTaskDetailsActivity.class;
     }
 
 

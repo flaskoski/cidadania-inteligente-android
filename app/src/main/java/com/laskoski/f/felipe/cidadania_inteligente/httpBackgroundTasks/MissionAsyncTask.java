@@ -10,6 +10,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.google.gson.reflect.TypeToken;
 import com.laskoski.f.felipe.cidadania_inteligente.connection.ServerProperties;
+import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.Player;
@@ -142,7 +143,7 @@ public class MissionAsyncTask {
     }
 
 
-    public void getTasks(String uid, RequestQueue queue, Response.Listener<List<QuestionTask>> responseListener, List<String> taskIDs) {
+    public void getTasks(String uid, RequestQueue queue, Response.Listener<List<AbstractTask>> responseListener, List<String> taskIDs) {
         Map<String, String> headers = new Hashtable<>();
         Map<String, String> params = new Hashtable<>();
         headers.put("Authorization", uid);
@@ -156,7 +157,7 @@ public class MissionAsyncTask {
         Type hashType = new TypeToken<List<QuestionTask>>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
-        GsonRequest<List<QuestionTask>> request = new GsonRequest<>(serverProperties.SERVER_TASKS_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
+        GsonRequest<List<AbstractTask>> request = new GsonRequest<>(serverProperties.SERVER_TASKS_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();

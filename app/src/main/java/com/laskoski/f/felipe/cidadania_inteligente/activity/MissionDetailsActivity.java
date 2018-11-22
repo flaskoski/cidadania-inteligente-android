@@ -35,6 +35,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.featureAdmin.ToggleRouter;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.TaskAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
+import com.laskoski.f.felipe.cidadania_inteligente.model.LocationTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
@@ -228,10 +229,17 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
     }
 
-    private Response.Listener<List<QuestionTask>> onTasksResponse = new Response.Listener<List<QuestionTask>>() {
+    private Response.Listener<List<AbstractTask>> onTasksResponse = new Response.Listener<List<AbstractTask>>() {
         @Override
-        public void onResponse(List<QuestionTask> tasksFromDB) {
+        public void onResponse(List<AbstractTask> tasksFromDB) {
             //Log.w("http response", tasksFromDB.toString());
+
+            //***************MOCKING FOR TESTING
+            tasksFromDB.clear();
+            tasks.add(new LocationTask("First location task", "Descrição da task de localização"));
+            taskAdapter.notifyDataSetChanged();
+            //***************
+
 
             //if(tasksFromDB == null?
             Log.w("http response", currentMission.getTaskIDs().toString());
@@ -240,8 +248,10 @@ public class MissionDetailsActivity extends AppCompatActivity {
                 tasksMap.put(task.get_id(), task);
             }
             taskRequestsRemaining.decreaseRemainingRequests();
-            if(taskRequestsRemaining.isComplete())
-                updateTasksProgress();
+
+            //***************MOCKING FOR TESTING
+//            if(taskRequestsRemaining.isComplete())
+//                updateTasksProgress();
         }
     };
 
@@ -281,8 +291,11 @@ public class MissionDetailsActivity extends AppCompatActivity {
             //if(response == null?
             missionProgress = response;
             taskRequestsRemaining.decreaseRemainingRequests();
-            if(taskRequestsRemaining.isComplete())
-                updateTasksProgress();
+
+            //***************MOCKING FOR TESTING
+//            if(taskRequestsRemaining.isComplete())
+//                updateTasksProgress();
+            //**********
         }
     };
 
@@ -343,7 +356,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int taskNumber, long l) {
-                Intent goToTaskDetails = new Intent(getApplicationContext(), QuestionTaskDetailsActivity.class);
+                Intent goToTaskDetails = new Intent(getApplicationContext(), tasks.get(taskNumber).getActivityClass());
                 taskStartedNumber = taskNumber;
                 goToTaskDetails.putExtra("task", tasks.get(taskNumber));
                 startActivityForResult(goToTaskDetails, taskNumber);
