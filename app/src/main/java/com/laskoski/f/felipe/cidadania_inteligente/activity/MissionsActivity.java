@@ -172,6 +172,7 @@ public class MissionsActivity extends AppCompatActivity  {
                                 firstTimeRequestingMissions = false;
                             }
 
+                            
                         } else {
                             Toast.makeText(getApplicationContext(), "Conexão não estabelecida. Verifique se está com a internet ativada.", Toast.LENGTH_SHORT).show();
                         }
