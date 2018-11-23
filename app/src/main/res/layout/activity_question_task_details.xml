@@ -23,12 +23,28 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/lb_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:fontFamily="sans-serif"
+        android:text="Tempo: "
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/question" />
+
+    <TextView
         android:id="@+id/answer1"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:background="@drawable/transition_wrong"
@@ -41,16 +57,17 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/answer3"
         app:layout_constraintEnd_toStartOf="@+id/answer2"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lb_timer"
-        app:layout_constraintVertical_chainStyle="spread_inside" />
+        app:layout_constraintVertical_chainStyle="spread" />
 
     <TextView
         android:id="@+id/answer2"
-        android:layout_width="177dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
@@ -63,7 +80,7 @@
         android:textAlignment="center"
         android:textColor="@android:color/holo_green_dark"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/answer3"
+        app:layout_constraintBottom_toTopOf="@+id/answer4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/answer1"
         app:layout_constraintTop_toBottomOf="@+id/lb_timer" />
@@ -72,10 +89,10 @@
         android:id="@+id/answer3"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:background="@drawable/transition_wrong"
         android:fontFamily="casual"
@@ -95,10 +112,11 @@
         android:id="@+id/answer4"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:background="@drawable/transition_wrong"
         android:fontFamily="casual"
@@ -110,18 +128,18 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/answer6"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/answer1"
+        app:layout_constraintStart_toEndOf="@+id/answer3"
         app:layout_constraintTop_toBottomOf="@+id/answer2"
-        app:layout_constraintVertical_chainStyle="spread_inside" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/answer5"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:background="@drawable/transition_wrong"
         android:fontFamily="casual"
@@ -141,10 +159,10 @@
         android:id="@+id/answer6"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:background="@drawable/transition_wrong"
         android:fontFamily="casual"
@@ -158,22 +176,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/answer1"
         app:layout_constraintTop_toBottomOf="@+id/answer4" />
-
-    <TextView
-        android:id="@+id/lb_timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:fontFamily="sans-serif"
-        android:text="Tempo: "
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/question" />
 
 </android.support.constraint.ConstraintLayout>
