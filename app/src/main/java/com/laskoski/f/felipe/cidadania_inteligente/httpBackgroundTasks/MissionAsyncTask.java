@@ -154,7 +154,7 @@ public class MissionAsyncTask {
             i++;
         }
 
-        Type hashType = new TypeToken<List<QuestionTask>>() {}.getType();
+        Type hashType = new TypeToken<List<AbstractTask>>() {}.getType();
         //Class hashType = (new HashMap<String, MissionProgress>()).getClass();
 
         GsonRequest<List<AbstractTask>> request = new GsonRequest<>(serverProperties.SERVER_TASKS_URL, hashType, headers, params, responseListener, new Response.ErrorListener() {

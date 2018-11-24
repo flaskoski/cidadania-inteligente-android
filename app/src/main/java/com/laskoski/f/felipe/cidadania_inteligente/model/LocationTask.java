@@ -48,7 +48,7 @@ public class LocationTask extends AbstractTask {
     }
     @Override
     public String getType() {
-        return "Pergunta";
+        return "Localização";
     }
 
     @Override

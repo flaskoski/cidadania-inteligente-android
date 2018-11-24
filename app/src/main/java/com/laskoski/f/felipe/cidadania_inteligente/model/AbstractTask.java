@@ -28,7 +28,6 @@ public abstract class AbstractTask implements Serializable{
             finished=true;
     }
 
-    protected String type="Tarefa Genérica";
     public AbstractTask(){}
     public static final int TIMER_OFF = -1;
 
@@ -45,13 +44,8 @@ public abstract class AbstractTask implements Serializable{
     public void setTitle(String title){
         this.title = title;
     }
-    public void setType(String type){
-        this.type = type;
-    }
 
-    public String getType(){
-        return type;
-    }
+    public String getType(){return "Tarefa Genérica";}
 
     public void setFinished(Boolean finished) {
         this.finished = finished;

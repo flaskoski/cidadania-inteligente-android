@@ -232,16 +232,8 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private Response.Listener<List<AbstractTask>> onTasksResponse = new Response.Listener<List<AbstractTask>>() {
         @Override
         public void onResponse(List<AbstractTask> tasksFromDB) {
-            //Log.w("http response", tasksFromDB.toString());
 
-            //***************MOCKING FOR TESTING
-            tasksFromDB.clear();
-            tasks.add(new LocationTask("First location task", "Descrição da task de localização"));
-            taskAdapter.notifyDataSetChanged();
-            //***************
-
-
-            //if(tasksFromDB == null?
+            //TODO if(tasksFromDB == null? nullpointer exception
             Log.w("http response", currentMission.getTaskIDs().toString());
             tasksMap = new HashMap<>();
             for(AbstractTask task : tasksFromDB){
@@ -249,14 +241,29 @@ public class MissionDetailsActivity extends AppCompatActivity {
             }
             taskRequestsRemaining.decreaseRemainingRequests();
 
-            //***************MOCKING FOR TESTING
-//            if(taskRequestsRemaining.isComplete())
-//                updateTasksProgress();
+            if(taskRequestsRemaining.isComplete())
+                updateTasksProgress();
+        }
+    };
+
+    private Response.Listener<MissionProgress> onMissionProgressResponse = new Response.Listener<MissionProgress>() {
+        @Override
+        public void onResponse(MissionProgress response) {
+            //if(response == null?
+            missionProgress = response;
+            taskRequestsRemaining.decreaseRemainingRequests();
+
+            if(taskRequestsRemaining.isComplete())
+                updateTasksProgress();
         }
     };
 
     private void updateTasksProgress() {
         HashMap<String, Integer> tasksProgress = missionProgress.getTaskProgress();
+        if(tasksMap == null) {
+            Toast.makeText(this, "Falha ao carregar tarefas das missões.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Iterator it = tasksMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry task = ((Map.Entry) it.next());
@@ -284,20 +291,6 @@ public class MissionDetailsActivity extends AppCompatActivity {
           //  Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();
         //}
     }
-
-    private Response.Listener<MissionProgress> onMissionProgressResponse = new Response.Listener<MissionProgress>() {
-        @Override
-        public void onResponse(MissionProgress response) {
-            //if(response == null?
-            missionProgress = response;
-            taskRequestsRemaining.decreaseRemainingRequests();
-
-            //***************MOCKING FOR TESTING
-//            if(taskRequestsRemaining.isComplete())
-//                updateTasksProgress();
-            //**********
-        }
-    };
 
     private void validateUserAndGetTasks() {
         //idlingSignIn.increment();
