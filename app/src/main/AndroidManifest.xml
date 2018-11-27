@@ -3,6 +3,7 @@
     package="com.laskoski.f.felipe.cidadania_inteligente">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -63,7 +64,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".activity.LocationActivity"
+            android:name=".activity.LocationTaskActivity"
             android:label="@string/title_activity_location">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

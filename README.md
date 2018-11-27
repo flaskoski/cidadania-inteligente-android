@@ -1,9 +1,9 @@
 **Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
-
-*We recommend that you open this README in another tab as you perform the taskIDs below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
-
+##Setup
+1. Get the google-services.json for firebase-auth according to the instructions from Google and put it on **app** folder.
+2. Get the media files needed. To be posted on a repository soon...
+2. If using https, put the certificate .p12 file on **app/src/main/res/raw** folder.
 ---
 
 ## Edit a file

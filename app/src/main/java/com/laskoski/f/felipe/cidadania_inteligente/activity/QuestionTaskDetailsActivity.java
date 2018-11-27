@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.laskoski.f.felipe.cidadania_inteligente.R;
+import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import org.w3c.dom.Text;
@@ -65,7 +66,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
                 }
                 public void onFinish() {
                     timer.setText("0");
-                    taskResult.putExtra("correct?", false);
+                    taskResult.putExtra("taskStatus", MissionProgress.TASK_FAILED);
                     setResult(RESULT_OK, taskResult);
 
                     AlertDialog.Builder dialogs = new AlertDialog.Builder(QuestionTaskDetailsActivity.this, R.style.Theme_AppCompat_Dialog_Alert);
@@ -124,7 +125,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
                 .setMessage("Quer mesmo sair da questão? Você não vai poder voltar para responder depois.")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        taskResult.putExtra("correct?", false);
+                        taskResult.putExtra("taskStatus", MissionProgress.TASK_FAILED);
                         setResult(RESULT_OK, taskResult);
                         finish();
                     }
@@ -176,11 +177,11 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
     public void checkAnswer(View v){
         TextView correct_answer = findViewById(answerViewIds[task.getCorrectAnswer()-1]);
         TextView user_answer = (TextView) v;
-        Boolean answeredCorrectly = false;
+        Integer taskStatus = MissionProgress.TASK_FAILED;
 
         //check if the answer is correct
         if(correct_answer == user_answer)
-            answeredCorrectly = true;
+            taskStatus = MissionProgress.TASK_COMPLETED;
 
         //draw green rectangle on correct option
         correct_answer.setBackground(getResources().getDrawable(R.drawable.transition_right));
@@ -201,7 +202,7 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
             if(answerView != null)
                 answerView.setOnClickListener(null);
         }
-        taskResult.putExtra("correct?", answeredCorrectly);
+        taskResult.putExtra("taskStatus", taskStatus);
         setResult(RESULT_OK, taskResult);
 
         //2 seconds to go back

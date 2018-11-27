@@ -109,7 +109,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
         Intent missionDetails = getIntent();
         currentMission = (MissionItem) missionDetails.getSerializableExtra("mission");
         toggleRouter = (ToggleRouter) missionDetails.getSerializableExtra("toggleFeature");
-        actionBar.setTitle(currentMission.getMissionName().subSequence(0, currentMission.getMissionName().length()));
+        actionBar.setTitle(currentMission.getMissionName());
 
         //Set mission description on screen
         TextView description = (TextView) findViewById(R.id.missionDescription);
@@ -151,22 +151,18 @@ public class MissionDetailsActivity extends AppCompatActivity {
      //   final ArrayList<AbstractTask> tasks = getTasksFromDB(currentMission);
 
             String taskStartedId = data.getStringExtra("taskId" );
-            Boolean answeredCorrectly = data.getBooleanExtra("correct?",false);
-            Integer taskStatus;
-            if(answeredCorrectly) {
-                taskStatus = MissionProgress.TASK_COMPLETED;
+            Integer taskStatus = data.getIntExtra("taskStatus",MissionProgress.TASK_NOT_STARTED);
+            if(taskStatus.equals(MissionProgress.TASK_COMPLETED)) {
                 if(toggleRouter.featureIsEnabled("feature.xp"))
                     Toast.makeText(this, "+"+tasks.get(taskStartedNumber).getXp().toString()+" XP", Toast.LENGTH_LONG).show();
             }
-            else taskStatus = MissionProgress.TASK_FAILED;
-
             //new UpdatePlayerProgressAsyncTask().execute(params);
             missionAsyncTask.setMissionProgress(uid, mRequestQueue, onSetMissionProgressResponse, currentMission.get_id(), taskStartedId, taskStatus.toString());
 
 
             //--Update missionProgress object and ListView
             missionProgress.setOneTaskProgress(taskStartedId, taskStatus);
-            updateListViewWithTaskResult(answeredCorrectly);
+            updateListViewWithTaskResult(taskStatus);
             if(missionProgress.getStatus() == MissionProgress.MISSION_FINISHED) {
                 setMissionCompletedView(true);
                 if(toggleRouter.featureIsEnabled("feature.xp"))
@@ -190,12 +186,14 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
     };
 
-    private void updateListViewWithTaskResult(Boolean answeredCorrectly) {
-        tasks.get(taskStartedNumber).setFinished(true);
-        ((QuestionTask)tasks.get(taskStartedNumber)).setCompleted(answeredCorrectly);
-        taskAdapter.notifyDataSetChanged();
-        if(answeredCorrectly){
-            incrementProgress();
+    private void updateListViewWithTaskResult(Integer taskResult) {
+        if(taskResult.equals(MissionProgress.TASK_COMPLETED) || taskResult.equals(MissionProgress.TASK_FAILED)) {
+            tasks.get(taskStartedNumber).setFinished(true);
+            taskAdapter.notifyDataSetChanged();
+            if (taskResult.equals(MissionProgress.TASK_COMPLETED)) {
+                ((QuestionTask) tasks.get(taskStartedNumber)).setCompleted(true);
+                incrementProgress();
+            }
         }
     }
 
