@@ -16,6 +16,22 @@
         map:layout_constraintTop_toTopOf="parent"
         tools:context=".LocationActivity" />
 
+    <TextView
+        android:id="@+id/lb_destination"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@color/browser_actions_bg_grey"
+        android:text="Destino"
+        android:textSize="18sp"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="@+id/map" />
+
     <Button
         android:id="@+id/btConfirm"
         android:layout_width="wrap_content"

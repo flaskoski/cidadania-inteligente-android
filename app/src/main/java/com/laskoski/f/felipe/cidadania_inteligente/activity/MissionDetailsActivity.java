@@ -43,8 +43,10 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class MissionDetailsActivity extends AppCompatActivity {
     MissionItem currentMission;
@@ -64,7 +66,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView taskscompleted;
     private MissionProgress missionProgress;
-    private HashMap<String, AbstractTask> tasksMap;
+    private Map<Object, Object> tasksMap;
 
     private TaskAsyncTask taskAsyncTask;
     private RequestQueue mRequestQueue;
@@ -233,7 +235,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
 
             //TODO if(tasksFromDB == null? nullpointer exception
             Log.w("http response", currentMission.getTaskIDs().toString());
-            tasksMap = new HashMap<>();
+            tasksMap = new LinkedHashMap<>();
             for(AbstractTask task : tasksFromDB){
                 tasksMap.put(task.get_id(), task);
             }

@@ -20,6 +20,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.share.model.AppInviteContent;
@@ -74,6 +75,9 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
         this.task = new LocationTask();
         this.task = getTaskDetails();
         this.taskResult.putExtra("taskId", task.get_id());
+
+        TextView destinationLabel = findViewById(R.id.lb_destination);
+        destinationLabel.setText("Vá até " + task.getAddress());
     }
 
     @Override

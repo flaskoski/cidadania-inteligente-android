@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by Felipe on 8/11/2018.
@@ -145,7 +146,7 @@ public class MissionAsyncTask {
 
     public void getTasks(String uid, RequestQueue queue, Response.Listener<List<AbstractTask>> responseListener, List<String> taskIDs) {
         Map<String, String> headers = new Hashtable<>();
-        Map<String, String> params = new Hashtable<>();
+        Map<String, String> params = new TreeMap<>();
         headers.put("Authorization", uid);
         String body = taskIDs.toString();
         Integer i=0;

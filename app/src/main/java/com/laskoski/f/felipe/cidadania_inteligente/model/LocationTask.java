@@ -11,9 +11,10 @@ import java.util.List;
 
 public class LocationTask extends AbstractTask {
     private String description;
-    public static Double SIZE_LARGE = 0.005;
-    public static Double SIZE_DEFAULT = 0.003;
-    public static Double SIZE_SMALL = 0.001;
+    public static Double SIZE_XLARGE = 0.003;
+    public static Double SIZE_LARGE = 0.002;
+    public static Double SIZE_DEFAULT = 0.001;
+    public static Double SIZE_SMALL = 0.0005;
 
     /**
      *
