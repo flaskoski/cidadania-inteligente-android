@@ -11,16 +11,21 @@ import java.util.List;
 
 public class LocationTask extends AbstractTask {
     private String description;
+    public static Double SIZE_LARGE = 0.005;
+    public static Double SIZE_DEFAULT = 0.003;
+    public static Double SIZE_SMALL = 0.001;
 
     /**
      *
      * @param title - Title of the task
      * @param description
+     * @param address format location in the map
      */
-    public LocationTask(String title, String description, List<String> answers, Integer correctAnswer, Integer timeToAnswer) {
+    public LocationTask(String title, String description, String address, List<String> answers, Integer correctAnswer, Integer timeToAnswer) {
         this.description = description;
-        checkIfParametersAreValid(answers, correctAnswer);
         this.title = title;
+        this.address = address;
+        this.destinationSize = SIZE_DEFAULT;
     }
 
 
@@ -28,10 +33,13 @@ public class LocationTask extends AbstractTask {
      *
      * @param title - Title of the task
      * @param description
+     * @param address format location in the map
      */
-    public LocationTask(String title, String description) {
+    public LocationTask(String title, String description, String address) {
         this.description = description;
         this.title = title;
+        this.address = address;
+        this.destinationSize = SIZE_DEFAULT;
 
     }
 
@@ -40,29 +48,45 @@ public class LocationTask extends AbstractTask {
     }
 
     private void checkIfParametersAreValid(List<String> answers, Integer correctAnswer){
-        if(answers.size() < 2 || answers.size() > 6 || (correctAnswer < 1 || correctAnswer > 6))
-            throw new InvalidParameterException("Number of answers must be between 2 and 6!");
-        if(correctAnswer > answers.size() )
-            throw new InvalidParameterException("Correct Answer doesn't exist!");
-
+//        if(answers.size() < 2 || answers.size() > 6 || (correctAnswer < 1 || correctAnswer > 6))
+//            throw new InvalidParameterException("Number of answers must be between 2 and 6!");
+//        if(correctAnswer > answers.size() )
+//            throw new InvalidParameterException("Correct Answer doesn't exist!");
     }
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public String getType() {
         return "Localização";
-    }
-
-    @Override
-    public Class<?> getActivityClass() {
-        return LocationTaskActivity.class;
-    }
-
-
-    public String getDescription() {
-        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Double getDestinationSize() {
+        return destinationSize;
+    }
+
+    public void setDestinationSize(Double destinationSize) {
+        this.destinationSize = destinationSize;
+    }
+    private String address;
+    private Double destinationSize;
+
+
+    @Override
+    public Class<?> getActivityClass() {
+        return LocationTaskActivity.class;
+    }
 }

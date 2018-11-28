@@ -18,8 +18,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.facebook.share.model.AppInviteContent;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,6 +37,7 @@ import com.laskoski.f.felipe.cidadania_inteligente.model.LocationTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
 
 import java.io.IOException;
+import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +47,7 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
     private GoogleMap mMap = null;
     private LocationManager locationManager;
     private CircleOptions destinationCircle;
+    private LocationTask task;
 
     @Override
     public LocationTask getTaskDetails() {
@@ -66,7 +71,8 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
         actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.colorActionBar));
 
         //Get info from Task
-        this.task = (LocationTask) getTaskDetails();
+        this.task = new LocationTask();
+        this.task = getTaskDetails();
         this.taskResult.putExtra("taskId", task.get_id());
     }
 
@@ -77,7 +83,7 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                if(mMap != null) {
+                if (mMap != null) {
                     setUserLocation();
                     setDestination();
                 }
@@ -86,9 +92,28 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
         }
     }
 
-//button Go to userlocation
-    //            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-//                    new LatLng(location.getLatitude(), location.getLongitude()), 16));
+    public void goToUserLocation(View v) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
+        Location lastKnowLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude()), 16));
+    }
+    public void goToDestination(View v){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
+        if(destinationCircle != null)
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(destinationCircle.getCenter().latitude, destinationCircle.getCenter().longitude), 15));
+    }
+    public void finishTask(View v){
+        taskResult.putExtra("taskStatus", MissionProgress.TASK_COMPLETED);
+        setResult(RESULT_OK, taskResult);
+        finish();
+    }
+
 
 
     private LocationListener locationListener = new LocationListener() {
@@ -98,9 +123,15 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
             MarkerOptions mp = new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker());
             mp.position(new LatLng(location.getLatitude(), location.getLongitude()));
             mMap.addMarker(mp);
-            if(destinationCircle != null)
+            if(destinationCircle != null) {
                 mMap.addCircle(destinationCircle);
-            checkIfUserArrivedAtDestination(location);
+                Button btConfirmar = findViewById(R.id.btConfirm);
+                if(checkIfUserArrivedAtDestination(location)){
+                    btConfirmar.setVisibility(View.VISIBLE);
+                }
+                else btConfirmar.setVisibility(View.GONE);
+
+            }
 
         }
 
@@ -204,10 +235,13 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
     private void setDestination(){
         Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         try {
-            Address address = geocoder.getFromLocationName("Av. do Matão, 1010, Cidade Universitária, São Paulo-SP", 1).get(0);
-
+            Address address = geocoder.getFromLocationName(this.task.getAddress(), 1).get(0);
+            //"Av. do Matão, 1010, Cidade Universitária, São Paulo-SP"
             //var "polygonSize" should be from task
-            Double polygonSize = 0.05;
+            Double polygonSize;
+            if(this.task.getDestinationSize() != null)
+                polygonSize = this.task.getDestinationSize();
+            else polygonSize = LocationTask.SIZE_DEFAULT;
             List<LatLng> destinationCoords = new ArrayList<>();
             destinationCoords.add(new LatLng(address.getLatitude()+polygonSize, address.getLongitude()+polygonSize));
             destinationCoords.add(new LatLng(address.getLatitude()+polygonSize, address.getLongitude()-polygonSize));
@@ -215,8 +249,8 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
             destinationCoords.add(new LatLng(address.getLatitude()-polygonSize, address.getLongitude()+polygonSize));
             mMap.addPolygon(new PolygonOptions().addAll(destinationCoords).strokeColor(Color.RED));
 
-            LatLng destinationCoord = new LatLng(address.getLatitude()+polygonSize, address.getLongitude()+polygonSize);
-            destinationCircle = new CircleOptions().center(destinationCoord).radius(polygonSize).strokeColor(Color.RED).fillColor(Color.argb(220,100,100,100));
+            LatLng destinationCoord = new LatLng(address.getLatitude(), address.getLongitude());
+            destinationCircle = new CircleOptions().center(destinationCoord).radius(polygonSize).strokeColor(Color.RED).fillColor(Color.argb(150,100,100,100));
             mMap.addCircle(destinationCircle);
 
         } catch (IOException e) {

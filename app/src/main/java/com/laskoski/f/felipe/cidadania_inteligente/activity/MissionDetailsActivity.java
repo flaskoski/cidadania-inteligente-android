@@ -191,7 +191,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
             tasks.get(taskStartedNumber).setFinished(true);
             taskAdapter.notifyDataSetChanged();
             if (taskResult.equals(MissionProgress.TASK_COMPLETED)) {
-                ((QuestionTask) tasks.get(taskStartedNumber)).setCompleted(true);
+                (tasks.get(taskStartedNumber)).setCompleted(true);
                 incrementProgress();
             }
         }

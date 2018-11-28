@@ -86,4 +86,5 @@
     <string name="missoes_concluidas">Missões Concluídas</string>
     <string name="conquistas">Conquistas</string>
     <string name="title_activity_location">Location</string>
+    <string name="concluir">Concluir</string>
 </resources>

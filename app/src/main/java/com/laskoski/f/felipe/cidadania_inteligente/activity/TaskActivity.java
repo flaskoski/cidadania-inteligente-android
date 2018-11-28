@@ -10,6 +10,5 @@ public class TaskActivity extends AppCompatActivity {
     public AbstractTask getTaskDetails(){
         return null;
     }
-    public AbstractTask task;
     public Intent taskResult = new Intent();
 }
