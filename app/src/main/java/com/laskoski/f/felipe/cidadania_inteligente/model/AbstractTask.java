@@ -63,6 +63,8 @@ public abstract class AbstractTask implements Serializable{
     private Integer difficulty=1;
     //tags to search the mission
     private List<String> tags;
+    //Check if the task is available (i.e. open/allowed) for the user to try
+    private Boolean available = true;
 
     public Integer getXp() {
         return xp;
@@ -96,4 +98,12 @@ public abstract class AbstractTask implements Serializable{
     }
 
     public abstract Class<?> getActivityClass();
+
+    public Boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
 }

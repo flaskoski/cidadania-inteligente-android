@@ -8,30 +8,14 @@ import java.util.List;
  */
 
 public class MissionItem implements Serializable{
-    private String missionName;
-    private Integer missionIconId; //Not being used
-    private String description;
-    private String _id;
-    private List<String> taskIDs;
-    private static final Integer NO_IMAGE_PROVIDED = -1;
+
     public List<String> getTaskIDs() {
         return taskIDs;
     }
-    private Integer status = MISSION_NOT_STARTED;
-
     public static final Integer MISSION_FINISHED = 1;
     public static final Integer MISSION_NOT_STARTED = 0;
     public static final Integer MISSION_IN_PROGRESS = 2;
     public static final Integer MISSION_FAILED = -1;
-
-    //experience points that earns if completes the mission
-    private Integer xp=0;
-    //user level needed
-    private Integer level=1;
-    //mission difficulty (from 1 to 10)
-    private Integer difficulty=1;
-    //tags to search the mission
-    private List<String> tags;
 
     public Integer getXp() {
         return xp;
@@ -154,5 +138,30 @@ public class MissionItem implements Serializable{
     public boolean equals(Object obj) {
         return this.get_id().equals(((MissionItem)obj).get_id());
     }
+
+    public Boolean getMandatorySequence() {
+        return mandatorySequence;
+    }
+
+    public void setMandatorySequence(Boolean mandatorySequence) {
+        this.mandatorySequence = mandatorySequence;
+    }
+
+    private Boolean mandatorySequence;
+    private String missionName;
+    private String description;
+    private Integer status = MISSION_NOT_STARTED;
+    private Integer missionIconId; //Not being used
+    private static final Integer NO_IMAGE_PROVIDED = -1;
+    private List<String> taskIDs;
+    //experience points that earns if completes the mission
+    private Integer xp=0;
+    //user level needed
+    private Integer level=1;
+    //mission difficulty (from 1 to 10)
+    private Integer difficulty=1;
+    //tags to search the mission
+    private List<String> tags;
+    private String _id;
 
 }

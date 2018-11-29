@@ -1,6 +1,8 @@
 package com.laskoski.f.felipe.cidadania_inteligente.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,9 @@ import java.util.List;
 
 public class TaskAdapter extends ArrayAdapter<AbstractTask> {
 
+    static Integer availableTaskColor = Color.parseColor("#808080");
+    static Integer unavailableTaskColor = Color.parseColor("#B0B0B0");
+
     public TaskAdapter(@NonNull Context context, @NonNull List<AbstractTask> tasks) {
         super(context, 0, tasks);
     }
@@ -36,8 +41,26 @@ public class TaskAdapter extends ArrayAdapter<AbstractTask> {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.task_item, parent, false);
         AbstractTask currentItem = getItem(position);
         //set title
-        TextView title = (TextView) listItemView.findViewById(R.id.title);
-        title.setText(currentItem.getType() + " - " +  currentItem.getTitle(    ));
+        TextView title = (TextView) listItemView.findViewById(R.id.lbTaskTitle);
+        title.setText(currentItem.getType() + " - " +  currentItem.getTitle());
+        Integer defaultTextColor = title.getCurrentTextColor();
+
+        //get default Font color
+        if(title.getCurrentTextColor() != unavailableTaskColor)
+            availableTaskColor = title.getCurrentTextColor();
+
+        //set if it's available for the user
+        if(currentItem.isAvailable()){
+            if(currentItem.isFinished()) {
+                title.setPaintFlags(title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+            listItemView.setClickable(true);
+            title.setTextColor(availableTaskColor);
+        }
+        else {
+            listItemView.setClickable(false);
+            title.setTextColor(unavailableTaskColor);
+        }
 
         //set checked image
         ImageView checked = (ImageView) listItemView.findViewById(R.id.taskStatus);

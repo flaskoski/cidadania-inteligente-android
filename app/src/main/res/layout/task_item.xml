@@ -17,7 +17,7 @@
         app:srcCompat="@drawable/ic_check_box_outline_blank_black_24dp" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/lbTaskTitle"
         android:layout_width="250dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
