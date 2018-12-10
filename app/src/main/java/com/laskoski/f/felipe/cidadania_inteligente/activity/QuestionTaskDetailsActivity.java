@@ -24,6 +24,8 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
     public QuestionTask task;
     private Boolean goBackConfirmed;
     Intent taskResult = new Intent();
+    //Tempo para responder
+    CountDownTimer countDownTimer;
     public static final int[] answerViewIds = {R.id.answer1, R.id.answer2, R.id.answer3, R.id.answer4, R.id.answer5, R.id.answer6};
 
     @Override
@@ -58,34 +60,35 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
 
     private void setTime() {
         final TextView timer = (TextView) findViewById(R.id.lb_timer);
+        countDownTimer =new CountDownTimer(task.getTimeToAnswer()*1000, 1000) {
+            final TextView timer = (TextView) findViewById(R.id.lb_timer);
+            public void onTick(long millisUntilFinished) {
+                timer.setText(String.valueOf(millisUntilFinished / 1000));
+            }
+            public void onFinish() {
+                timer.setText("0");
+                taskResult.putExtra("taskStatus", MissionProgress.TASK_FAILED);
+                setResult(RESULT_OK, taskResult);
+
+                AlertDialog.Builder dialogs = new AlertDialog.Builder(QuestionTaskDetailsActivity.this, R.style.Theme_AppCompat_Dialog_Alert);
+                dialogs.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })      .setTitle("Atenção")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage("O seu tempo acabou!")
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+                                finish();
+                            }
+                        });
+                dialogs.show();
+            }
+        };
         if(task.getTimeToAnswer() != null && task.getTimeToAnswer() > 0){
-            new CountDownTimer(task.getTimeToAnswer()*1000, 1000) {
-
-                public void onTick(long millisUntilFinished) {
-                    timer.setText(String.valueOf(millisUntilFinished / 1000));
-                }
-                public void onFinish() {
-                    timer.setText("0");
-                    taskResult.putExtra("taskStatus", MissionProgress.TASK_FAILED);
-                    setResult(RESULT_OK, taskResult);
-
-                    AlertDialog.Builder dialogs = new AlertDialog.Builder(QuestionTaskDetailsActivity.this, R.style.Theme_AppCompat_Dialog_Alert);
-                    dialogs.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    })      .setTitle("Atenção")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setMessage("O seu tempo acabou!")
-                            .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                @Override
-                                public void onDismiss(DialogInterface dialogInterface) {
-                                    finish();
-                                }
-                            });
-                    dialogs.show();
-                }
-            }.start();
+            countDownTimer.start();
         }
         else timer.setVisibility(View.GONE);
     }
@@ -131,6 +134,13 @@ public class QuestionTaskDetailsActivity extends AppCompatActivity {
                     }
                 }).setNegativeButton(android.R.string.no, null);
         confirmationDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //if timer is still ticking, finish it
+        countDownTimer.cancel();
     }
 
     /**

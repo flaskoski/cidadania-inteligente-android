@@ -1,8 +1,8 @@
 package com.laskoski.f.felipe.cidadania_inteligente.model;
 
+import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.activity.LocationTaskActivity;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 /**
@@ -89,5 +89,10 @@ public class LocationTask extends AbstractTask {
     @Override
     public Class<?> getActivityClass() {
         return LocationTaskActivity.class;
+    }
+
+    @Override
+    public int getTypeIcon() {
+        return R.mipmap.location_task_icon;
     }
 }

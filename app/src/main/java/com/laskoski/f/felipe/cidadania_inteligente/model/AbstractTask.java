@@ -106,4 +106,6 @@ public abstract class AbstractTask implements Serializable{
     public void setAvailable(Boolean available) {
         this.available = available;
     }
+
+    public abstract int getTypeIcon();
 }

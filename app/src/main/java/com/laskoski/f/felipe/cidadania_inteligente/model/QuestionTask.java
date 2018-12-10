@@ -1,5 +1,6 @@
 package com.laskoski.f.felipe.cidadania_inteligente.model;
 
+import com.laskoski.f.felipe.cidadania_inteligente.R;
 import com.laskoski.f.felipe.cidadania_inteligente.activity.QuestionTaskDetailsActivity;
 
 import java.security.InvalidParameterException;
@@ -77,7 +78,7 @@ public class QuestionTask extends AbstractTask {
         if(correctAnswer > answers.size() )
             throw new InvalidParameterException("Correct Answer doesn't exist!");
 
-    }
+}
     @Override
     public String getType() {
         return "Pergunta";
@@ -86,6 +87,11 @@ public class QuestionTask extends AbstractTask {
     @Override
     public Class<?> getActivityClass() {
         return QuestionTaskDetailsActivity.class;
+    }
+
+    @Override
+    public int getTypeIcon() {
+        return R.mipmap.question_task_icon;
     }
 
 

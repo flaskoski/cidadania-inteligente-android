@@ -139,7 +139,7 @@ public class MissionItem implements Serializable{
         return this.get_id().equals(((MissionItem)obj).get_id());
     }
 
-    public Boolean getMandatorySequence() {
+    public Boolean isMandatorySequence() {
         return mandatorySequence;
     }
 
@@ -147,7 +147,7 @@ public class MissionItem implements Serializable{
         this.mandatorySequence = mandatorySequence;
     }
 
-    private Boolean mandatorySequence;
+    private Boolean mandatorySequence = false;
     private String missionName;
     private String description;
     private Integer status = MISSION_NOT_STARTED;

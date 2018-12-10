@@ -31,6 +31,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.laskoski.f.felipe.cidadania_inteligente.R;
@@ -49,6 +50,8 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
     private LocationManager locationManager;
     private CircleOptions destinationCircle;
     private LocationTask task;
+    Location mLastLocation;
+    Marker mCurrLocationMarker;
 
     @Override
     public LocationTask getTaskDetails() {
@@ -124,9 +127,9 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
         @Override
         public void onLocationChanged(Location location) {
           //  mMap.clear();
-            MarkerOptions mp = new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker());
-            mp.position(new LatLng(location.getLatitude(), location.getLongitude()));
-            mMap.addMarker(mp);
+//            MarkerOptions mp = new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker());
+//            mp.position(new LatLng(location.getLatitude(), location.getLongitude()));
+//            mMap.addMarker(mp);
             if(destinationCircle != null) {
                 mMap.addCircle(destinationCircle);
                 Button btConfirmar = findViewById(R.id.btConfirm);
@@ -134,8 +137,21 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
                     btConfirmar.setVisibility(View.VISIBLE);
                 }
                 else btConfirmar.setVisibility(View.GONE);
-
             }
+
+            mLastLocation = location;
+            if (mCurrLocationMarker != null) {
+                mCurrLocationMarker.remove();
+            }
+
+            //Place current location marker
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title("Sua posição");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            mCurrLocationMarker = mMap.addMarker(markerOptions);
+
 
         }
 
@@ -180,7 +196,8 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-
+        mMap.setMinZoomPreference(6);
+        mMap.setMaxZoomPreference(20);
         //Initialize Location
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -210,13 +227,16 @@ public class LocationTaskActivity extends TaskActivity implements OnMapReadyCall
     private void setUserLocation() {
         @SuppressLint("MissingPermission") Location lastKnowLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         LatLng userLocation = new LatLng(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(userLocation);
+        markerOptions.title("Sua posição");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        mCurrLocationMarker = mMap.addMarker(markerOptions);
         //mMap.clear();
-        Address address = null;
-        mMap.addMarker(new MarkerOptions().position(userLocation));
+
+        //Marker currentLocationMarker = mMap.addMarker(new MarkerOptions().position(userLocation));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
-        mMap.setMinZoomPreference(6);
-        mMap.setMaxZoomPreference(20);
     }
 
     @Override

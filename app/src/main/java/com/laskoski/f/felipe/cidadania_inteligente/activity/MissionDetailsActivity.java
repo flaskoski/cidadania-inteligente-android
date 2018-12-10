@@ -1,6 +1,5 @@
 package com.laskoski.f.felipe.cidadania_inteligente.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -35,10 +34,8 @@ import com.laskoski.f.felipe.cidadania_inteligente.featureAdmin.ToggleRouter;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.MissionAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.httpBackgroundTasks.TaskAsyncTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.AbstractTask;
-import com.laskoski.f.felipe.cidadania_inteligente.model.LocationTask;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionItem;
 import com.laskoski.f.felipe.cidadania_inteligente.model.MissionProgress;
-import com.laskoski.f.felipe.cidadania_inteligente.model.QuestionTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +43,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class MissionDetailsActivity extends AppCompatActivity {
     MissionItem currentMission;
@@ -191,6 +187,8 @@ public class MissionDetailsActivity extends AppCompatActivity {
     private void updateListViewWithTaskResult(Integer taskResult) {
         if(taskResult.equals(MissionProgress.TASK_COMPLETED) || taskResult.equals(MissionProgress.TASK_FAILED)) {
             tasks.get(taskStartedNumber).setFinished(true);
+            tasks.get(taskStartedNumber).setProgress(taskResult);
+            setTasksAvailability();
             taskAdapter.notifyDataSetChanged();
             if (taskResult.equals(MissionProgress.TASK_COMPLETED)) {
                 (tasks.get(taskStartedNumber)).setCompleted(true);
@@ -269,7 +267,7 @@ public class MissionDetailsActivity extends AppCompatActivity {
             Map.Entry task = ((Map.Entry) it.next());
             if(tasksProgress.get(task.getKey()) != null) {
                 ((AbstractTask) task.getValue()).setProgress((Integer) tasksProgress.get(task.getKey()));
-                Log.w("Task Progress: ", ((AbstractTask) task.getValue()).getProgress().toString());
+                Log.i("Task Progress: ", ((AbstractTask) task.getValue()).getProgress().toString());
             }
             else
                 tasksProgress.put(task.getKey().toString(), MissionProgress.TASK_NOT_STARTED);
@@ -278,9 +276,11 @@ public class MissionDetailsActivity extends AppCompatActivity {
         }
         taskAdapter.notifyDataSetChanged();
         Integer countCompletedTasks = 0;
-        for(AbstractTask task : tasks)
-            if(task.isCompleted())
+        for(AbstractTask task : tasks) {
+            if (task.isCompleted())
                 countCompletedTasks++;
+        }
+        setTasksAvailability();
         progressBar.setMax(tasks.size());
         progressBar.setProgress(countCompletedTasks);
         taskscompleted.setText(countCompletedTasks.toString()+"/"+String.valueOf(tasks.size()));
@@ -290,6 +290,21 @@ public class MissionDetailsActivity extends AppCompatActivity {
 //        else{
           //  Toast.makeText(this, "Erro ao carregar detalhes da missão.", Toast.LENGTH_SHORT).show();
         //}
+    }
+
+    //set Availability of tasks if mission is sequenced
+    private void setTasksAvailability(){
+        if(currentMission.isMandatorySequence()) {
+            Boolean firstMissionFound = false;
+            for (AbstractTask task : tasks)
+                if (firstMissionFound)
+                    task.setAvailable(false);
+                else if (task.getProgress().equals(MissionProgress.TASK_NOT_STARTED)) {
+                    firstMissionFound = true;
+                    task.setAvailable(true);
+                }
+                else task.setAvailable(false);
+        }
     }
 
     private void validateUserAndGetTasks() {

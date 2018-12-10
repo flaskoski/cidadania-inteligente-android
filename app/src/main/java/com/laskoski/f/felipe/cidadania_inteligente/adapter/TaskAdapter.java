@@ -44,7 +44,8 @@ public class TaskAdapter extends ArrayAdapter<AbstractTask> {
         TextView title = (TextView) listItemView.findViewById(R.id.lbTaskTitle);
         title.setText(currentItem.getType() + " - " +  currentItem.getTitle());
         Integer defaultTextColor = title.getCurrentTextColor();
-
+        ImageView vTaskItem = listItemView.findViewById(R.id.vTaskIcon);
+        vTaskItem.setImageResource(currentItem.getTypeIcon());
         //get default Font color
         if(title.getCurrentTextColor() != unavailableTaskColor)
             availableTaskColor = title.getCurrentTextColor();
@@ -54,10 +55,11 @@ public class TaskAdapter extends ArrayAdapter<AbstractTask> {
             if(currentItem.isFinished()) {
                 title.setPaintFlags(title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
-            listItemView.setClickable(true);
+            listItemView.setEnabled(true);
             title.setTextColor(availableTaskColor);
         }
         else {
+            listItemView.setEnabled(false);
             listItemView.setClickable(false);
             title.setTextColor(unavailableTaskColor);
         }
